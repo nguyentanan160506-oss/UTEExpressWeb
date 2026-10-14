@@ -24,6 +24,7 @@
             </span>
         </div>
         <form th:action="@{/logout}" method="post">
+            <a th:if="${#lists.contains(roles, 'ROLE_ADMIN')}" th:href="@{/admin}" class="btn btn-primary me-2">Quản trị tài khoản</a>
             <button type="submit" class="btn btn-outline-primary">Đăng xuất</button>
         </form>
     </section>

@@ -83,6 +83,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/register", "/verify-email").permitAll()
                 .requestMatchers(HttpMethod.POST, "/register", "/verify-email", "/verify-email/resend").permitAll()
                 .requestMatchers(HttpMethod.GET, "/account").authenticated()
+                .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 // Business routes still need explicit rules when their controllers are added.
                 .anyRequest().denyAll());
         return http.build();

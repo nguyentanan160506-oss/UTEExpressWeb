@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Chi tiết tài khoản · Admin UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<nav th:replace="~{admin/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5">
+    <a th:href="@{/admin/users}" class="small text-decoration-none">← Danh sách tài khoản</a>
+    <h1 class="h3 fw-bold my-3">Chi tiết tài khoản</h1>
+    <div th:replace="~{admin/fragments :: messages}"></div>
+    <div class="row g-4">
+        <section class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">ID</dt><dd class="col-sm-8" th:text="${user.id}"></dd>
+                    <dt class="col-sm-4">Tên đăng nhập</dt><dd class="col-sm-8" th:text="${user.username}"></dd>
+                    <dt class="col-sm-4">Email</dt><dd class="col-sm-8 text-break" th:text="${user.email}"></dd>
+                    <dt class="col-sm-4">Họ tên</dt><dd class="col-sm-8" th:text="${user.fullName}"></dd>
+                    <dt class="col-sm-4">Số điện thoại</dt><dd class="col-sm-8" th:text="${user.phoneNumber}"></dd>
+                    <dt class="col-sm-4">Trạng thái</dt><dd class="col-sm-8" th:text="${user.status.name()}"></dd>
+                    <dt class="col-sm-4">Tạo lúc (UTC)</dt><dd class="col-sm-8" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                    <dt class="col-sm-4">Cập nhật (UTC)</dt><dd class="col-sm-8" th:text="${#temporals.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                    <dt class="col-sm-4">Vai trò hiện tại</dt><dd class="col-sm-8">
+                        <span th:each="role : ${user.roles}" class="badge text-bg-light me-1" th:text="${role.name}"></span>
+                    </dd>
+                </dl>
+            </div>
+        </section>
+        <section class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <h2 class="h5 fw-bold">Trạng thái tài khoản</h2>
+                <p th:if="${user.self}" class="small text-secondary">Bạn không thể tự khóa tài khoản của mình.</p>
+                <form th:if="${user.status.name() == 'ACTIVE' and !user.self}"
+                      th:action="@{/admin/users/{id}/lock(id=${user.id})}" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Khóa tài khoản</button>
+                </form>
+                <form th:if="${user.status.name() == 'LOCKED'}"
+                      th:action="@{/admin/users/{id}/unlock(id=${user.id})}" method="post">
+                    <button type="submit" class="btn btn-outline-primary">Mở khóa tài khoản</button>
+                </form>
+                <p th:if="${user.status.name() == 'UNVERIFIED'}" class="small text-secondary mb-0">
+                    Tài khoản phải xác minh email. Không khóa hoặc kích hoạt bằng thao tác mở khóa.
+                </p>
+            </div>
+            <div class="card border-0 shadow-sm p-4">
+                <h2 class="h5 fw-bold">Điều chỉnh vai trò</h2>
+                <form th:action="@{/admin/users/{id}/roles(id=${user.id})}" th:object="${roleForm}" method="post">
+                    <div th:each="role : ${availableRoles}" class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" th:field="*{roleIds}" th:value="${role.id}">
+                        <label th:for="${#ids.prev('roleIds')}" th:text="${role.name}" class="form-check-label"></label>
+                    </div>
+                    <p class="small text-secondary mt-3">Không tự loại bỏ quyền ADMIN của mình hoặc vô hiệu hóa ADMIN hoạt động cuối cùng.</p>
+                    <button class="btn btn-primary" type="submit">Lưu vai trò</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

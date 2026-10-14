@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Tài khoản · Admin UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<nav th:replace="~{admin/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5">
+    <p class="admin-eyebrow">QUẢN LÝ TÀI KHOẢN</p>
+    <h1 class="h3 fw-bold mb-4">Danh sách tài khoản</h1>
+    <div th:replace="~{admin/fragments :: messages}"></div>
+    <form th:action="@{/admin/users}" method="get" class="card border-0 shadow-sm p-3 mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="q" class="form-label">Tìm kiếm tài khoản</label>
+                <input id="q" name="q" th:value="${q}" class="form-control" maxlength="150"
+                       placeholder="Email, tên đăng nhập, họ tên hoặc số điện thoại">
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Trạng thái</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="state : ${statuses}" th:value="${state.name()}"
+                            th:text="${state.name()}" th:selected="${state == selectedStatus}"></option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <label for="size" class="form-label">Mỗi trang</label>
+                <select id="size" name="size" class="form-select">
+                    <option th:each="count : ${ {10,20,50,100} }" th:value="${count}"
+                            th:text="${count}" th:selected="${count == size}"></option>
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Tìm kiếm</button></div>
+        </div>
+    </form>
+    <p class="text-secondary"><span th:text="${users.totalElements}"></span> tài khoản phù hợp</p>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr>
+                    <th>ID</th><th>Tài khoản</th><th>Họ tên</th><th>Trạng thái</th><th>Vai trò</th><th></th>
+                </tr></thead>
+                <tbody>
+                <tr th:each="row : ${users.content}">
+                    <td th:text="${row.id}"></td>
+                    <td><span class="fw-semibold" th:text="${row.username}"></span><br>
+                        <span class="small text-secondary" th:text="${row.email}"></span></td>
+                    <td th:text="${row.fullName}"></td>
+                    <td><span class="badge text-bg-light" th:text="${row.status.name()}"></span></td>
+                    <td><span th:each="role : ${row.roles}" class="badge text-bg-light me-1" th:text="${role.name}"></span></td>
+                    <td><a th:href="@{/admin/users/{id}(id=${row.id})}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
+                </tr>
+                <tr th:if="${users.empty}"><td colspan="6" class="text-center text-secondary py-4">Không có tài khoản phù hợp.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <nav th:if="${users.totalPages > 1}" class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4"
+         aria-label="Phân trang tài khoản">
+        <a th:if="${users.hasPrevious()}"
+           th:href="@{/admin/users(q=${q},status=${selectedStatus},size=${size},page=${users.number - 1})}"
+           class="btn btn-outline-primary">Trang trước</a>
+        <span class="text-secondary">Trang <span th:text="${users.number + 1}"></span> / <span th:text="${users.totalPages}"></span></span>
+        <a th:if="${users.hasNext()}"
+           th:href="@{/admin/users(q=${q},status=${selectedStatus},size=${size},page=${users.number + 1})}"
+           class="btn btn-outline-primary">Trang sau</a>
+    </nav>
+</main>
+</body>
+</html>
