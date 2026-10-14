@@ -24,8 +24,12 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = users.findByUsername(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // UserDetailsService retains its framework method name; the login identifier is email.
+        if (email == null || email.isBlank() || email.strip().length() > 150) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        User user = users.findByEmail(email.strip())
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Scalar query avoids dereferencing lazy UserRole.role outside the transaction.
@@ -36,7 +40,7 @@ public class DatabaseUserDetailsService implements UserDetailsService {
             .toList();
 
         return org.springframework.security.core.userdetails.User
-            .withUsername(user.getUsername())
+            .withUsername(user.getEmail())
             .password(user.getPasswordHash())
             .authorities(authorities)
             .disabled(user.getStatus() != UserStatus.ACTIVE)

@@ -1,6 +1,7 @@
 package com.ute.uteexpress.config;
 
 import com.ute.uteexpress.security.SecurityErrorHandlers;
+import com.ute.uteexpress.security.AuthenticationResponseHandlers;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
@@ -42,7 +43,8 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     SecurityFilterChain securityFilterChain(HttpSecurity http,
-            AuthenticationManager authenticationManager, SecurityErrorHandlers errorHandlers) throws Exception {
+            AuthenticationManager authenticationManager, SecurityErrorHandlers errorHandlers,
+            AuthenticationResponseHandlers authenticationHandlers) throws Exception {
         RequestMatcher readOnlyStaticResources = new AndRequestMatcher(
             PathRequest.toStaticResources().atCommonLocations(),
             request -> HttpMethod.GET.matches(request.getMethod())
@@ -51,10 +53,24 @@ public class SecurityConfig {
         http
             .authenticationManager(authenticationManager)
             .csrf(Customizer.withDefaults())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .formLogin(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionFixation(fixation -> fixation.changeSessionId()))
+            .requestCache(cache -> cache.disable())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .successHandler(authenticationHandlers)
+                .failureHandler(authenticationHandlers))
             .httpBasic(AbstractHttpConfigurer::disable)
-            .logout(AbstractHttpConfigurer::disable)
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler(authenticationHandlers))
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint(errorHandlers)
                 .accessDeniedHandler(errorHandlers))
@@ -62,7 +78,10 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(readOnlyStaticResources).permitAll()
                 .requestMatchers("/error").permitAll()
-                // No business routes exist yet. Add explicit rules with their actual controllers.
+                .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/account").authenticated()
+                // Business routes still need explicit rules when their controllers are added.
                 .anyRequest().denyAll());
         return http.build();
     }

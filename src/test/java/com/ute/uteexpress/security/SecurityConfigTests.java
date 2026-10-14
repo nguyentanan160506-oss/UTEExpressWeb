@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
@@ -53,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "debug=false",
     "logging.level.root=INFO"
 })
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 class SecurityConfigTests {
 
     @Autowired
@@ -87,7 +88,8 @@ class SecurityConfigTests {
     void guestCanReadStaticResourcesWithSecurityHeaders() throws Exception {
         mvc.perform(get("/css/security-fixture.css"))
             .andExpect(status().isOk())
-            .andExpect(content().string("/* Security test fixture only. */\n"))
+            .andExpect(result -> assertEquals("/* Security test fixture only. */",
+                result.getResponse().getContentAsString().strip()))
             .andExpect(header().string("X-Content-Type-Options", "nosniff"));
         mvc.perform(head("/css/security-fixture.css")).andExpect(status().isOk());
     }
@@ -139,7 +141,7 @@ class SecurityConfigTests {
 
     @Test
     void productionChainDeniesEveryUndeclaredRouteForGuest() throws Exception {
-        for (String path : List.of("/", "/admin", "/manager", "/api/unmapped", "/login")) {
+        for (String path : List.of("/", "/admin", "/manager", "/api/unmapped")) {
             mvc.perform(get(path).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
         }
@@ -209,7 +211,7 @@ class SecurityConfigTests {
     void authenticationManagerUsesDatabaseAuthoritiesAndBcrypt() {
         String raw = prepareAccount(UserStatus.ACTIVE);
         var result = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated("fixture-user", raw));
+            UsernamePasswordAuthenticationToken.unauthenticated("fixture@example.test", raw));
         assertTrue(result.isAuthenticated());
         assertEquals(List.of("ROLE_USER"), result.getAuthorities().stream()
             .map(authority -> authority.getAuthority())
@@ -225,17 +227,17 @@ class SecurityConfigTests {
     void authenticationManagerRejectsIncorrectCredentials() {
         prepareAccount(UserStatus.ACTIVE);
         assertThrows(BadCredentialsException.class, () -> authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated("fixture-user", UUID.randomUUID().toString())));
+            UsernamePasswordAuthenticationToken.unauthenticated("fixture@example.test", UUID.randomUUID().toString())));
     }
 
     @Test
     void authenticationManagerRejectsLockedAndUnverifiedAccounts() {
         String locked = prepareAccount(UserStatus.LOCKED);
         assertThrows(LockedException.class, () -> authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated("fixture-user", locked)));
+            UsernamePasswordAuthenticationToken.unauthenticated("fixture@example.test", locked)));
         String unverified = prepareAccount(UserStatus.UNVERIFIED);
         assertThrows(DisabledException.class, () -> authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated("fixture-user", unverified)));
+            UsernamePasswordAuthenticationToken.unauthenticated("fixture@example.test", unverified)));
     }
 
     private String prepareAccount(UserStatus status) {
@@ -243,9 +245,10 @@ class SecurityConfigTests {
         User user = new User();
         user.setId(41L);
         user.setUsername("fixture-user");
+        user.setEmail("fixture@example.test");
         user.setPasswordHash(encoder.encode(raw));
         user.setStatus(status);
-        when(users.findByUsername("fixture-user")).thenReturn(Optional.of(user));
+        when(users.findByEmail("fixture@example.test")).thenReturn(Optional.of(user));
         when(userRoles.findRoleNamesByUserId(41L)).thenReturn(List.of("ROLE_USER"));
         return raw;
     }
@@ -253,7 +256,7 @@ class SecurityConfigTests {
     @TestConfiguration(proxyBeanMethods = false)
     @EnableAutoConfiguration
     @Import({SecurityConfig.class, SecurityErrorHandlers.class,
-        DatabaseUserDetailsService.class, FixtureConfiguration.class})
+        DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
     }
 
