@@ -23,6 +23,9 @@
             <p class="auth-eyebrow mb-2">CHÀO MỪNG BẠN TRỞ LẠI</p>
             <h2 class="h3 fw-bold mb-2">Đăng nhập</h2>
             <p class="text-secondary mb-4">Sử dụng email đã liên kết với tài khoản của bạn.</p>
+            <div th:if="${emailVerified != null}" class="alert alert-success" role="status">
+                Email đã được xác minh. Bạn có thể đăng nhập.
+            </div>
             <div th:if="${param.error != null}" class="alert alert-danger" role="alert">
                 Không thể đăng nhập. Vui lòng kiểm tra thông tin hoặc liên hệ quản trị viên.
             </div>
@@ -44,6 +47,8 @@
                 <button type="submit" class="btn btn-primary btn-lg w-100">Đăng nhập</button>
             </form>
             <p class="small text-secondary mt-4 mb-0">Nếu cần hỗ trợ truy cập, hãy liên hệ quản trị viên hệ thống.</p>
+            <p class="small mt-3 mb-0"><a th:href="@{/register}">Tạo tài khoản</a>
+                · <a th:href="@{/verify-email}">Xác minh email</a></p>
         </section>
     </div>
 </main>
