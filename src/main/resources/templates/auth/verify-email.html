@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Xác minh email · UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+<main class="container py-5">
+    <section class="account-card bg-white rounded-4 shadow-sm p-4 p-md-5 mx-auto">
+        <p class="auth-eyebrow">UTEEXPRESS</p>
+        <h1 class="h3 fw-bold mb-2">Xác minh email</h1>
+        <p class="text-secondary mb-4">Nhập mã 6 chữ số trong email. Mã có hiệu lực trong 5 phút.</p>
+        <div th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></div>
+        <div th:if="${error != null}" th:text="${error}" class="alert alert-danger" role="alert"></div>
+        <form th:action="@{/verify-email}" th:object="${verificationForm}" method="post">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" role="alert">
+                <ul class="mb-0"><li th:each="message : ${#fields.errors('*')}" th:text="${message}"></li></ul>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email đăng ký</label>
+                <input th:field="*{email}" type="email" class="form-control" maxlength="150" autocomplete="email" required>
+            </div>
+            <div class="mb-4">
+                <label for="otp" class="form-label">Mã xác minh</label>
+                <input id="otp" name="otp" class="form-control form-control-lg text-center"
+                       type="text" inputmode="numeric" autocomplete="one-time-code"
+                       minlength="6" maxlength="6" pattern="[0-9]{6}" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Xác minh email</button>
+            <button type="submit" th:formaction="@{/verify-email/resend}" formnovalidate
+                    class="btn btn-outline-primary w-100 mt-3">Gửi lại mã</button>
+        </form>
+        <p class="small text-secondary mt-3">Tối đa 5 lần nhập sai mỗi mã. Chờ 60 giây giữa các lần gửi;
+            tối đa 3 mã mỗi giờ và 10 mã mỗi ngày.</p>
+        <a th:href="@{/login}" class="small">Trở về đăng nhập</a>
+    </section>
+</main>
+</body>
+</html>

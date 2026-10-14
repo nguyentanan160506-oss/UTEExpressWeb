@@ -80,6 +80,8 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/register", "/verify-email").permitAll()
+                .requestMatchers(HttpMethod.POST, "/register", "/verify-email", "/verify-email/resend").permitAll()
                 .requestMatchers(HttpMethod.GET, "/account").authenticated()
                 // Business routes still need explicit rules when their controllers are added.
                 .anyRequest().denyAll());

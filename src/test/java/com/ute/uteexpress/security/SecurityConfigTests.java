@@ -4,6 +4,9 @@ import com.ute.uteexpress.config.SecurityConfig;
 import com.ute.uteexpress.entity.User;
 import com.ute.uteexpress.enums.UserStatus;
 import com.ute.uteexpress.repository.UserRepository;
+import com.ute.uteexpress.repository.RoleRepository;
+import com.ute.uteexpress.repository.EmailOtpRepository;
+import com.ute.uteexpress.service.OtpMailSender;
 import com.ute.uteexpress.repository.UserRoleRepository;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +74,15 @@ class SecurityConfigTests {
 
     @MockitoBean
     private UserRoleRepository userRoles;
+
+    @MockitoBean
+    private RoleRepository roles;
+
+    @MockitoBean
+    private EmailOtpRepository otps;
+
+    @MockitoBean
+    private OtpMailSender otpMailSender;
 
     @Test
     void bcryptBeanHashesAndVerifiesWithoutStoringPlaintext() {

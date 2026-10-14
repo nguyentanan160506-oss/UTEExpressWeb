@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký · UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+<main class="container py-5">
+    <section class="account-card bg-white rounded-4 shadow-sm p-4 p-md-5 mx-auto">
+        <p class="auth-eyebrow">UTEEXPRESS</p>
+        <h1 class="h3 fw-bold mb-2">Tạo tài khoản</h1>
+        <p class="text-secondary mb-4">Đăng ký và xác minh email để bắt đầu.</p>
+        <form th:action="@{/register}" th:object="${registrationForm}" method="post">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" role="alert">
+                <ul class="mb-0"><li th:each="message : ${#fields.errors('*')}" th:text="${message}"></li></ul>
+            </div>
+            <div class="mb-3">
+                <label for="fullName" class="form-label">Họ tên</label>
+                <input th:field="*{fullName}" class="form-control" maxlength="100" autocomplete="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập</label>
+                <input th:field="*{username}" class="form-control" minlength="3" maxlength="50"
+                       pattern="[A-Za-z0-9._-]{3,50}" autocomplete="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input th:field="*{email}" type="email" class="form-control" maxlength="150" autocomplete="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                <input th:field="*{phoneNumber}" type="tel" class="form-control" maxlength="16" autocomplete="tel" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <input id="password" name="password" type="password" class="form-control"
+                       minlength="8" maxlength="72" autocomplete="new-password" required>
+                <div class="form-text">Ít nhất 8 ký tự; tối đa 72 byte UTF-8.</div>
+            </div>
+            <div class="mb-4">
+                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" class="form-control"
+                       minlength="8" maxlength="72" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Đăng ký và nhận mã xác minh</button>
+        </form>
+        <p class="small text-secondary mt-4 mb-0">Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+    </section>
+</main>
+</body>
+</html>
