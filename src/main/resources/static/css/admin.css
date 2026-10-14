@@ -1,0 +1,6 @@
+body { background: #f2f5fb; color: #17243d; }
+.admin-nav { background: #14306b; padding: 1rem 0; }
+.admin-eyebrow { color: #1746a2; font-weight: 700; font-size: .75rem; letter-spacing: .1em; }
+.table td, .table th { padding: .9rem; }
+.btn-primary { --bs-btn-bg: #1746a2; --bs-btn-border-color: #1746a2; }
+dd { margin-bottom: 1rem; }

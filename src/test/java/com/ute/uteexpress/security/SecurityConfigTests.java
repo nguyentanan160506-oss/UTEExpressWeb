@@ -153,7 +153,7 @@ class SecurityConfigTests {
 
     @Test
     void productionChainDeniesEveryUndeclaredRouteForGuest() throws Exception {
-        for (String path : List.of("/", "/admin", "/manager", "/api/unmapped")) {
+        for (String path : List.of("/", "/unmapped", "/manager", "/api/unmapped")) {
             mvc.perform(get(path).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
         }
@@ -164,7 +164,7 @@ class SecurityConfigTests {
     void productionChainDeniesUndeclaredRoutesEvenForAdmin() throws Exception {
         mvc.perform(get("/api/unmapped").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden());
-        mvc.perform(get("/admin").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/unmapped").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden());
     }
 
