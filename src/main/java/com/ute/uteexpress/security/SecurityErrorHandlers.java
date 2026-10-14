@@ -45,7 +45,7 @@ public class SecurityErrorHandlers implements AuthenticationEntryPoint, AccessDe
         }
     }
 
-    private boolean prefersJson(HttpServletRequest request) {
+    public boolean prefersJson(HttpServletRequest request) {
         String accept = request.getHeader(HttpHeaders.ACCEPT);
         if (accept == null || accept.isBlank()) {
             return false;

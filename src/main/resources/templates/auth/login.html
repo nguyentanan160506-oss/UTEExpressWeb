@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập · UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+<main class="container py-5">
+    <div class="auth-shell row g-0 mx-auto overflow-hidden">
+        <section class="auth-brand col-lg-5 p-4 p-md-5 d-flex flex-column justify-content-between">
+            <a class="brand-name text-decoration-none" th:href="@{/login}">UTE<span>Express</span></a>
+            <div class="my-5">
+                <p class="text-uppercase small fw-semibold mb-3">Kết nối mọi hành trình</p>
+                <h1 class="display-6 fw-bold mb-3">Giao nhận thuận tiện.<br>Quản lý dễ dàng.</h1>
+                <p class="mb-0">Đăng nhập để tiếp tục sử dụng tài khoản UTEExpress của bạn.</p>
+            </div>
+            <p class="small mb-0">UTEExpress · Hệ thống quản lý giao nhận</p>
+        </section>
+        <section class="col-lg-7 bg-white p-4 p-md-5">
+            <p class="auth-eyebrow mb-2">CHÀO MỪNG BẠN TRỞ LẠI</p>
+            <h2 class="h3 fw-bold mb-2">Đăng nhập</h2>
+            <p class="text-secondary mb-4">Sử dụng email đã liên kết với tài khoản của bạn.</p>
+            <div th:if="${param.error != null}" class="alert alert-danger" role="alert">
+                Không thể đăng nhập. Vui lòng kiểm tra thông tin hoặc liên hệ quản trị viên.
+            </div>
+            <div th:if="${param.logout != null}" class="alert alert-success" role="status">
+                Bạn đã đăng xuất an toàn.
+            </div>
+            <!-- th:action automatically adds Spring Security's CSRF hidden field. -->
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Email</label>
+                    <input id="email" name="email" type="email" class="form-control form-control-lg"
+                           maxlength="150" autocomplete="username" inputmode="email" required autofocus>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">Mật khẩu</label>
+                    <input id="password" name="password" type="password"
+                           class="form-control form-control-lg" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Đăng nhập</button>
+            </form>
+            <p class="small text-secondary mt-4 mb-0">Nếu cần hỗ trợ truy cập, hãy liên hệ quản trị viên hệ thống.</p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

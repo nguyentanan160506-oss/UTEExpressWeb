@@ -34,7 +34,7 @@ class DatabaseUserDetailsServiceTests {
         prepareUser(UserStatus.ACTIVE);
         when(roles.findRoleNamesByUserId(41L)).thenReturn(
             List.of("ROLE_USER", "ROLE_MANAGER", "ROLE_USER"));
-        var details = service.loadUserByUsername("fixture-user");
+        var details = service.loadUserByUsername("fixture@example.test");
         assertEquals(Set.of("ROLE_USER", "ROLE_MANAGER"), details.getAuthorities().stream()
             .map(authority -> authority.getAuthority()).collect(Collectors.toSet()));
         assertEquals(2, details.getAuthorities().size());
@@ -46,26 +46,43 @@ class DatabaseUserDetailsServiceTests {
     void userWithoutRolesReceivesNoDefaultAuthority() {
         prepareUser(UserStatus.ACTIVE);
         when(roles.findRoleNamesByUserId(41L)).thenReturn(List.of());
-        assertTrue(service.loadUserByUsername("fixture-user").getAuthorities().isEmpty());
+        assertTrue(service.loadUserByUsername("fixture@example.test").getAuthorities().isEmpty());
     }
 
     @Test
     void lockedAndUnverifiedStatesAreRepresentedWithoutGrantingAccess() {
         prepareUser(UserStatus.LOCKED);
-        var locked = service.loadUserByUsername("fixture-user");
+        var locked = service.loadUserByUsername("fixture@example.test");
         assertFalse(locked.isAccountNonLocked());
         assertFalse(locked.isEnabled());
         prepareUser(UserStatus.UNVERIFIED);
-        assertFalse(service.loadUserByUsername("fixture-user").isEnabled());
+        assertFalse(service.loadUserByUsername("fixture@example.test").isEnabled());
         prepareUser(null);
-        assertFalse(service.loadUserByUsername("fixture-user").isEnabled());
+        assertFalse(service.loadUserByUsername("fixture@example.test").isEnabled());
     }
 
     @Test
     void nonexistentAccountFailsWithoutLookingUpRoles() {
-        when(users.findByUsername("absent")).thenReturn(Optional.empty());
+        when(users.findByEmail("absent")).thenReturn(Optional.empty());
         assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername("absent"));
         verifyNoInteractions(roles);
+    }
+
+    @Test
+    void emailLookupTrimsWhitespaceAndDoesNotFallBackToUsername() {
+        prepareUser(UserStatus.ACTIVE);
+        var details = service.loadUserByUsername("  fixture@example.test  ");
+        assertEquals("fixture@example.test", details.getUsername());
+        verify(users).findByEmail("fixture@example.test");
+        verify(users, never()).findByUsername(anyString());
+    }
+
+    @Test
+    void missingOrOverlongEmailFailsBeforeQueryingDatabase() {
+        for (String email : new String[] {null, "", " ", "a".repeat(151)}) {
+            assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername(email));
+        }
+        verifyNoInteractions(users, roles);
     }
 
     @Test
@@ -80,10 +97,11 @@ class DatabaseUserDetailsServiceTests {
         User user = new User();
         user.setId(41L);
         user.setUsername("fixture-user");
+        user.setEmail("fixture@example.test");
         // Not a real credential. Authentication is tested with BCrypt in SecurityConfigTests.
         user.setPasswordHash("test-only-placeholder");
         user.setStatus(status);
-        when(users.findByUsername("fixture-user")).thenReturn(Optional.of(user));
+        when(users.findByEmail("fixture@example.test")).thenReturn(Optional.of(user));
         when(roles.findRoleNamesByUserId(41L)).thenReturn(List.of());
     }
 }
