@@ -270,6 +270,23 @@ class SecurityConfigTests {
     @Import({SecurityConfig.class, SecurityErrorHandlers.class,
         DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
+        // Shared MVC contexts disable JPA. Supply the new module's persistence boundaries
+        // so the existing Auth/Admin tests keep exercising their real controllers and filters.
+        @Bean com.ute.uteexpress.repository.ShipmentRepository shipmentRepository() {
+            return mock(com.ute.uteexpress.repository.ShipmentRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ShipmentEventRepository shipmentEventRepository() {
+            return mock(com.ute.uteexpress.repository.ShipmentEventRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.BranchRepository branchRepository() {
+            return mock(com.ute.uteexpress.repository.BranchRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ShippingServiceRepository shippingServiceRepository() {
+            return mock(com.ute.uteexpress.repository.ShippingServiceRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ShippingRateRuleRepository shippingRateRuleRepository() {
+            return mock(com.ute.uteexpress.repository.ShippingRateRuleRepository.class);
+        }
     }
 
     @TestConfiguration(proxyBeanMethods = false)

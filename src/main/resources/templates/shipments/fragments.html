@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/shipments.css}">
+</head>
+<body>
+<nav th:fragment="nav" class="shipment-nav py-3">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <a class="brand-name text-decoration-none" th:href="@{/user/shipments}">UTE<span>Express</span></a>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <a th:href="@{/user/shipments}" class="text-white text-decoration-none">Vận đơn của tôi</a>
+            <a th:href="@{/user/shipments/create}" class="text-white text-decoration-none">Tạo vận đơn</a>
+            <a th:href="@{/account}" class="text-white text-decoration-none">Tài khoản</a>
+            <form th:action="@{/logout}" method="post" class="mb-0">
+                <button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<span th:fragment="status(value)" class="badge rounded-pill shipment-status"
+      th:classappend="${'status-' + value.name().toLowerCase()}" th:text="${statusLabels[value]}"></span>
+</body>
+</html>

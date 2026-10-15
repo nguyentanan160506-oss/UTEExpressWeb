@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Theo dõi vận đơn · UTEExpress')}"></head>
+<body>
+<nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container shipment-shell py-4 py-md-5">
+    <a th:href="@{/user/shipments}" class="small text-decoration-none">← Lịch sử vận đơn</a>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 my-4">
+        <div><p class="shipment-eyebrow mb-2">CHI TIẾT &amp; THEO DÕI</p><h1 class="h3 fw-bold text-break mb-2" th:text="${shipment.trackingNumber}"></h1>
+            <p class="small text-secondary mb-0">Tạo lúc <span th:text="${#temporals.format(shipment.createdAt, 'dd/MM/yyyy HH:mm')}"></span> UTC</p></div>
+        <span th:replace="~{shipments/fragments :: status(${shipment.status})}"></span>
+    </div>
+    <div th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></div>
+    <div class="row g-4">
+        <section class="col-md-6"><div class="card shipment-card h-100"><div class="card-body p-4 shipment-contact" th:with="contact=${shipment.sender}">
+            <h2 class="h5 fw-bold mb-3">Người gửi</h2>
+            <p class="fw-semibold mb-1" th:text="${contact.name}"></p>
+            <p class="mb-1" th:text="${contact.phone}"></p>
+            <p class="text-secondary mb-0"><span th:text="${contact.address}"></span>, <span th:text="${contact.ward}"></span>,
+                <span th:text="${contact.district}"></span>, <span th:text="${contact.province}"></span></p>
+        </div></div></section>
+        <section class="col-md-6"><div class="card shipment-card h-100"><div class="card-body p-4 shipment-contact" th:with="contact=${shipment.receiver}">
+            <h2 class="h5 fw-bold mb-3">Người nhận</h2>
+            <p class="fw-semibold mb-1" th:text="${contact.name}"></p>
+            <p class="mb-1" th:text="${contact.phone}"></p>
+            <p class="text-secondary mb-0"><span th:text="${contact.address}"></span>, <span th:text="${contact.ward}"></span>,
+                <span th:text="${contact.district}"></span>, <span th:text="${contact.province}"></span></p>
+        </div></div></section>
+        <div class="col-lg-7">
+            <section class="card shipment-card mb-4"><div class="card-body p-4">
+                <h2 class="h5 fw-bold mb-4">Thông tin hàng hóa</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-secondary fw-normal">Mô tả hàng hóa</dt><dd class="col-sm-7" th:text="${shipment.packageDescription ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Trọng lượng (kg)</dt><dd class="col-sm-7" th:text="${shipment.weightKg ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Chiều dài (cm)</dt><dd class="col-sm-7" th:text="${shipment.lengthCm ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Chiều rộng (cm)</dt><dd class="col-sm-7" th:text="${shipment.widthCm ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Chiều cao (cm)</dt><dd class="col-sm-7" th:text="${shipment.heightCm ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Dịch vụ</dt><dd class="col-sm-7" th:text="${shipment.serviceName ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Chi nhánh gửi</dt><dd class="col-sm-7" th:text="${shipment.originBranch ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Chi nhánh nhận</dt><dd class="col-sm-7" th:text="${shipment.destinationBranch ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Vị trí hiện tại</dt><dd class="col-sm-7" th:text="${shipment.currentBranch ?: 'Chưa ghi nhận'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Cập nhật (UTC)</dt><dd class="col-sm-7" th:text="${#temporals.format(shipment.updatedAt, 'dd/MM/yyyy HH:mm')}"></dd>
+                </dl>
+                <div th:if="${shipment.note != null and !shipment.note.isBlank()}" class="bg-light rounded-3 p-3 mt-3">
+                    <p class="fw-semibold mb-1">Ghi chú</p><p class="shipment-note mb-0" th:text="${shipment.note}"></p>
+                </div>
+            </div></section>
+            <section class="card shipment-card"><div class="card-body p-4">
+                <h2 class="h5 fw-bold mb-4">Giá trị &amp; phí vận chuyển</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-secondary fw-normal">Giá trị khai báo</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.declaredValue, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Tiền thu hộ COD</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.codAmount, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Phí vận chuyển</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.shippingFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Phí bảo hiểm</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.insuranceFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Tổng phí</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.totalFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Bên trả phí</dt><dd class="col-sm-7" th:text="${shipment.paymentPayer.name() == 'SENDER' ? 'Người gửi' : 'Người nhận'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Thanh toán</dt><dd class="col-sm-7" th:switch="${shipment.paymentStatus.name()}">
+                        <span th:case="'UNPAID'">Chưa thanh toán</span><span th:case="'PAID'">Đã thanh toán</span><span th:case="'REFUNDED'">Đã hoàn tiền</span>
+                    </dd>
+                </dl>
+                <p class="small text-secondary mb-0 mt-2">Tiền COD là khoản thu hộ, không cộng vào tổng phí vận chuyển.</p>
+            </div></section>
+        </div>
+        <section class="col-lg-5"><div class="card shipment-card"><div class="card-body p-4">
+            <h2 class="h5 fw-bold mb-2">Hành trình vận đơn</h2>
+            <p class="small text-secondary mb-4">Các sự kiện đã ghi nhận · Mới nhất trước · Giờ UTC</p>
+            <p th:if="${shipment.events.empty}" class="text-secondary mb-0">
+                Chưa có sự kiện theo dõi được lưu. Hiện chỉ có trạng thái vận đơn ở trên.
+            </p>
+            <ol th:unless="${shipment.events.empty}" class="shipment-timeline mb-0">
+                <li th:each="event : ${shipment.events.content}">
+                    <p class="small text-secondary mb-1" th:text="${#temporals.format(event.occurredAt, 'dd/MM/yyyy HH:mm')}"></p>
+                    <h3 class="h6 fw-bold" th:text="${event.title}"></h3>
+                    <p class="small mb-2"><span th:replace="~{shipments/fragments :: status(${event.status})}"></span></p>
+                    <p th:if="${event.description != null}" th:text="${event.description}" class="small shipment-note mb-1"></p>
+                    <p th:if="${event.location != null}" th:text="${event.location}" class="small text-secondary mb-0"></p>
+                </li>
+            </ol>
+            <nav th:if="${shipment.events.totalPages > 1}" class="d-flex flex-wrap gap-3 justify-content-between" aria-label="Phân trang hành trình">
+                <a th:if="${shipment.events.hasPrevious()}" th:href="@{/user/shipments/{id}(id=${shipment.id},eventPage=${shipment.events.number - 1})}" class="small">Mới hơn</a>
+                <a th:if="${shipment.events.hasNext()}" th:href="@{/user/shipments/{id}(id=${shipment.id},eventPage=${shipment.events.number + 1})}" class="small">Cũ hơn</a>
+            </nav>
+        </div></div></section>
+    </div>
+</main>
+</body>
+</html>
