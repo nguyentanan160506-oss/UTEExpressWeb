@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <title>Tra cứu vận đơn · UTEExpress</title>
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/tracking.css}">
+</head>
+<body class="auth-page">
+<nav class="tracking-nav py-3" aria-label="Điều hướng công khai">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <a class="brand-name text-decoration-none" th:href="@{/tracking}">UTE<span>Express</span></a>
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <a th:href="@{/login}" class="text-white text-decoration-none">Đăng nhập</a>
+            <a th:href="@{/register}" class="btn btn-sm btn-outline-light">Tạo tài khoản</a>
+        </div>
+    </div>
+</nav>
+<main class="container tracking-shell py-4 py-md-5">
+    <header class="text-center mx-auto mb-4 mb-md-5">
+        <p class="auth-eyebrow mb-2">THEO DÕI HÀNH TRÌNH GỬI HÀNG</p>
+        <h1 class="h2 fw-bold mb-3">Tra cứu vận đơn</h1>
+        <p class="text-secondary mb-0">Nhập mã vận đơn để xem trạng thái và các mốc hành trình công khai.</p>
+    </header>
+    <section class="card tracking-card p-4 p-md-5 mb-4" aria-label="Nhập mã vận đơn">
+        <form th:action="@{/tracking}" method="get">
+            <label for="trackingNumber" class="form-label fw-semibold">Mã vận đơn</label>
+            <div class="row g-3">
+                <div class="col-md-9">
+                    <input id="trackingNumber" name="trackingNumber" th:value="${trackingNumber}"
+                           class="form-control form-control-lg tracking-input" type="text" required minlength="35" maxlength="35"
+                           pattern="[Uu][Tt][Ee][A-Fa-f0-9]{32}" autocomplete="off" spellcheck="false" autocapitalize="characters"
+                           aria-describedby="tracking-help" placeholder="Nhập mã trên phiếu gửi hàng">
+                </div>
+                <div class="col-md-3"><button type="submit" class="btn btn-primary btn-lg w-100">Tra cứu</button></div>
+            </div>
+            <p id="tracking-help" class="form-text mb-0">Mã bắt đầu bằng UTE, gồm tổng cộng 35 ký tự. Không cần đăng nhập.</p>
+        </form>
+    </section>
+    <div th:if="${error != null}" th:text="${error}" class="alert alert-warning" role="alert"></div>
+    <section th:if="${result != null}" aria-label="Kết quả tra cứu" class="card tracking-card p-4 p-md-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+            <div><p class="small text-secondary mb-2">Mã vận đơn</p>
+                <h2 class="h5 fw-bold text-break mb-0" th:text="${result.trackingNumber}"></h2></div>
+            <span class="badge rounded-pill tracking-status" th:text="${result.statusLabel}"></span>
+        </div>
+        <p class="small text-secondary mb-4">Cập nhật lúc
+            <time th:text="${#temporals.format(result.updatedAt, 'dd/MM/yyyy HH:mm')}"></time> UTC</p>
+        <hr class="mb-4">
+        <h3 class="h5 fw-bold mb-3">Hành trình vận đơn</h3>
+        <p class="small text-secondary mb-4">Các mốc công khai đã ghi nhận · Mới nhất trước · Giờ UTC</p>
+        <p th:if="${result.events.empty}" class="text-secondary mb-0">Chưa có sự kiện công khai để hiển thị.</p>
+        <ol th:unless="${result.events.empty}" class="tracking-timeline mb-0">
+            <li th:each="event : ${result.events}">
+                <time class="small text-secondary" th:text="${#temporals.format(event.occurredAt, 'dd/MM/yyyy HH:mm')}"></time>
+                <p class="fw-semibold mt-1 mb-0" th:text="${event.label}"></p>
+            </li>
+        </ol>
+    </section>
+    <footer class="small text-secondary text-center mt-4">
+        Trang tra cứu chỉ hiển thị thông tin hành trình công khai.
+        <a th:href="@{/login}">Đăng nhập</a> để xem thông tin chi tiết vận đơn của bạn.
+    </footer>
+</main>
+</body>
+</html>

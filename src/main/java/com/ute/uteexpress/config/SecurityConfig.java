@@ -79,6 +79,7 @@ public class SecurityConfig {
                 .requestMatchers(readOnlyStaticResources).permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/tracking").permitAll()
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/register", "/verify-email").permitAll()
                 .requestMatchers(HttpMethod.POST, "/register", "/verify-email", "/verify-email/resend").permitAll()
