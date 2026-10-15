@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Vận đơn của tôi · UTEExpress')}"></head>
+<body>
+<nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container shipment-shell py-4 py-md-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div><p class="shipment-eyebrow mb-2">HÀNH TRÌNH GỬI HÀNG</p><h1 class="h2 fw-bold mb-2">Vận đơn của tôi</h1>
+            <p class="text-secondary mb-0">Tra cứu lịch sử và theo dõi từng lần gửi hàng.</p></div>
+        <a th:href="@{/user/shipments/create}" class="btn btn-primary">+ Tạo vận đơn</a>
+    </div>
+    <form th:action="@{/user/shipments}" method="get" class="card shipment-card p-4 mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="q" class="form-label">Mã vận đơn</label>
+                <input id="q" name="q" th:value="${q}" maxlength="50" class="form-control" placeholder="Nhập mã vận đơn cần tìm">
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Trạng thái</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="state : ${statuses}" th:value="${state}" th:text="${statusLabels[state]}" th:selected="${state == selectedStatus}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="size" class="form-label">Mỗi trang</label>
+                <select id="size" name="size" class="form-select">
+                    <option th:each="count : ${ {10,20,50,100} }" th:value="${count}" th:text="${count}" th:selected="${count == size}"></option>
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Tìm kiếm</button></div>
+        </div>
+    </form>
+    <p class="small text-secondary"><span th:text="${shipments.totalElements}"></span> vận đơn phù hợp · Mới nhất trước</p>
+    <div class="card shipment-card overflow-hidden">
+        <div th:if="${shipments.empty}" class="text-center p-5">
+            <h2 class="h5">Chưa có vận đơn phù hợp</h2><p class="text-secondary">Hãy tạo vận đơn đầu tiên hoặc thay đổi bộ lọc.</p>
+            <a th:href="@{/user/shipments/create}" class="btn btn-outline-primary">Tạo vận đơn</a>
+        </div>
+        <div th:unless="${shipments.empty}" class="table-responsive">
+            <table class="table shipment-table align-middle mb-0">
+                <thead class="table-light"><tr><th>Mã vận đơn</th><th>Người nhận</th><th>Ngày tạo (UTC)</th><th>Trạng thái</th><th></th></tr></thead>
+                <tbody><tr th:each="row : ${shipments.content}">
+                    <td class="fw-semibold text-break" th:text="${row.trackingNumber}"></td>
+                    <td th:text="${row.receiverName}"></td>
+                    <td class="text-nowrap" th:text="${#temporals.format(row.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td><span th:replace="~{shipments/fragments :: status(${row.status})}"></span></td>
+                    <td><a th:href="@{/user/shipments/{id}(id=${row.id})}" class="btn btn-sm btn-outline-primary text-nowrap">Xem chi tiết</a></td>
+                </tr></tbody>
+            </table>
+        </div>
+    </div>
+    <nav th:if="${shipments.totalPages > 1}" aria-label="Phân trang vận đơn" class="d-flex flex-wrap gap-3 align-items-center justify-content-between mt-4">
+        <a th:if="${shipments.hasPrevious()}" th:href="@{/user/shipments(q=${q},status=${selectedStatus},size=${size},page=${shipments.number - 1})}" class="btn btn-outline-primary">Trang trước</a>
+        <span class="small text-secondary">Trang <span th:text="${shipments.number + 1}"></span> / <span th:text="${shipments.totalPages}"></span></span>
+        <a th:if="${shipments.hasNext()}" th:href="@{/user/shipments(q=${q},status=${selectedStatus},size=${size},page=${shipments.number + 1})}" class="btn btn-outline-primary">Trang sau</a>
+    </nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Tạo vận đơn · UTEExpress')}"></head>
+<body>
+<nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container shipment-shell py-4 py-md-5">
+    <a th:href="@{/user/shipments}" class="small text-decoration-none">← Lịch sử vận đơn</a>
+    <p class="shipment-eyebrow mt-4 mb-2">GỬI HÀNG CÙNG UTEEXPRESS</p>
+    <h1 class="h2 fw-bold mb-2">Tạo vận đơn</h1>
+    <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Phí được tính theo bảng giá đang hiệu lực khi tạo vận đơn.</p>
+    <form th:action="@{/user/shipments}" th:object="${shipmentForm}" method="post">
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+            <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="mb-0"></p>
+        </div>
+        <div th:if="${options.branches.empty or options.services.empty}" class="alert alert-warning">
+            Chưa có đủ chi nhánh hoặc dịch vụ hoạt động để tạo vận đơn. Vui lòng liên hệ hỗ trợ.
+        </div>
+        <div class="row g-4">
+            <section class="col-lg-6"><div class="card shipment-card h-100"><div class="card-body p-4">
+                <h2 class="h5 fw-bold mb-4">01 · Người gửi</h2><div class="row g-3">
+                    <div class="col-sm-6">
+                        <label for="senderName" class="form-label">Họ tên <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderName" type="text" th:field="*{senderName}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderName-error" required maxlength="100" autocomplete="name">
+                        <div id="senderName-error" th:errors="*{senderName}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="senderPhone" class="form-label">Số điện thoại <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderPhone" type="tel" th:field="*{senderPhone}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderPhone-error" required maxlength="16" pattern="[+]?[0-9]{9,15}">
+                        <div id="senderPhone-error" th:errors="*{senderPhone}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="senderProvince" class="form-label">Tỉnh / Thành phố <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderProvince" type="text" th:field="*{senderProvince}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderProvince-error" required maxlength="100" list="branch-provinces">
+                        <div id="senderProvince-error" th:errors="*{senderProvince}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="senderDistrict" class="form-label">Quận / Huyện <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderDistrict" type="text" th:field="*{senderDistrict}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderDistrict-error" required maxlength="100" >
+                        <div id="senderDistrict-error" th:errors="*{senderDistrict}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="senderWard" class="form-label">Phường / Xã <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderWard" type="text" th:field="*{senderWard}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderWard-error" required maxlength="100" >
+                        <div id="senderWard-error" th:errors="*{senderWard}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="senderAddress" class="form-label">Địa chỉ chi tiết <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="senderAddress" type="text" th:field="*{senderAddress}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="senderAddress-error" required maxlength="255" >
+                        <div id="senderAddress-error" th:errors="*{senderAddress}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="originBranchId" class="form-label">Chi nhánh gửi <span class="text-danger" aria-hidden="true">*</span></label>
+                        <select id="originBranchId" th:field="*{originBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="originBranchId-error">
+                            <option value="">Chọn chi nhánh gửi</option>
+                            <option th:each="option : ${options.branches}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
+                        </select>
+                        <div id="originBranchId-error" th:errors="*{originBranchId}" class="invalid-feedback"></div>
+                    </div>
+                    <p class="small text-secondary mb-0">Chọn chi nhánh đang hoạt động thuộc tỉnh/thành đã nhập.</p>
+                </div></div></div></section>
+            <section class="col-lg-6"><div class="card shipment-card h-100"><div class="card-body p-4">
+                <h2 class="h5 fw-bold mb-4">02 · Người nhận</h2><div class="row g-3">
+                    <div class="col-sm-6">
+                        <label for="receiverName" class="form-label">Họ tên <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverName" type="text" th:field="*{receiverName}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverName-error" required maxlength="100" autocomplete="name">
+                        <div id="receiverName-error" th:errors="*{receiverName}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="receiverPhone" class="form-label">Số điện thoại <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverPhone" type="tel" th:field="*{receiverPhone}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverPhone-error" required maxlength="16" pattern="[+]?[0-9]{9,15}">
+                        <div id="receiverPhone-error" th:errors="*{receiverPhone}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="receiverProvince" class="form-label">Tỉnh / Thành phố <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverProvince" type="text" th:field="*{receiverProvince}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverProvince-error" required maxlength="100" list="branch-provinces">
+                        <div id="receiverProvince-error" th:errors="*{receiverProvince}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="receiverDistrict" class="form-label">Quận / Huyện <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverDistrict" type="text" th:field="*{receiverDistrict}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverDistrict-error" required maxlength="100" >
+                        <div id="receiverDistrict-error" th:errors="*{receiverDistrict}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="receiverWard" class="form-label">Phường / Xã <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverWard" type="text" th:field="*{receiverWard}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverWard-error" required maxlength="100" >
+                        <div id="receiverWard-error" th:errors="*{receiverWard}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="receiverAddress" class="form-label">Địa chỉ chi tiết <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="receiverAddress" type="text" th:field="*{receiverAddress}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="receiverAddress-error" required maxlength="255" >
+                        <div id="receiverAddress-error" th:errors="*{receiverAddress}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="destinationBranchId" class="form-label">Chi nhánh nhận <span class="text-danger" aria-hidden="true">*</span></label>
+                        <select id="destinationBranchId" th:field="*{destinationBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="destinationBranchId-error">
+                            <option value="">Chọn chi nhánh nhận</option>
+                            <option th:each="option : ${options.branches}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
+                        </select>
+                        <div id="destinationBranchId-error" th:errors="*{destinationBranchId}" class="invalid-feedback"></div>
+                    </div>
+                    <p class="small text-secondary mb-0">Chọn chi nhánh đang hoạt động thuộc tỉnh/thành đã nhập.</p>
+                </div></div></div></section>
+            <section class="col-12"><div class="card shipment-card"><div class="card-body p-4">
+                <h2 class="h5 fw-bold mb-4">03 · Hàng hóa &amp; dịch vụ</h2><div class="row g-3">
+                    <div class="col-12">
+                        <label for="packageDescription" class="form-label">Mô tả hàng hóa <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="packageDescription" type="text" th:field="*{packageDescription}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="packageDescription-error" required maxlength="255" >
+                        <div id="packageDescription-error" th:errors="*{packageDescription}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="weightKg" class="form-label">Trọng lượng (kg) <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="weightKg" type="number" th:field="*{weightKg}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="weightKg-error" required min="0.01" max="99999999.99" step="0.01">
+                        <div id="weightKg-error" th:errors="*{weightKg}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="lengthCm" class="form-label">Chiều dài (cm)</label>
+                        <input id="lengthCm" type="number" th:field="*{lengthCm}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="lengthCm-error" min="0.01" max="99999999.99" step="0.01">
+                        <div id="lengthCm-error" th:errors="*{lengthCm}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="widthCm" class="form-label">Chiều rộng (cm)</label>
+                        <input id="widthCm" type="number" th:field="*{widthCm}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="widthCm-error" min="0.01" max="99999999.99" step="0.01">
+                        <div id="widthCm-error" th:errors="*{widthCm}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="heightCm" class="form-label">Chiều cao (cm)</label>
+                        <input id="heightCm" type="number" th:field="*{heightCm}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="heightCm-error" min="0.01" max="99999999.99" step="0.01">
+                        <div id="heightCm-error" th:errors="*{heightCm}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="codAmount" class="form-label">Tiền thu hộ COD (VND) <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="codAmount" type="number" th:field="*{codAmount}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="codAmount-error" required min="0" max="9999999999999999.99" step="0.01">
+                        <div id="codAmount-error" th:errors="*{codAmount}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="declaredValue" class="form-label">Giá trị khai báo (VND) <span aria-hidden="true" class="text-danger">*</span></label>
+                        <input id="declaredValue" type="number" th:field="*{declaredValue}" class="form-control"
+                               th:errorclass="is-invalid" aria-describedby="declaredValue-error" required min="0" max="9999999999999999.99" step="0.01">
+                        <div id="declaredValue-error" th:errors="*{declaredValue}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="serviceId" class="form-label">Dịch vụ vận chuyển <span class="text-danger" aria-hidden="true">*</span></label>
+                        <select id="serviceId" th:field="*{serviceId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="serviceId-error">
+                            <option value="">Chọn dịch vụ vận chuyển</option>
+                            <option th:each="option : ${options.services}" th:value="${option.id}" th:text="${option.name}"></option>
+                        </select>
+                        <div id="serviceId-error" th:errors="*{serviceId}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="paymentPayer" class="form-label">Bên trả phí vận chuyển</label>
+                        <select id="paymentPayer" th:field="*{paymentPayer}" class="form-select" th:errorclass="is-invalid" required aria-describedby="paymentPayer-error">
+                            <option th:each="payer : ${payers}" th:value="${payer}" th:text="${payer.name() == 'SENDER' ? 'Người gửi' : 'Người nhận'}"></option>
+                        </select>
+                        <div id="paymentPayer-error" th:errors="*{paymentPayer}" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="note" class="form-label">Ghi chú (không bắt buộc)</label>
+                        <textarea id="note" th:field="*{note}" maxlength="500" rows="3" class="form-control" th:errorclass="is-invalid" aria-describedby="note-error"></textarea>
+                        <div id="note-error" th:errors="*{note}" class="invalid-feedback"></div>
+                    </div>
+                </div>
+                <div class="rounded-3 bg-light p-3 mt-4 small text-secondary">
+                    Phí = giá cơ bản + số bước trọng lượng vượt mức × giá mỗi bước (làm tròn lên số bước).
+                    Tiền COD không cộng vào phí. Chưa cung cấp dịch vụ bảo hiểm trong biểu mẫu này.
+                    Nếu chưa có bảng giá phù hợp, vận đơn sẽ không được tạo.
+                </div>
+            </div></div></section>
+        </div>
+        <datalist id="branch-provinces"><option th:each="branch : ${options.branches}" th:value="${branch.province}"></option></datalist>
+        <div class="d-flex flex-wrap justify-content-end gap-3 mt-4">
+            <a th:href="@{/user/shipments}" class="btn btn-outline-primary">Quay lại danh sách</a>
+            <button type="submit" class="btn btn-primary px-4" th:disabled="${options.branches.empty or options.services.empty}">Tạo vận đơn</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>
