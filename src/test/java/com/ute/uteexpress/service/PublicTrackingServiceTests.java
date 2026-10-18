@@ -8,6 +8,7 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.Pageable;
 
@@ -83,6 +84,17 @@ class PublicTrackingServiceTests {
         when(events.findPublicTrackingEvents(anyString(), any(), anyString(), any())).thenReturn(List.of());
         var result = service.lookup(CODE).orElseThrow();
         assertEquals("Đã giao", result.statusLabel()); assertTrue(result.events().isEmpty());
+    }
+
+    @ParameterizedTest @EnumSource(value = ShipmentStatus.class, names = {"AT_ORIGIN_BRANCH", "AT_DESTINATION_BRANCH"})
+    void newBranchStatusesDoNotMakeInternalEventsPublic(ShipmentStatus branchStatus) {
+        when(shipments.findPublicTrackingSummary(CODE)).thenReturn(Optional.of(summary(branchStatus)));
+        when(events.findPublicTrackingEvents(anyString(), any(), anyString(), any())).thenReturn(List.of(
+            event("INTERNAL_PII_MARKER", ShipmentStatus.CONFIRMED, branchStatus),
+            event(PublicTrackingEventPolicy.CREATED_TITLE, null, branchStatus)));
+        var result = service.lookup(CODE).orElseThrow();
+        assertFalse(result.statusLabel().isBlank()); assertTrue(result.events().isEmpty());
+        assertFalse(result.toString().contains("INTERNAL_PII_MARKER"));
     }
 
     @Test void timelineIsBoundedAndQueryGetsOnlyTheExplicitPublicTuple() {

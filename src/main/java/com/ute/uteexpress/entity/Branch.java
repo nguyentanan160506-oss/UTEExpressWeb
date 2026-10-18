@@ -15,6 +15,10 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -29,11 +33,13 @@ import org.hibernate.type.SqlTypes;
         @UniqueConstraint(name = "UQ_branches_code", columnNames = {"code"})
     },
     indexes = {
-        @Index(name = "IX_branches_location", columnList = "province, district")
+        @Index(name = "IX_branches_location", columnList = "province, district"),
+        @Index(name = "IX_branches_parent_hub", columnList = "parent_hub_id")
     },
     check = {
         @CheckConstraint(name = "CK_branches_type", constraint = "branch_type IN ('CENTRAL_HUB', 'LOCAL_BRANCH')"),
-        @CheckConstraint(name = "CK_branches_status", constraint = "status IN ('ACTIVE', 'INACTIVE')")
+        @CheckConstraint(name = "CK_branches_status", constraint = "status IN ('ACTIVE', 'INACTIVE')"),
+        @CheckConstraint(name = "CK_branches_parent_hub", constraint = "parent_hub_id IS NULL OR (branch_type = 'LOCAL_BRANCH' AND parent_hub_id <> id)")
     }
 )
 public class Branch {
@@ -42,6 +48,13 @@ public class Branch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "parent_hub_id", nullable = true, foreignKey = @ForeignKey(name = "FK_branches_parent_hub"))
+    private Branch parentHub;
+
+    public Branch getParentHub() { return parentHub; }
+    public void setParentHub(Branch parentHub) { this.parentHub = parentHub; }
 
     @Column(name = "code", nullable = false, length = 30)
     private String code;

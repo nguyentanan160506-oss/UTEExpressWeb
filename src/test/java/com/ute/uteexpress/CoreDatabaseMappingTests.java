@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to V1. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class
     );
 
     private static StandardServiceRegistry registry;
@@ -51,6 +51,24 @@ class CoreDatabaseMappingTests {
                 "/db/migration/V1__init_logistics_schema.sql")) {
             assertNotNull(input);
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
+        }
+        try (var input = CoreDatabaseMappingTests.class.getResourceAsStream(
+                "/db/migration/V3__extend_shipper_identity_and_shipment_lifecycle.sql")) {
+            assertNotNull(input);
+            String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            schema.putAll(parseSchema(sql));
+            var alter = Pattern.compile("ALTER TABLE dbo\\.(\\w+) (ADD|DROP CONSTRAINT) ([^;]+);").matcher(sql);
+            while (alter.find()) {
+                SqlTable table = schema.get(alter.group(1));
+                if (alter.group(2).equals("DROP CONSTRAINT")) { table.checks.remove(alter.group(3)); }
+                else { applyDefinition(table, alter.group(3)); }
+            }
+            var index = Pattern.compile("CREATE INDEX (\\w+) ON dbo\\.(\\w+) \\(([^;]+)\\);").matcher(sql);
+            while (index.find()) { schema.get(index.group(2)).indexes.put(index.group(1), normalize(index.group(3))); }
+            // Filter predicates cannot be represented by JPA's portable @Index.
+            assertTrue(sql.contains("CREATE UNIQUE INDEX UX_employees_user_nonnull ON dbo.employees (user_id) WHERE user_id IS NOT NULL;"));
+            assertTrue(sql.contains("WHERE NOT EXISTS (SELECT 1 FROM dbo.roles WHERE name = 'ROLE_SHIPPER')"));
+            assertFalse(sql.contains("INSERT INTO dbo.users"));
         }
         registry = new StandardServiceRegistryBuilder()
             .applySetting("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect")
@@ -78,11 +96,11 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void everyTableAndColumnMatchesV1IncludingSqlTypesAndDefaults() {
-        assertEquals(18, schema.size());
+    void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
+        assertEquals(19, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(18, metadata.getEntityBindings().size());
+        assertEquals(19, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -106,7 +124,7 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void foreignKeysUniqueConstraintsIndexesAndChecksMatchV1() {
+    void foreignKeysUniqueConstraintsIndexesAndChecksMatchMigrations() {
         int foreignKeys = 0;
         int uniqueKeys = 0;
         for (PersistentClass entity : metadata.getEntityBindings()) {
@@ -138,8 +156,8 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(27, foreignKeys);
-        assertEquals(12, uniqueKeys);
+        assertEquals(32, foreignKeys);
+        assertEquals(13, uniqueKeys);
     }
 
     @Test
@@ -170,11 +188,15 @@ class CoreDatabaseMappingTests {
                 }
                 assertNull(field.getAnnotation(OneToMany.class));
                 assertNull(field.getAnnotation(ManyToMany.class));
-                assertNull(field.getAnnotation(Version.class));
+                if (entity == Shipment.class && field.getName().equals("version")) {
+                    assertNotNull(field.getAnnotation(Version.class));
+                    assertEquals(Long.class, field.getType());
+                    assertTrue(metadata.getEntityBinding(Shipment.class.getName()).isVersioned());
+                } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(27, associations);
-        assertEquals(17, identities);
+        assertEquals(32, associations);
+        assertEquals(18, identities);
     }
 
     @Test
@@ -213,7 +235,7 @@ class CoreDatabaseMappingTests {
                 if (field.getType().isEnum()) {
                     enumColumns++;
                     assertEquals(EnumType.STRING, field.getAnnotation(Enumerated.class).value());
-                    var match = Pattern.compile("^" + column.name() + " IN \\((.*)\\)$")
+                    var match = Pattern.compile("^(?:" + column.name() + " IS NULL OR )?" + column.name() + " IN \\((.*)\\)$")
                         .matcher(String.join("\n", table.checks.values()));
                     // Check each named SQL CHECK independently; event statuses have no CHECK in V1.
                     for (String check : table.checks.values()) {
@@ -230,7 +252,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(22, enumColumns);
+        assertEquals(24, enumColumns);
     }
 
     @Test
@@ -255,7 +277,7 @@ class CoreDatabaseMappingTests {
                     continue;
                 }
                 String expected = table.columns.get(column.name()).defaultValue;
-                if (expected == null) {
+                if (expected == null || field.isAnnotationPresent(Version.class)) {
                     continue;
                 }
                 field.setAccessible(true);
@@ -272,7 +294,7 @@ class CoreDatabaseMappingTests {
                 } else if (actual instanceof Enum<?> value) {
                     assertEquals(expected.replace("'", ""), value.name());
                 } else {
-                    assertEquals(expected, actual.toString());
+                    assertEquals(expected.equals("''") ? "" : expected, actual.toString());
                 }
             }
         }
@@ -340,7 +362,7 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void all18SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
+    void all19SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
         try (EntityManager entityManager = sessionFactory.createEntityManager()) {
             var factory = new JpaRepositoryFactory(entityManager);
             for (Class<?> entity : ENTITIES) {
@@ -349,6 +371,18 @@ class CoreDatabaseMappingTests {
                 assertNotNull(factory.getRepository(repository));
             }
         }
+    }
+
+    @Test
+    void hibernateGeneratesVersionPredicateForShipmentUpdatesWithoutExecutingSql() {
+        var descriptor = sessionFactory.getMappingMetamodel().getEntityDescriptor(Shipment.class);
+        var operation = (org.hibernate.sql.model.PreparableMutationOperation) descriptor.getUpdateCoordinator()
+            .getStaticMutationOperationGroup().getSingleOperation();
+        String update = operation.getSqlString().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+        assertTrue(update.startsWith("updatedbo.shipmentsset"), update);
+        assertTrue(update.substring(0, update.indexOf("where")).contains("version=?"), update);
+        assertTrue(update.substring(update.indexOf("where")).contains("version=?"), update);
+        assertTrue(update.substring(update.indexOf("where")).contains("id=?"), update);
     }
 
     private static void invokeCallbacks(Object instance,
@@ -369,41 +403,7 @@ class CoreDatabaseMappingTests {
             String name = tableMatcher.group(1);
             SqlTable table = new SqlTable();
             for (String entry : splitTopLevel(tableMatcher.group(2))) {
-                var column = Pattern.compile("^(\\w+)\\s+(BIGINT|INT|BIT|VARCHAR|NVARCHAR|DECIMAL|DATETIME2)"
-                    + "(\\([^)]*\\))?\\s+(?:IDENTITY\\(1,1\\)\\s+)?(NOT NULL|NULL)([\\s\\S]*)$")
-                    .matcher(entry);
-                if (column.matches()) {
-                    var defaultMatcher = Pattern.compile("DEFAULT \\(([\\s\\S]*)\\)$")
-                        .matcher(column.group(5));
-                    table.columns.put(column.group(1), new SqlColumn(
-                        (column.group(2) + Objects.toString(column.group(3), ""))
-                            .toLowerCase(Locale.ROOT).replace(" ", ""),
-                        column.group(4).equals("NULL"),
-                        defaultMatcher.find() ? defaultMatcher.group(1) : null));
-                    continue;
-                }
-                var fk = Pattern.compile("^CONSTRAINT (\\w+) FOREIGN KEY \\((\\w+)\\)"
-                    + " REFERENCES dbo\\.(\\w+) \\(id\\) ON DELETE NO ACTION$").matcher(entry);
-                if (fk.matches()) {
-                    table.foreignKeys.put(fk.group(1), fk.group(2) + "->" + fk.group(3));
-                    continue;
-                }
-                var key = Pattern.compile("^CONSTRAINT (\\w+) (PRIMARY KEY|UNIQUE) \\(([^)]+)\\)$")
-                    .matcher(entry);
-                if (key.matches()) {
-                    Set<String> columns = Arrays.stream(key.group(3).split(","))
-                        .map(String::trim).collect(Collectors.toSet());
-                    if (key.group(2).equals("PRIMARY KEY")) {
-                        table.primaryKey = columns;
-                    } else {
-                        table.uniqueKeys.put(key.group(1), columns);
-                    }
-                    continue;
-                }
-                var check = Pattern.compile("^CONSTRAINT (\\w+) CHECK \\(([\\s\\S]*)\\)$")
-                    .matcher(entry);
-                assertTrue(check.matches(), "Unrecognized V1 definition");
-                table.checks.put(check.group(1), normalize(check.group(2)));
+                applyDefinition(table, entry);
             }
             var index = Pattern.compile("CREATE INDEX (\\w+) ON dbo\\." + name
                 + "\\s*\\(([^;]+)\\);").matcher(sql);
@@ -414,6 +414,45 @@ class CoreDatabaseMappingTests {
         }
         return tables;
     }
+
+    private static void applyDefinition(SqlTable table, String entry) {
+        var column = Pattern.compile("^(\\w+)\\s+(BIGINT|INT|BIT|VARCHAR|NVARCHAR|DECIMAL|DATETIME2)"
+            + "(\\([^)]*\\))?\\s+(?:IDENTITY\\(1,1\\)\\s+)?(NOT NULL|NULL)([\\s\\S]*)$")
+            .matcher(entry);
+        if (column.matches()) {
+            var defaultMatcher = Pattern.compile("DEFAULT \\(([\\s\\S]*)\\)$")
+                .matcher(column.group(5));
+            table.columns.put(column.group(1), new SqlColumn(
+                (column.group(2) + Objects.toString(column.group(3), ""))
+                    .toLowerCase(Locale.ROOT).replace(" ", ""),
+                column.group(4).equals("NULL"),
+                defaultMatcher.find() ? defaultMatcher.group(1) : null));
+            return;
+        }
+        var fk = Pattern.compile("^CONSTRAINT (\\w+) FOREIGN KEY \\((\\w+)\\)"
+            + " REFERENCES dbo\\.(\\w+) \\(id\\) ON DELETE NO ACTION$").matcher(entry);
+        if (fk.matches()) {
+            table.foreignKeys.put(fk.group(1), fk.group(2) + "->" + fk.group(3));
+            return;
+        }
+        var key = Pattern.compile("^CONSTRAINT (\\w+) (PRIMARY KEY|UNIQUE) \\(([^)]+)\\)$")
+            .matcher(entry);
+        if (key.matches()) {
+            Set<String> columns = Arrays.stream(key.group(3).split(","))
+                .map(String::trim).collect(Collectors.toSet());
+            if (key.group(2).equals("PRIMARY KEY")) {
+                table.primaryKey = columns;
+            } else {
+                table.uniqueKeys.put(key.group(1), columns);
+            }
+            return;
+        }
+        var check = Pattern.compile("^CONSTRAINT (\\w+) CHECK \\(([\\s\\S]*)\\)$")
+            .matcher(entry);
+        assertTrue(check.matches(), "Unrecognized migration definition: " + entry);
+        table.checks.put(check.group(1), normalize(check.group(2)));
+    }
+
 
     private static List<String> splitTopLevel(String body) {
         List<String> entries = new ArrayList<>();

@@ -3,6 +3,8 @@ package com.ute.uteexpress.entity;
 import com.ute.uteexpress.enums.PaymentPayer;
 import com.ute.uteexpress.enums.ShipmentPaymentStatus;
 import com.ute.uteexpress.enums.ShipmentStatus;
+import com.ute.uteexpress.enums.ShipmentMethod;
+import jakarta.persistence.Version;
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,7 +51,9 @@ import org.hibernate.type.SqlTypes;
         @CheckConstraint(name = "CK_shipments_shipping_fee", constraint = "shipping_fee >= 0"),
         @CheckConstraint(name = "CK_shipments_insurance_fee", constraint = "insurance_fee >= 0"),
         @CheckConstraint(name = "CK_shipments_total_fee", constraint = "total_fee >= 0"),
-        @CheckConstraint(name = "CK_shipments_status", constraint = "status IN ( 'CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED' )"),
+        @CheckConstraint(name = "CK_shipments_status", constraint = "status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')"),
+        @CheckConstraint(name = "CK_shipments_method", constraint = "shipment_method IS NULL OR shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF')"),
+        @CheckConstraint(name = "CK_shipments_version", constraint = "version >= 0"),
         @CheckConstraint(name = "CK_shipments_attempts", constraint = "delivery_attempt_count >= 0"),
         @CheckConstraint(name = "CK_shipments_max_attempts", constraint = "max_delivery_attempts >= 1"),
         @CheckConstraint(name = "CK_shipments_payment_status", constraint = "payment_status IN ('UNPAID', 'PAID', 'REFUNDED')"),
@@ -131,6 +135,24 @@ public class Shipment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_id", nullable = false, foreignKey = @ForeignKey(name = "FK_shipments_service"))
     private ShippingService service;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "shipment_method", nullable = true, length = 30)
+    private ShipmentMethod shipmentMethod;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "origin_hub_id", nullable = true, foreignKey = @ForeignKey(name = "FK_shipments_origin_hub"))
+    private Branch originHub;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "destination_hub_id", nullable = true, foreignKey = @ForeignKey(name = "FK_shipments_destination_hub"))
+    private Branch destinationHub;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    @ColumnDefault("0")
+    private Long version;
 
     @Nationalized
     @Column(name = "package_description", nullable = false, length = 255)
@@ -257,6 +279,14 @@ public class Shipment {
     void updateTimestamp() {
         updatedAt = UtcTimestamps.now();
     }
+
+    public ShipmentMethod getShipmentMethod() { return shipmentMethod; }
+    public void setShipmentMethod(ShipmentMethod shipmentMethod) { this.shipmentMethod = shipmentMethod; }
+    public Branch getOriginHub() { return originHub; }
+    public void setOriginHub(Branch originHub) { this.originHub = originHub; }
+    public Branch getDestinationHub() { return destinationHub; }
+    public void setDestinationHub(Branch destinationHub) { this.destinationHub = destinationHub; }
+    public Long getVersion() { return version; }
 
     public Long getId() {
         return id;

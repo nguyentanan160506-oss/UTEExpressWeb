@@ -51,6 +51,14 @@ public class Employee {
     @JoinColumn(name = "branch_id", nullable = false, foreignKey = @ForeignKey(name = "FK_employees_branch"))
     private Branch branch;
 
+    // Uniqueness for non-null logins is enforced by the SQL Server filtered index in V3.
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true, foreignKey = @ForeignKey(name = "FK_employees_user"))
+    private User user;
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
     @Column(name = "employee_code", nullable = false, length = 30)
     private String employeeCode;
 

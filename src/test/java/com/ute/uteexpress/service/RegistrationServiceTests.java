@@ -91,6 +91,8 @@ class RegistrationServiceTests {
         var membership = org.mockito.ArgumentCaptor.forClass(UserRole.class);
         verify(memberships).save(membership.capture());
         assertEquals("ROLE_USER", membership.getValue().getRole().getName());
+        verify(roles, never()).findByName("ROLE_SHIPPER");
+        verify(memberships, times(1)).save(any(UserRole.class));
         assertEquals(71L, membership.getValue().getId().getUserId());
         assertEquals(2L, membership.getValue().getId().getRoleId());
         verify(roles, never()).save(any());

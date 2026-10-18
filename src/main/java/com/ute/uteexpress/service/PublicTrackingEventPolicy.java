@@ -14,7 +14,8 @@ public final class PublicTrackingEventPolicy {
         ShipmentStatus.CREATED, ShipmentStatus.CONFIRMED, ShipmentStatus.PICKUP_ASSIGNED,
         ShipmentStatus.PICKED_UP, ShipmentStatus.AT_ORIGIN_HUB, ShipmentStatus.IN_TRANSIT,
         ShipmentStatus.AT_DESTINATION_HUB, ShipmentStatus.OUT_FOR_DELIVERY, ShipmentStatus.DELIVERED,
-        ShipmentStatus.DELIVERY_FAILED, ShipmentStatus.RETURNING, ShipmentStatus.RETURNED, ShipmentStatus.CANCELLED);
+        ShipmentStatus.DELIVERY_FAILED, ShipmentStatus.RETURNING, ShipmentStatus.RETURNED, ShipmentStatus.CANCELLED,
+        ShipmentStatus.AT_ORIGIN_BRANCH, ShipmentStatus.AT_DESTINATION_BRANCH);
 
     public static boolean allowsStatus(ShipmentStatus status) {
         return status != null && PUBLIC_STATUSES.contains(status);

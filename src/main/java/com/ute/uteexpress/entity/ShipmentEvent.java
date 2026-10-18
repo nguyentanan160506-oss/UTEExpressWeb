@@ -2,6 +2,7 @@ package com.ute.uteexpress.entity;
 
 import com.ute.uteexpress.enums.ShipmentStatus;
 import jakarta.persistence.Column;
+import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,6 +26,10 @@ import org.hibernate.type.SqlTypes;
 @Table(
     name = "shipment_events",
     schema = "dbo",
+    check = {
+        @CheckConstraint(name = "CK_shipment_events_from_status", constraint = "from_status IS NULL OR from_status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')"),
+        @CheckConstraint(name = "CK_shipment_events_to_status", constraint = "to_status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')")
+    },
     indexes = {
         @Index(name = "IX_shipment_events_timeline", columnList = "shipment_id, occurred_at DESC")
     }

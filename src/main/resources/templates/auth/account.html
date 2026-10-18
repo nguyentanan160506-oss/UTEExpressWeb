@@ -19,6 +19,7 @@
             <span th:each="role : ${roles}" class="badge rounded-pill text-bg-light" th:switch="${role}">
                 <span th:case="'ROLE_USER'">Khách hàng</span>
                 <span th:case="'ROLE_MANAGER'">Quản lý</span>
+                <span th:case="'ROLE_SHIPPER'">Nhân viên lấy và giao hàng</span>
                 <span th:case="'ROLE_ADMIN'">Quản trị viên</span>
                 <span th:case="*" th:text="${role}"></span>
             </span>
