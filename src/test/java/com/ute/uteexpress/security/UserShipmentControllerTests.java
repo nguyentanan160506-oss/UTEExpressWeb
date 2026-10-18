@@ -45,8 +45,13 @@ class UserShipmentControllerTests {
     @MockitoBean private EmailOtpRepository otps;
     @MockitoBean private OtpMailSender otpMailSender;
     @MockitoBean private UserShipmentService shipments;
+    @MockitoBean private QuoteService quotes;
+    private static final String TOKEN = "a".repeat(32);
 
-    @BeforeEach void setup() { when(shipments.options()).thenReturn(options()); }
+    @BeforeEach void setup() {
+        when(shipments.options()).thenReturn(options());
+        when(quotes.branchChoices(any())).thenReturn(new QuoteService.BranchChoices(options().branches(), options().branches()));
+    }
 
     @Test @WithMockUser(roles = "USER")
     void createFormRendersVietnameseFieldsCsrfAndRealCatalogChoices() throws Exception {
@@ -65,16 +70,16 @@ class UserShipmentControllerTests {
     void emptyCatalogExplainsMissingDataAndDisablesCreateButton() throws Exception {
         when(shipments.options()).thenReturn(new ShipmentOptions(List.of(), List.of()));
         mvc.perform(get("/user/shipments/create")).andExpect(status().isOk())
-            .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains("Chưa có đủ chi nhánh")));
+            .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains("Chưa có dịch vụ hoạt động")));
     }
 
     @Test @WithMockUser(roles = "USER")
     void createsAndRedirectsToDetailWithSuccessNotice() throws Exception {
-        when(shipments.create(any())).thenReturn(31L);
-        mvc.perform(post("/user/shipments").with(csrf()).params(params()))
-            .andExpect(redirectedUrl("/user/shipments/31")).andExpect(flash().attributeExists("notice"));
+        when(quotes.quote(any())).thenReturn(TOKEN);
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()))
+            .andExpect(redirectedUrl("/user/shipments/quotes/" + TOKEN)).andExpect(flash().attributeCount(0));
         var form = org.mockito.ArgumentCaptor.forClass(ShipmentCreateForm.class);
-        verify(shipments).create(form.capture()); assertEquals(21L, form.getValue().getServiceId());
+        verify(quotes).quote(form.capture()); assertEquals(21L, form.getValue().getServiceId());
         verify(shipments, never()).options();
     }
 
@@ -90,17 +95,17 @@ class UserShipmentControllerTests {
         }
         mvc.perform(get("/user/shipments/create").accept(MediaType.TEXT_HTML))
             .andExpect(status().isUnauthorized());
-        mvc.perform(post("/user/shipments").with(csrf()).params(params()).accept(MediaType.APPLICATION_JSON))
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "MANAGER")
     void managerWithoutUserRoleIsForbidden() throws Exception {
         mvc.perform(get("/user/shipments").accept(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
-        mvc.perform(post("/user/shipments").with(csrf()).params(params()).accept(MediaType.APPLICATION_JSON))
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden()).andExpect(jsonPath("$.status").value(403));
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "ADMIN")
@@ -110,17 +115,17 @@ class UserShipmentControllerTests {
 
     @Test @WithMockUser(roles = "USER")
     void missingAndInvalidCsrfCannotCreate() throws Exception {
-        mvc.perform(post("/user/shipments").params(params()).accept(MediaType.APPLICATION_JSON))
+        mvc.perform(post("/user/shipments/quotes").params(params()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isForbidden());
-        mvc.perform(post("/user/shipments").with(csrf().useInvalidToken()).params(params()))
+        mvc.perform(post("/user/shipments/quotes").with(csrf().useInvalidToken()).params(params()))
             .andExpect(status().isForbidden());
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "USER")
     void validationErrorsAppearUnderFieldsAndRetainInputWithoutCreating() throws Exception {
         var params = params(); params.set("weightKg", "0"); params.set("receiverPhone", "abc");
-        mvc.perform(post("/user/shipments").with(csrf()).params(params))
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params))
             .andExpect(result -> assertEquals("0", result.getRequest().getParameter("weightKg")))
             .andExpect(status().isOk())
             .andExpect(model().attributeHasFieldErrors("shipmentForm", "weightKg", "receiverPhone"))
@@ -130,49 +135,49 @@ class UserShipmentControllerTests {
                 assertTrue(html.contains("Người gửi thử nghiệm"));
                 assertTrue(html.contains("receiverPhone-error"));
             });
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "USER")
     void malformedNumberAndEnumAreFieldErrors() throws Exception {
         var params = params(); params.set("weightKg", "bad"); params.set("paymentPayer", "ADMIN");
-        mvc.perform(post("/user/shipments").with(csrf()).params(params))
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params))
             .andExpect(model().attributeHasFieldErrors("shipmentForm", "weightKg", "paymentPayer"))
             .andExpect(result -> assertTrue(result.getResponse().getContentAsString()
                 .contains("Vui lòng nhập trọng lượng bằng số hợp lệ.")));
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "USER")
     void tamperedOwnerStatusFeesRolesAndTrackingAreRejected() throws Exception {
         for (String field : List.of("ownerId", "userId", "senderId", "sender.id", "status", "paymentStatus",
                 "shippingFee", "insuranceFee", "totalFee", "currentBranchId", "role", "trackingNumber", "id")) {
-            mvc.perform(post("/user/shipments").with(csrf()).params(params()).param(field, "999"))
+            mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()).param(field, "999"))
                 .andExpect(view().name("shipments/create")).andExpect(model().attributeHasErrors("shipmentForm"))
                 .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains("trường không được phép")));
         }
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
     }
 
     @Test @WithMockUser(roles = "USER")
     void missingRateAndInvalidBranchErrorsStayOnRelevantFields() throws Exception {
-        doThrow(new ShipmentCreationException("serviceId", "Chưa có bảng giá phù hợp.")).when(shipments).create(any());
-        mvc.perform(post("/user/shipments").with(csrf()).params(params()))
+        doThrow(new ShipmentCreationException("serviceId", "Chưa có bảng giá phù hợp.")).when(quotes).quote(any());
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()))
             .andExpect(model().attributeHasFieldErrors("shipmentForm", "serviceId"))
             .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains("Chưa có bảng giá phù hợp.")));
-        doThrow(new ShipmentCreationException("originBranchId", "Chi nhánh không hợp lệ.")).when(shipments).create(any());
-        mvc.perform(post("/user/shipments").with(csrf()).params(params()))
+        doThrow(new ShipmentCreationException("originBranchId", "Chi nhánh không hợp lệ.")).when(quotes).quote(any());
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params()))
             .andExpect(model().attributeHasFieldErrors("shipmentForm", "originBranchId"));
     }
 
     @Test @WithMockUser(roles = "USER")
     void databaseCollisionCannotShowSuccessOrExposeExceptionDetails() throws Exception {
-        doThrow(new DataIntegrityViolationException("internal-detail-marker")).when(shipments).create(any());
-        mvc.perform(post("/user/shipments").with(csrf()).params(params())).andExpect(view().name("shipments/create"))
+        doThrow(new DataIntegrityViolationException("internal-detail-marker")).when(quotes).quote(any());
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params())).andExpect(view().name("shipments/create"))
             .andExpect(model().attributeHasErrors("shipmentForm")).andExpect(result -> {
                 assertFalse(result.getFlashMap().containsKey("notice"));
                 String html = result.getResponse().getContentAsString();
-                assertFalse(html.contains("internal-detail-marker")); assertTrue(html.contains("Không thể tạo vận đơn"));
+                assertFalse(html.contains("internal-detail-marker")); assertTrue(html.contains("Không thể lưu báo giá"));
             });
     }
 
@@ -236,7 +241,88 @@ class UserShipmentControllerTests {
             .andExpect(status().isMethodNotAllowed());
         mvc.perform(post("/user/shipments/31/status").with(csrf()).param("status", "DELIVERED"))
             .andExpect(status().isNotFound());
-        verify(shipments, never()).create(any());
+        verify(quotes, never()).quote(any());
+    }
+
+    @Test void guestCannotReviewQuoteOrRequestBranchesOrConfirm() throws Exception {
+        mvc.perform(get("/user/shipments/quotes/" + TOKEN).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnauthorized());
+        for (String path : List.of("/user/shipments", "/user/shipments/quotes", "/user/shipments/branches")) {
+            mvc.perform(post(path).with(csrf()).param("quoteToken", TOKEN).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+        }
+        verify(quotes, never()).confirm(any()); verify(quotes, never()).review(any());
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void confirmationAcceptsOnlyQuoteTokenAndRedirectsToCreatedShipment() throws Exception {
+        when(quotes.confirm(TOKEN)).thenReturn(31L);
+        mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", TOKEN))
+            .andExpect(redirectedUrl("/user/shipments/31")).andExpect(flash().attributeExists("notice"));
+        verify(quotes).confirm(TOKEN);
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void priceInputAndRawLegacyFormCannotBypassQuoteConfirmation() throws Exception {
+        for (String field : List.of("shippingFee", "pickupFee", "insuranceFee", "totalFee", "originBranchId", "requesterId", "expiresAt")) {
+            mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", TOKEN).param(field, "0"))
+                .andExpect(status().isBadRequest());
+        }
+        mvc.perform(post("/user/shipments").with(csrf()).params(params())).andExpect(status().isBadRequest());
+        verify(quotes, never()).confirm(any());
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void confirmationRequiresValidTokenAndCsrf() throws Exception {
+        mvc.perform(post("/user/shipments").param("quoteToken", TOKEN)).andExpect(status().isForbidden());
+        mvc.perform(post("/user/shipments").with(csrf().useInvalidToken()).param("quoteToken", TOKEN))
+            .andExpect(status().isForbidden());
+        for (String token : List.of("51", "x".repeat(32), "a".repeat(33))) {
+            mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", token)).andExpect(status().isBadRequest());
+        }
+        verify(quotes, never()).confirm(any());
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void reviewShowsSavedBreakdownAndOnlyTokenInConfirmationForm() throws Exception {
+        when(quotes.review(TOKEN)).thenReturn(quoteView());
+        mvc.perform(get("/user/shipments/quotes/" + TOKEN)).andExpect(status().isOk())
+            .andExpect(header().string("Cache-Control", "no-store")).andExpect(view().name("shipments/quote"))
+            .andExpect(result -> {
+                String html = result.getResponse().getContentAsString();
+                assertTrue(html.contains("32.500,00")); assertTrue(html.contains("7.500,00"));
+                assertTrue(html.contains("Xác nhận tạo vận đơn")); assertTrue(html.contains("name=\"_csrf\""));
+                assertTrue(html.contains("name=\"quoteToken\"")); assertFalse(html.contains("name=\"totalFee\""));
+                assertTrue(html.contains("Chưa áp dụng sản phẩm bảo hiểm"));
+            });
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void quoteBusinessFailureAndPersistenceFailureNeverShowSuccessOrDatabaseDetails() throws Exception {
+        when(quotes.confirm(TOKEN)).thenThrow(new ShipmentCreationException("shipmentMethod", "Báo giá đã hết hạn."));
+        mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", TOKEN))
+            .andExpect(redirectedUrl("/user/shipments/quotes/" + TOKEN)).andExpect(flash().attributeExists("error"))
+            .andExpect(result -> assertFalse(result.getFlashMap().containsKey("notice")));
+        doThrow(new DataIntegrityViolationException("private-database-marker")).when(quotes).confirm(TOKEN);
+        mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", TOKEN))
+            .andExpect(flash().attributeExists("error"))
+            .andExpect(result -> assertFalse(result.getFlashMap().toString().contains("private-database-marker")));
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void unknownAndForeignQuotesAre404AndMalformedTokensAre400() throws Exception {
+        when(quotes.review(TOKEN)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        when(quotes.confirm(TOKEN)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        mvc.perform(get("/user/shipments/quotes/" + TOKEN)).andExpect(status().isNotFound());
+        mvc.perform(post("/user/shipments").with(csrf()).param("quoteToken", TOKEN)).andExpect(status().isNotFound());
+        mvc.perform(get("/user/shipments/quotes/51")).andExpect(status().isBadRequest());
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void branchLookupRetainsInputAndCannotCreateQuoteOrShipment() throws Exception {
+        mvc.perform(post("/user/shipments/branches").with(csrf()).params(params()))
+            .andExpect(status().isOk()).andExpect(view().name("shipments/create"));
+        verify(quotes, atLeastOnce()).branchChoices(any()); verify(quotes, never()).quote(any()); verify(quotes, never()).confirm(any());
     }
 
     private MultiValueMap<String, String> params() {

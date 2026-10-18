@@ -21,11 +21,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @PreAuthorize("hasRole('USER')")
 public class UserShipmentController {
     private final UserShipmentService shipments;
-    public UserShipmentController(UserShipmentService shipments) { this.shipments = shipments; }
+    private final QuoteService quotes;
+    public UserShipmentController(UserShipmentService shipments, QuoteService quotes) { this.shipments = shipments; this.quotes = quotes; }
+
+    @InitBinder("quoteConfirmation")
+    void confirmationFields(WebDataBinder binder) { binder.setAllowedFields("quoteToken", "_csrf"); }
 
     @InitBinder("shipmentForm")
     void shipmentFields(WebDataBinder binder) {
-        binder.setAllowedFields("senderName", "senderProvince", "senderDistrict", "senderWard", "senderAddress",
+        binder.setAllowedFields("shipmentMethod", "senderName", "senderProvince", "senderDistrict", "senderWard", "senderAddress",
             "senderPhone", "receiverName", "receiverProvince", "receiverDistrict", "receiverWard", "receiverAddress",
             "receiverPhone", "originBranchId", "destinationBranchId", "serviceId", "packageDescription", "weightKg",
             "lengthCm", "widthCm", "heightCm", "codAmount", "declaredValue", "paymentPayer", "note", "_csrf");
@@ -40,24 +44,60 @@ public class UserShipmentController {
         return formPage(model);
     }
 
-    @PostMapping
-    public String create(@Valid @ModelAttribute("shipmentForm") ShipmentCreateForm form,
-            BindingResult errors, Model model, RedirectAttributes flash) {
+    @PostMapping("/quotes")
+    public String quote(@Valid @ModelAttribute("shipmentForm") ShipmentCreateForm form,
+            BindingResult errors, Model model) {
         if (errors.getSuppressedFields().length > 0) {
             errors.reject("shipment.fields", "Yêu cầu chứa trường không được phép. Vui lòng chỉ nhập thông tin trong biểu mẫu.");
         }
         if (errors.hasErrors()) { return formPage(model); }
         try {
-            Long id = shipments.create(form);
-            flash.addFlashAttribute("notice", "Tạo vận đơn thành công.");
-            return "redirect:/user/shipments/" + id;
+            String token = quotes.quote(form);
+            return "redirect:/user/shipments/quotes/" + token;
         } catch (ShipmentCreationException exception) {
             errors.rejectValue(exception.getField(), "shipment.configuration", exception.getMessage());
         } catch (DataAccessException exception) {
-            // A unique tracking collision or any other database failure rolls back the whole service transaction.
-            errors.reject("shipment.database", "Không thể tạo vận đơn lúc này. Vui lòng thử lại; hệ thống chưa xác nhận tạo thành công.");
+            // Failed quote persistence never creates a shipment.
+            errors.reject("shipment.database", "Không thể lưu báo giá lúc này. Vui lòng thử lại; chưa có vận đơn được tạo.");
         }
         return formPage(model);
+    }
+
+    @PostMapping("/branches")
+    public String branchChoices(@ModelAttribute("shipmentForm") ShipmentCreateForm form, BindingResult errors, Model model) {
+        if (errors.getSuppressedFields().length > 0) { errors.reject("shipment.fields", "Yêu cầu chứa trường không được phép."); }
+        if (!errors.hasErrors()) {
+            try { model.addAttribute("branchChoices", quotes.branchChoices(form)); }
+            catch (ShipmentCreationException failure) { errors.rejectValue(failure.getField(), "shipment.coverage", failure.getMessage()); }
+        }
+        return formPage(model);
+    }
+
+    @GetMapping("/quotes/{token}")
+    public String review(@PathVariable @Pattern(regexp = "[a-f0-9]{32}") String token, Model model,
+            jakarta.servlet.http.HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
+        model.addAttribute("quote", quotes.review(token));
+        return "shipments/quote";
+    }
+
+    @PostMapping
+    public String confirm(@Valid @ModelAttribute("quoteConfirmation") QuoteConfirmationForm form,
+            BindingResult errors, RedirectAttributes flash) {
+        if (errors.hasErrors() || errors.getSuppressedFields().length > 0) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST,
+                "Yêu cầu xác nhận báo giá không hợp lệ.");
+        }
+        try {
+            Long id = quotes.confirm(form.getQuoteToken());
+            flash.addFlashAttribute("notice", "Tạo vận đơn thành công.");
+            return "redirect:/user/shipments/" + id;
+        } catch (ShipmentCreationException failure) {
+            flash.addFlashAttribute("error", failure.getMessage());
+        } catch (DataAccessException failure) {
+            flash.addFlashAttribute("error", "Chưa thể xác nhận kết quả. Vui lòng thử lại cùng báo giá để tránh tạo trùng.");
+        }
+        return "redirect:/user/shipments/quotes/" + form.getQuoteToken();
     }
 
     @GetMapping
@@ -81,6 +121,12 @@ public class UserShipmentController {
     private String formPage(Model model) {
         model.addAttribute("options", shipments.options());
         model.addAttribute("payers", PaymentPayer.values());
+        if (!model.containsAttribute("branchChoices")) {
+            try { model.addAttribute("branchChoices", quotes.branchChoices((ShipmentCreateForm) model.getAttribute("shipmentForm"))); }
+            catch (ShipmentCreationException failure) {
+                model.addAttribute("branchChoices", new QuoteService.BranchChoices(java.util.List.of(), java.util.List.of()));
+            }
+        }
         return "shipments/create";
     }
 }

@@ -1,10 +1,16 @@
 package com.ute.uteexpress.dto.shipment;
 
 import com.ute.uteexpress.enums.PaymentPayer;
+import com.ute.uteexpress.enums.ShipmentMethod;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 public class ShipmentCreateForm {
+    @NotNull(message = "Vui lòng chọn phương thức gửi hàng.")
+    private ShipmentMethod shipmentMethod;
+
+    public ShipmentMethod getShipmentMethod() { return shipmentMethod; }
+    public void setShipmentMethod(ShipmentMethod value) { shipmentMethod = value; }
     @NotBlank(message = "Vui lòng nhập thông tin này.")
     @Size(max = 100, message = "Tối đa 100 ký tự.")
     private String senderName;
@@ -53,7 +59,6 @@ public class ShipmentCreateForm {
     @Pattern(regexp = "\\+?[0-9]{9,15}", message = "Số điện thoại cần có 9–15 chữ số.")
     private String receiverPhone;
 
-    @NotNull(message = "Vui lòng chọn thông tin này.")
     @Positive(message = "Lựa chọn không hợp lệ.")
     private Long originBranchId;
 

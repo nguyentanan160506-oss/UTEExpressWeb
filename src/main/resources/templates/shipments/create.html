@@ -7,14 +7,28 @@
     <a th:href="@{/user/shipments}" class="small text-decoration-none">← Lịch sử vận đơn</a>
     <p class="shipment-eyebrow mt-4 mb-2">GỬI HÀNG CÙNG UTEEXPRESS</p>
     <h1 class="h2 fw-bold mb-2">Tạo vận đơn</h1>
-    <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Phí được tính theo bảng giá đang hiệu lực khi tạo vận đơn.</p>
-    <form th:action="@{/user/shipments}" th:object="${shipmentForm}" method="post">
+    <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Xem báo giá trước khi xác nhận tạo vận đơn.</p>
+    <form th:action="@{/user/shipments/quotes}" th:object="${shipmentForm}" method="post">
         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
             <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="mb-0"></p>
         </div>
-        <div th:if="${options.branches.empty or options.services.empty}" class="alert alert-warning">
-            Chưa có đủ chi nhánh hoặc dịch vụ hoạt động để tạo vận đơn. Vui lòng liên hệ hỗ trợ.
+        <div th:if="${options.services.empty}" class="alert alert-warning">
+            Chưa có dịch vụ hoạt động để báo giá. Vui lòng liên hệ hỗ trợ.
         </div>
+        <section class="card shipment-card mb-4"><div class="card-body p-4">
+            <h2 class="h5 fw-bold">Phương thức gửi hàng</h2>
+            <label for="shipmentMethod" class="form-label">Chọn phương thức</label>
+            <select id="shipmentMethod" th:field="*{shipmentMethod}" class="form-select" th:errorclass="is-invalid" required aria-describedby="shipmentMethod-error">
+                <option value="">Chọn phương thức gửi hàng</option>
+                <option value="HOME_PICKUP">Lấy hàng tận nhà — có phụ phí</option>
+                <option value="BRANCH_DROPOFF">Mang đến chi nhánh — không có phụ phí lấy hàng</option>
+            </select>
+            <div id="shipmentMethod-error" th:errors="*{shipmentMethod}" class="invalid-feedback"></div>
+            <p class="small text-secondary mt-3 mb-0">Nhập tỉnh, huyện, xã của hai đầu rồi bấm “Tìm chi nhánh phục vụ”.
+                Lấy tận nhà: hệ thống xác định chi nhánh nguồn theo vùng phục vụ; nếu có nhiều lựa chọn, hãy chọn trong danh sách.
+                Mang đến chi nhánh: bạn chọn chi nhánh nguồn và tự mang kiện đến sau khi tạo đơn.</p>
+            <button type="submit" th:formaction="@{/user/shipments/branches}" formnovalidate class="btn btn-outline-primary mt-3">Tìm chi nhánh phục vụ</button>
+        </div></section>
         <div class="row g-4">
             <section class="col-lg-6"><div class="card shipment-card h-100"><div class="card-body p-4">
                 <h2 class="h5 fw-bold mb-4">01 · Người gửi</h2><div class="row g-3">
@@ -56,9 +70,9 @@
                     </div>
                     <div class="col-12">
                         <label for="originBranchId" class="form-label">Chi nhánh gửi <span class="text-danger" aria-hidden="true">*</span></label>
-                        <select id="originBranchId" th:field="*{originBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="originBranchId-error">
-                            <option value="">Chọn chi nhánh gửi</option>
-                            <option th:each="option : ${options.branches}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
+                        <select id="originBranchId" th:field="*{originBranchId}" class="form-select" th:errorclass="is-invalid" aria-describedby="originBranchId-error">
+                            <option value="">Tự xác định khi lấy tận nhà và có duy nhất một chi nhánh</option>
+                            <option th:each="option : ${branchChoices.origins}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
                         </select>
                         <div id="originBranchId-error" th:errors="*{originBranchId}" class="invalid-feedback"></div>
                     </div>
@@ -106,7 +120,7 @@
                         <label for="destinationBranchId" class="form-label">Chi nhánh nhận <span class="text-danger" aria-hidden="true">*</span></label>
                         <select id="destinationBranchId" th:field="*{destinationBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="destinationBranchId-error">
                             <option value="">Chọn chi nhánh nhận</option>
-                            <option th:each="option : ${options.branches}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
+                            <option th:each="option : ${branchChoices.destinations}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
                         </select>
                         <div id="destinationBranchId-error" th:errors="*{destinationBranchId}" class="invalid-feedback"></div>
                     </div>
@@ -187,7 +201,8 @@
         <datalist id="branch-provinces"><option th:each="branch : ${options.branches}" th:value="${branch.province}"></option></datalist>
         <div class="d-flex flex-wrap justify-content-end gap-3 mt-4">
             <a th:href="@{/user/shipments}" class="btn btn-outline-primary">Quay lại danh sách</a>
-            <button type="submit" class="btn btn-primary px-4" th:disabled="${options.branches.empty or options.services.empty}">Tạo vận đơn</button>
+            <button type="submit" th:formaction="@{/user/shipments/branches}" formnovalidate class="btn btn-outline-primary">Tìm chi nhánh phục vụ</button>
+            <button type="submit" class="btn btn-primary px-4" th:disabled="${options.services.empty}">Xem báo giá</button>
         </div>
     </form>
 </main>

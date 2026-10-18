@@ -292,6 +292,12 @@ class SecurityConfigTests {
         @Bean com.ute.uteexpress.repository.BranchServiceAreaRepository branchServiceAreaRepository() {
             return mock(com.ute.uteexpress.repository.BranchServiceAreaRepository.class);
         }
+        @Bean com.ute.uteexpress.repository.ShipmentQuoteRepository shipmentQuoteRepository() {
+            return mock(com.ute.uteexpress.repository.ShipmentQuoteRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.PickupFeeRuleRepository pickupFeeRuleRepository() {
+            return mock(com.ute.uteexpress.repository.PickupFeeRuleRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.ShipmentRepository shipmentRepository() {
             return mock(com.ute.uteexpress.repository.ShipmentRepository.class);
         }

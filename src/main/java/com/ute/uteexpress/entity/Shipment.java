@@ -54,6 +54,8 @@ import org.hibernate.type.SqlTypes;
         @CheckConstraint(name = "CK_shipments_status", constraint = "status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')"),
         @CheckConstraint(name = "CK_shipments_method", constraint = "shipment_method IS NULL OR shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF')"),
         @CheckConstraint(name = "CK_shipments_version", constraint = "version >= 0"),
+        @CheckConstraint(name = "CK_shipments_pickup_fee", constraint = "pickup_fee IS NULL OR pickup_fee >= 0"),
+        @CheckConstraint(name = "CK_shipments_quote_snapshot", constraint = "quote_id IS NULL OR (shipment_method IS NOT NULL AND origin_hub_id IS NOT NULL AND destination_hub_id IS NOT NULL AND pickup_fee IS NOT NULL AND total_fee = shipping_fee + pickup_fee + insurance_fee)"),
         @CheckConstraint(name = "CK_shipments_attempts", constraint = "delivery_attempt_count >= 0"),
         @CheckConstraint(name = "CK_shipments_max_attempts", constraint = "max_delivery_attempts >= 1"),
         @CheckConstraint(name = "CK_shipments_payment_status", constraint = "payment_status IN ('UNPAID', 'PAID', 'REFUNDED')"),
@@ -153,6 +155,20 @@ public class Shipment {
     @Column(name = "version", nullable = false)
     @ColumnDefault("0")
     private Long version;
+
+    @JdbcTypeCode(SqlTypes.DECIMAL)
+    @Column(name = "pickup_fee", nullable = true, precision = 18, scale = 2)
+    private BigDecimal pickupFee;
+
+    // V4 enforces one shipment per non-null quote using a filtered unique index.
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "quote_id", nullable = true, foreignKey = @ForeignKey(name = "FK_shipments_quote"))
+    private ShipmentQuote quote;
+
+    public BigDecimal getPickupFee() { return pickupFee; }
+    public void setPickupFee(BigDecimal value) { pickupFee = value; }
+    public ShipmentQuote getQuote() { return quote; }
+    public void setQuote(ShipmentQuote value) { quote = value; }
 
     @Nationalized
     @Column(name = "package_description", nullable = false, length = 255)

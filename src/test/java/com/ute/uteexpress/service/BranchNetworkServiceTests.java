@@ -50,4 +50,11 @@ class BranchNetworkServiceTests {
         assertTrue(service.servingBranches("P", "D", "W", ShipmentMethod.HOME_PICKUP).isEmpty());
         verifyNoInteractions(branches); verify(areas, never()).save(any());
     }
+
+    @Test void explicitDeliveryCoverageUsesItsOwnQueryAndActiveNetwork() {
+        when(areas.findDeliveryBranches("P", "D", "W", BranchStatus.ACTIVE,
+            BranchType.LOCAL_BRANCH, BranchType.CENTRAL_HUB)).thenReturn(List.of(local));
+        assertEquals(List.of(11L), service.deliveryBranches(" P ", " D ", " W ").stream().map(option -> option.id()).toList());
+        verify(areas, never()).findServingBranches(any(), any(), any(), any(), any(), any(), any());
+    }
 }

@@ -35,6 +35,7 @@
                     <dt class="col-sm-5 text-secondary fw-normal">Chiều dài (cm)</dt><dd class="col-sm-7" th:text="${shipment.lengthCm ?: '—'}"></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Chiều rộng (cm)</dt><dd class="col-sm-7" th:text="${shipment.widthCm ?: '—'}"></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Chiều cao (cm)</dt><dd class="col-sm-7" th:text="${shipment.heightCm ?: '—'}"></dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Phương thức gửi</dt><dd class="col-sm-7" th:text="${shipment.shipmentMethod == null ? 'Chưa xác định (vận đơn cũ)' : (shipment.shipmentMethod.name() == 'HOME_PICKUP' ? 'Lấy hàng tận nhà' : 'Mang đến chi nhánh')}"></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Dịch vụ</dt><dd class="col-sm-7" th:text="${shipment.serviceName ?: '—'}"></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Chi nhánh gửi</dt><dd class="col-sm-7" th:text="${shipment.originBranch ?: '—'}"></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Chi nhánh nhận</dt><dd class="col-sm-7" th:text="${shipment.destinationBranch ?: '—'}"></dd>
@@ -51,6 +52,7 @@
                     <dt class="col-sm-5 text-secondary fw-normal">Giá trị khai báo</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.declaredValue, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Tiền thu hộ COD</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.codAmount, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Phí vận chuyển</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.shippingFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
+                    <dt class="col-sm-5 text-secondary fw-normal">Phụ phí lấy hàng</dt><dd class="col-sm-7"><span th:if="${shipment.pickupFee == null}">Chưa có snapshot (vận đơn cũ)</span><span th:unless="${shipment.pickupFee == null}" th:text="${#numbers.formatDecimal(shipment.pickupFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></span></dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Phí bảo hiểm</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.insuranceFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Tổng phí</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.totalFee, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Bên trả phí</dt><dd class="col-sm-7" th:text="${shipment.paymentPayer.name() == 'SENDER' ? 'Người gửi' : 'Người nhận'}"></dd>
