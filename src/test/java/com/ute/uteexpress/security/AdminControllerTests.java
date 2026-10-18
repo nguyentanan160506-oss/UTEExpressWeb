@@ -185,7 +185,18 @@ class AdminControllerTests {
             .andExpect(flash().attributeExists("error"));
         mvc.perform(post("/admin/users/2/roles").with(csrf()).param("roleIds", "not-a-number"))
             .andExpect(flash().attributeExists("error"));
+        mvc.perform(post("/admin/users/2/roles").with(csrf()).param("roleIds", "11", "12", "13", "14", "15"))
+            .andExpect(flash().attributeExists("error"));
         verify(admin, never()).updateRoles(anyLong(), any());
+    }
+
+    @Test @WithMockUser(roles = "ADMIN")
+    void formAcceptsFourExistingRoleIdsForServiceValidation() throws Exception {
+        mvc.perform(post("/admin/users/2/roles").with(csrf()).param("roleIds", "11", "12", "13", "14"))
+            .andExpect(redirectedUrl("/admin/users/2")).andExpect(flash().attributeExists("notice"));
+        var form = org.mockito.ArgumentCaptor.forClass(RoleUpdateForm.class);
+        verify(admin).updateRoles(eq(2L), form.capture());
+        assertEquals(List.of(11L, 12L, 13L, 14L), form.getValue().getRoleIds());
     }
 
     @Test @WithMockUser(roles = "ADMIN")

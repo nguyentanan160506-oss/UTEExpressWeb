@@ -125,6 +125,14 @@ class SecurityConfigTests {
     }
 
     @Test
+    @WithMockUser(roles = "SHIPPER")
+    void shipperCannotAccessAdminOrUserShipments() throws Exception {
+        for (String path : List.of("/__security-fixture/admin", "/admin/users", "/user/shipments/31")) {
+            mvc.perform(get(path).accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+        }
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     void adminCanInvokeExplicitlyAdminSecuredFixture() throws Exception {
         mvc.perform(get("/__security-fixture/admin")).andExpect(status().isOk());
@@ -272,6 +280,18 @@ class SecurityConfigTests {
     static class TestApplication {
         // Shared MVC contexts disable JPA. Supply the new module's persistence boundaries
         // so the existing Auth/Admin tests keep exercising their real controllers and filters.
+        @Bean com.ute.uteexpress.repository.EmployeeRepository employeeRepository() {
+            return mock(com.ute.uteexpress.repository.EmployeeRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ManagerBranchRepository managerBranchRepository() {
+            return mock(com.ute.uteexpress.repository.ManagerBranchRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ShipmentAssignmentRepository shipmentAssignmentRepository() {
+            return mock(com.ute.uteexpress.repository.ShipmentAssignmentRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.BranchServiceAreaRepository branchServiceAreaRepository() {
+            return mock(com.ute.uteexpress.repository.BranchServiceAreaRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.ShipmentRepository shipmentRepository() {
             return mock(com.ute.uteexpress.repository.ShipmentRepository.class);
         }

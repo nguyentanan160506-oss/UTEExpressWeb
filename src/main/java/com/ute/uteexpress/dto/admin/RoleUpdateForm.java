@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RoleUpdateForm {
     @NotNull
-    @Size(max = 3, message = "Yêu cầu phân quyền không hợp lệ.")
+    @Size(max = 4, message = "Yêu cầu phân quyền không hợp lệ.")
     private List<@NotNull @Positive Long> roleIds = new ArrayList<>();
 
     public List<Long> getRoleIds() { return roleIds; }

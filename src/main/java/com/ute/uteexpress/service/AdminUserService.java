@@ -26,7 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserService {
     private static final String ADMIN = "ROLE_ADMIN";
-    private static final Set<String> EDITABLE_ROLES = Set.of("ROLE_USER", "ROLE_MANAGER", ADMIN);
+    private static final Set<String> EDITABLE_ROLES = Set.of("ROLE_USER", "ROLE_MANAGER", "ROLE_SHIPPER", ADMIN);
     private final UserRepository users;
     private final RoleRepository roles;
     private final UserRoleRepository memberships;
@@ -103,7 +103,7 @@ public class AdminUserService {
         User target = users.findByIdForUpdate(id).orElseThrow(this::notFound);
         List<Role> allowed = availableRoles();
         Set<Long> allowedIds = allowed.stream().map(Role::getId).collect(Collectors.toSet());
-        if (form.getRoleIds() == null || form.getRoleIds().size() > 3
+        if (form.getRoleIds() == null || form.getRoleIds().size() > EDITABLE_ROLES.size()
                 || !allowedIds.containsAll(form.getRoleIds())) {
             throw new AdminRuleException("Yêu cầu chứa quyền không được phép hoặc không tồn tại.");
         }

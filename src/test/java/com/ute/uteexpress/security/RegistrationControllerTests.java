@@ -5,6 +5,8 @@ import com.ute.uteexpress.repository.*;
 import com.ute.uteexpress.service.*;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -56,15 +58,18 @@ class RegistrationControllerTests {
             });
     }
 
-    @Test void validRegistrationRedirectsToVerificationWithoutAuthenticating() throws Exception {
+    @ParameterizedTest @ValueSource(strings = {"ROLE_ADMIN", "ROLE_SHIPPER"})
+    void validRegistrationIgnoresRoleTamperingAndRedirectsWithoutAuthenticating(String attemptedRole) throws Exception {
         String password = UUID.randomUUID().toString();
         var result = mvc.perform(validRegistration(password).with(csrf())
-                .param("role", "ROLE_ADMIN").param("status", "ACTIVE"))
+                .param("role", attemptedRole).param("status", "ACTIVE"))
             .andExpect(redirectedUrl("/verify-email")).andReturn();
         var form = org.mockito.ArgumentCaptor.forClass(RegistrationForm.class);
         verify(registration).register(form.capture());
         assertEquals("fixture@example.test", form.getValue().getEmail());
         assertNull(form.getValue().getPassword());
+        assertTrue(java.util.Arrays.stream(RegistrationForm.class.getDeclaredFields())
+            .noneMatch(field -> field.getName().toLowerCase(java.util.Locale.ROOT).contains("role")));
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
         assertEquals("fixture@example.test", session.getAttribute("PENDING_VERIFICATION_EMAIL"));
         assertNull(session.getAttribute("SPRING_SECURITY_CONTEXT"));

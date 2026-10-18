@@ -158,6 +158,28 @@ class AdminUserServiceTests {
         verify(memberships, never()).deleteById(any());
     }
 
+    @Test void shipperIsAnExplicitExistingEditableRoleWithoutImplicitUserOrAdminGrants() {
+        Role shipper = role(14L, "ROLE_SHIPPER");
+        when(roles.findByNameInOrderByNameAsc(anyCollection()))
+            .thenReturn(List.of(adminRole, managerRole, shipper, userRole));
+        assertTrue(service.editableRoles().stream().anyMatch(role -> role.name().equals("ROLE_SHIPPER")));
+        service.updateRoles(2L, form(14L));
+        var added = org.mockito.ArgumentCaptor.forClass(UserRole.class);
+        verify(memberships).save(added.capture());
+        assertEquals("ROLE_SHIPPER", added.getValue().getRole().getName());
+        verify(memberships).deleteById(new UserRoleId(2L, 11L));
+        verify(roles, never()).save(any());
+    }
+
+    @Test void allFourExistingRolesCanBeSelectedTogether() {
+        Role shipper = role(14L, "ROLE_SHIPPER");
+        when(roles.findByNameInOrderByNameAsc(anyCollection()))
+            .thenReturn(List.of(adminRole, managerRole, shipper, userRole));
+        service.updateRoles(2L, form(11L, 12L, 13L, 14L));
+        verify(memberships, times(3)).save(any());
+        verify(memberships, never()).deleteById(any());
+    }
+
     @Test void rolesOutsideAllowlistArePreservedAndRetainedAssignmentsAreNotRewritten() {
         when(memberships.findRoleSummaries(List.of(2L))).thenReturn(List.of(
             summary(2L, 11L, "ROLE_USER"), summary(2L, 99L, "ROLE_EXTERNAL")));
