@@ -1,5 +1,9 @@
 # Commit 08 — Nền tảng logistics
 
+**Cập nhật Commit 10:** Các thao tác phân công PICKUP, phân công lại nhiệm vụ còn chờ và tiếp nhận
+BRANCH_DROPOFF có guard/biên nhận riêng đã được mở trong lifecycle. Generic transition vẫn không được
+bỏ qua các điều kiện này. Xem [manager-logistics.md](manager-logistics.md) cho V5, khóa parent và phạm vi Manager hiện hành.
+
 Nhánh triển khai: `feature/thuan-logistics-core`. Không có endpoint mới trong commit này.
 Không chạy migration hoặc kết nối SQL Server thật khi triển khai code.
 

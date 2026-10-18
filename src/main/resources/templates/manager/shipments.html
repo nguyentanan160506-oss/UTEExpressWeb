@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Yêu cầu gửi hàng · UTEExpress')}"></head>
+<body><nav th:replace="~{manager/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5">
+    <h1 class="h2 fw-bold">Yêu cầu gửi hàng</h1><p class="text-secondary">Phạm vi chi nhánh nguồn được phân quyền · Thời gian UTC</p>
+    <form th:action="@{/manager/shipments}" method="get" class="row g-3 my-3">
+        <div class="col-md-4"><label for="branchId" class="form-label">Chi nhánh nguồn</label><select id="branchId" name="branchId" class="form-select">
+            <option value="">Tất cả chi nhánh được phân quyền</option><option th:each="b : ${branches}" th:value="${b.id}" th:text="${b.name}" th:selected="${b.id == selectedBranch}"></option>
+        </select></div>
+        <div class="col-md-4"><label for="status" class="form-label">Trạng thái</label><select id="status" name="status" class="form-select">
+            <option value="">Tất cả</option><option th:each="s : ${statuses}" th:value="${s}" th:text="${statusLabels[s]}" th:selected="${s == selectedStatus}"></option>
+        </select></div>
+        <div class="col-md-4"><label for="method" class="form-label">Phương thức gửi</label><select id="method" name="method" class="form-select">
+            <option value="">Tất cả (gồm đơn cũ chưa xác định)</option><option value="HOME_PICKUP" th:selected="${selectedMethod != null and selectedMethod.name() == 'HOME_PICKUP'}">Lấy hàng tận nhà</option>
+            <option value="BRANCH_DROPOFF" th:selected="${selectedMethod != null and selectedMethod.name() == 'BRANCH_DROPOFF'}">Mang đến chi nhánh</option>
+        </select></div>
+        <div class="col-md-7"><label for="q" class="form-label">Mã vận đơn</label><input id="q" name="q" maxlength="50" th:value="${q}" class="form-control"></div>
+        <div class="col-md-3"><label for="size" class="form-label">Số dòng (1–100)</label><input id="size" name="size" type="number" min="1" max="100" th:value="${size}" class="form-control"></div>
+        <div class="col-md-2 align-self-end"><button class="btn btn-primary w-100" type="submit">Lọc</button></div>
+    </form>
+    <p th:if="${shipments.empty}" class="alert alert-info">Không có vận đơn phù hợp trong phạm vi quản lý.</p>
+    <div th:unless="${shipments.empty}" class="table-responsive card shipment-card"><table class="table table-hover align-middle mb-0">
+        <thead><tr><th>Mã vận đơn</th><th>Chi nhánh nguồn</th><th>Phương thức</th><th>Trạng thái</th><th>Thời gian tạo</th></tr></thead>
+        <tbody><tr th:each="s : ${shipments.content}"><td><a th:href="@{/manager/shipments/{id}(id=${s.id})}" th:text="${s.trackingNumber}"></a></td>
+            <td th:text="${s.originBranch}"></td><td><span th:replace="~{manager/fragments :: method(${s.method})}"></span></td>
+            <td><span th:replace="~{shipments/fragments :: status(${s.status})}"></span></td><td th:text="${#temporals.format(s.createdAt, 'dd/MM/yyyy HH:mm')}"></td></tr></tbody>
+    </table></div>
+    <nav class="d-flex flex-wrap gap-3 mt-4" aria-label="Phân trang vận đơn">
+        <a th:if="${shipments.hasPrevious()}" th:href="@{/manager/shipments(page=${shipments.number - 1},size=${size},branchId=${selectedBranch},status=${selectedStatus},method=${selectedMethod},q=${q})}">Trang trước</a>
+        <span th:text="${'Trang ' + (shipments.number + 1) + ' / ' + (shipments.totalPages == 0 ? 1 : shipments.totalPages)}"></span>
+        <a th:if="${shipments.hasNext()}" th:href="@{/manager/shipments(page=${shipments.number + 1},size=${size},branchId=${selectedBranch},status=${selectedStatus},method=${selectedMethod},q=${q})}">Trang sau</a>
+    </nav>
+</main></body></html>

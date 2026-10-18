@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Chi tiết vận hành · UTEExpress')}"></head>
+<body><nav th:replace="~{manager/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5" th:with="s=${detail.shipment}">
+    <a th:href="@{/manager/shipments(branchId=${s.originBranchId})}">← Yêu cầu của chi nhánh</a>
+    <div class="d-flex flex-wrap justify-content-between gap-3 my-4">
+        <div><h1 class="h3 fw-bold text-break" th:text="${s.trackingNumber}"></h1>
+            <p class="text-secondary mb-0" th:text="${s.originBranch}"></p><span th:replace="~{manager/fragments :: method(${s.method})}"></span></div>
+        <div><span th:replace="~{shipments/fragments :: status(${s.status})}"></span></div>
+    </div>
+    <p th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></p>
+    <p th:if="${error != null}" th:text="${error}" class="alert alert-danger" role="alert"></p>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section class="card shipment-card mb-4"><div class="card-body p-4">
+                <h2 class="h5 fw-bold">Thông tin gửi và nhận</h2>
+                <h3 class="h6 mt-4">Người gửi / địa chỉ lấy hàng</h3><p th:text="${detail.sender.name + ' · ' + detail.sender.phone}"></p>
+                <p th:text="${detail.sender.address + ', ' + detail.sender.ward + ', ' + detail.sender.district + ', ' + detail.sender.province}"></p>
+                <h3 class="h6 mt-4">Người nhận</h3><p th:text="${detail.receiver.name + ' · ' + detail.receiver.phone}"></p>
+                <p th:text="${detail.receiver.address + ', ' + detail.receiver.ward + ', ' + detail.receiver.district + ', ' + detail.receiver.province}"></p>
+                <p>Chi nhánh đích: <strong th:text="${detail.destinationBranch}"></strong></p>
+                <p>Hàng hóa: <span th:text="${detail.packageDescription}"></span> · <span th:text="${detail.weightKg}"></span> kg</p>
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">Phí vận chuyển (VND)</dt><dd class="col-sm-6" th:text="${#numbers.formatDecimal(detail.shippingFee, 1, 'POINT', 2, 'COMMA')}"></dd>
+                    <dt class="col-sm-6">Phụ phí lấy hàng (VND)</dt><dd class="col-sm-6" th:text="${detail.pickupFee == null ? 'Chưa có snapshot (đơn cũ)' : #numbers.formatDecimal(detail.pickupFee, 1, 'POINT', 2, 'COMMA')}"></dd>
+                    <dt class="col-sm-6">Bảo hiểm (VND)</dt><dd class="col-sm-6" th:text="${#numbers.formatDecimal(detail.insuranceFee, 1, 'POINT', 2, 'COMMA')}"></dd>
+                    <dt class="col-sm-6">Tổng phí đã lưu (VND)</dt><dd class="col-sm-6 fw-bold" th:text="${#numbers.formatDecimal(detail.totalFee, 1, 'POINT', 2, 'COMMA')}"></dd>
+                </dl>
+            </div></section>
+            <section class="card shipment-card mb-4"><div class="card-body p-4">
+                <h2 class="h5 fw-bold">Thao tác vận hành</h2>
+                <p class="small text-secondary">Xác nhận yêu cầu chưa có nghĩa là chi nhánh đã nhận kiện thực tế.</p>
+                <form th:if="${detail.canConfirm}" th:action="@{/manager/shipments/{id}/confirm(id=${s.id})}" method="post" class="mb-4">
+                    <input type="hidden" name="expectedVersion" th:value="${detail.version}"><button type="submit" class="btn btn-primary">Xác nhận yêu cầu gửi hàng</button>
+                </form>
+                <form th:if="${detail.canCancel}" th:action="@{/manager/shipments/{id}/cancel(id=${s.id})}" method="post" class="mb-4">
+                    <input type="hidden" name="expectedVersion" th:value="${detail.version}">
+                    <label for="cancelReason" class="form-label">Lý do hủy / từ chối</label><textarea id="cancelReason" name="reason" rows="2" required maxlength="500" class="form-control mb-2"></textarea>
+                    <button type="submit" class="btn btn-outline-danger">Hủy / từ chối yêu cầu</button>
+                </form>
+                <p th:if="${s.method != null and s.method.name() == 'HOME_PICKUP'}" class="small text-secondary">Kiện lấy tận nhà cần hoàn thành bước lấy hàng và bàn giao riêng tại chi nhánh.</p>
+                <form th:if="${detail.canReceive}" th:action="@{/manager/shipments/{id}/intake(id=${s.id})}" method="post" class="border-top pt-4">
+                    <h3 class="h6 fw-bold">Tiếp nhận kiện BRANCH_DROPOFF thực tế</h3>
+                    <input type="hidden" name="expectedVersion" th:value="${detail.version}">
+                    <label for="receiptReference" class="form-label">Mã / tham chiếu biên nhận thực tế</label><input id="receiptReference" name="receiptReference" required maxlength="100" class="form-control mb-3">
+                    <label for="intakeNotes" class="form-label">Ghi chú tiếp nhận</label><textarea id="intakeNotes" name="notes" maxlength="500" rows="2" class="form-control mb-3"></textarea>
+                    <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="physicallyReceived" value="true" id="physicallyReceived" required>
+                        <label class="form-check-label" for="physicallyReceived">Tôi đã kiểm tra và thực nhận kiện tại chi nhánh nguồn.</label></div>
+                    <button class="btn btn-primary" type="submit">Ghi biên nhận và xác nhận đã nhận kiện</button>
+                </form>
+                <p th:if="${s.method != null and s.method.name() == 'BRANCH_DROPOFF' and s.status.name() == 'CONFIRMED' and !detail.canReceive}" class="alert alert-info mb-0">
+                    Chưa đủ điều kiện tiếp nhận. Cần nhân viên điều phối/kho ACTIVE liên kết với tài khoản quản lý đúng chi nhánh, không còn nhiệm vụ hoạt động và chưa có biên nhận.
+                </p>
+                <div th:if="${detail.receipt != null}" class="border-top pt-3"><h3 class="h6 fw-bold">Biên nhận nguồn đã lưu</h3>
+                    <p>Mã: <strong th:text="${detail.receipt.reference}"></strong></p><p>Nhân viên: <span th:text="${detail.receipt.employeeName}"></span> · Tài khoản: <span th:text="${detail.receipt.actorName}"></span></p>
+                    <p th:text="${#temporals.format(detail.receipt.receivedAt, 'dd/MM/yyyy HH:mm:ss') + ' UTC'}"></p><p class="shipment-note" th:text="${detail.receipt.notes}"></p>
+                </div>
+            </div></section>
+            <section class="card shipment-card" th:if="${detail.canAssign or detail.canReassign}"><div class="card-body p-4">
+                <h2 class="h5 fw-bold" th:text="${detail.canReassign ? 'Phân công lại lấy hàng' : 'Phân công lấy hàng'}"></h2>
+                <p class="small text-secondary">Chỉ Shipper ACTIVE có tài khoản hợp lệ và thuộc chi nhánh nguồn. Không chuyển nhiệm vụ đã bắt đầu sang người khác.</p>
+                <p th:if="${detail.candidates.empty}" class="alert alert-warning">Chưa có Shipper đủ điều kiện trong trang danh sách này.</p>
+                <form th:unless="${detail.candidates.empty}" th:action="@{/manager/shipments/{id}/pickup-assignments(id=${s.id})}" method="post">
+                    <input type="hidden" name="expectedVersion" th:value="${detail.version}">
+                    <input th:if="${detail.canReassign}" type="hidden" name="replacesAssignmentId" th:value="${detail.activePickupId}">
+                    <label for="employeeId" class="form-label">Shipper tại chi nhánh nguồn</label><select id="employeeId" name="employeeId" required class="form-select mb-3">
+                        <option value="">Chọn Shipper</option><option th:each="e : ${detail.candidates.content}" th:value="${e.id}" th:text="${e.code + ' · ' + e.name}"></option>
+                    </select>
+                    <label for="assignmentReason" class="form-label">Ghi chú / lý do phân công lại</label><textarea id="assignmentReason" name="reason" maxlength="255" th:required="${detail.canReassign}" rows="2" class="form-control mb-3"></textarea>
+                    <button class="btn btn-primary" type="submit" th:text="${detail.canReassign ? 'Đổi Shipper và lưu lịch sử' : 'Phân công lấy hàng'}"></button>
+                </form>
+                <nav class="d-flex gap-3 mt-3" aria-label="Phân trang Shipper">
+                    <a th:if="${detail.candidates.hasPrevious()}" th:href="@{/manager/shipments/{id}(id=${s.id},employeePage=${detail.candidates.number - 1},eventPage=${detail.events.number},assignmentPage=${detail.assignments.number})}">Shipper trước</a>
+                    <a th:if="${detail.candidates.hasNext()}" th:href="@{/manager/shipments/{id}(id=${s.id},employeePage=${detail.candidates.number + 1},eventPage=${detail.events.number},assignmentPage=${detail.assignments.number})}">Shipper tiếp</a>
+                </nav>
+            </div></section>
+        </div>
+        <div class="col-lg-5">
+            <section class="card shipment-card mb-4"><div class="card-body p-4">
+                <h2 class="h5 fw-bold">Lịch sử thao tác / trạng thái</h2><p class="small text-secondary">Sự kiện nội bộ trong phạm vi quản lý · Giờ UTC</p>
+                <p th:if="${detail.events.empty}">Chưa có sự kiện được lưu.</p>
+                <ol th:unless="${detail.events.empty}" class="shipment-timeline"><li th:each="e : ${detail.events.content}">
+                    <small th:text="${#temporals.format(e.occurredAt, 'dd/MM/yyyy HH:mm:ss')}"></small><h3 class="h6 mt-1" th:text="${e.title}"></h3>
+                    <p class="small shipment-note" th:text="${e.description}"></p><span th:replace="~{shipments/fragments :: status(${e.status})}"></span>
+                </li></ol>
+                <nav class="d-flex gap-3" aria-label="Phân trang sự kiện">
+                    <a th:if="${detail.events.hasPrevious()}" th:href="@{/manager/shipments/{id}(id=${s.id},eventPage=${detail.events.number - 1},assignmentPage=${detail.assignments.number},employeePage=${detail.candidates.number})}">Sự kiện mới hơn</a>
+                    <a th:if="${detail.events.hasNext()}" th:href="@{/manager/shipments/{id}(id=${s.id},eventPage=${detail.events.number + 1},assignmentPage=${detail.assignments.number},employeePage=${detail.candidates.number})}">Sự kiện cũ hơn</a>
+                </nav>
+            </div></section>
+            <section class="card shipment-card"><div class="card-body p-4">
+                <h2 class="h5 fw-bold">Lịch sử phân công</h2><p th:if="${detail.assignments.empty}">Chưa có phân công được lưu.</p>
+                <article th:each="a : ${detail.assignments.content}" class="border-bottom py-3">
+                    <h3 class="h6" th:text="${a.employeeName}"></h3>
+                    <p class="small mb-1" th:text="${a.type.name() == 'PICKUP' ? 'Lấy hàng' : (a.type.name() == 'DELIVERY' ? 'Giao hàng' : 'Trung chuyển')}"></p>
+                    <p class="small" th:switch="${a.status.name()}"><span th:case="'ASSIGNED'">Chờ thực hiện</span><span th:case="'IN_PROGRESS'">Đang thực hiện</span><span th:case="'COMPLETED'">Đã hoàn thành</span><span th:case="'FAILED'">Không thành công</span><span th:case="'CANCELLED'">Đã hủy nhiệm vụ</span></p>
+                    <p class="small mb-1">Người phân công: <span th:text="${a.assignedBy}"></span></p><p class="small" th:text="${#temporals.format(a.assignedAt, 'dd/MM/yyyy HH:mm:ss') + ' UTC'}"></p>
+                    <p th:if="${a.completedAt != null}" class="small">Kết thúc: <span th:text="${#temporals.format(a.completedAt, 'dd/MM/yyyy HH:mm:ss') + ' UTC'}"></span></p>
+                    <p th:text="${a.notes}" class="small shipment-note"></p>
+                </article>
+                <nav class="d-flex gap-3 mt-3" aria-label="Phân trang phân công">
+                    <a th:if="${detail.assignments.hasPrevious()}" th:href="@{/manager/shipments/{id}(id=${s.id},assignmentPage=${detail.assignments.number - 1},eventPage=${detail.events.number},employeePage=${detail.candidates.number})}">Phân công mới hơn</a>
+                    <a th:if="${detail.assignments.hasNext()}" th:href="@{/manager/shipments/{id}(id=${s.id},assignmentPage=${detail.assignments.number + 1},eventPage=${detail.events.number},employeePage=${detail.candidates.number})}">Phân công cũ hơn</a>
+                </nav>
+            </div></section>
+        </div>
+    </div>
+</main></body></html>

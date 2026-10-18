@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<nav th:fragment="nav" class="shipment-nav py-3">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <a class="brand-name text-decoration-none" th:href="@{/manager}">UTE<span>Express</span> · Vận hành</a>
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <a th:href="@{/manager}" class="text-white">Tổng quan</a>
+            <a th:href="@{/manager/shipments}" class="text-white">Yêu cầu gửi hàng</a>
+            <a th:href="@{/account}" class="text-white">Tài khoản</a>
+            <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button></form>
+        </div>
+    </div>
+</nav>
+<span th:fragment="method(value)" th:text="${value == null ? 'Chưa xác định (đơn cũ)' : (value.name() == 'HOME_PICKUP' ? 'Lấy hàng tận nhà' : 'Mang đến chi nhánh')}"></span>
+</body></html>
