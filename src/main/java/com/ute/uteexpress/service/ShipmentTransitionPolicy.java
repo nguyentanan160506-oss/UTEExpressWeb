@@ -36,4 +36,10 @@ public final class ShipmentTransitionPolicy {
     public static boolean allowsDropoffIntake(ShipmentStatus from, ShipmentMethod method) {
         return method == ShipmentMethod.BRANCH_DROPOFF && from == CONFIRMED;
     }
+    public static boolean allowsCollection(ShipmentStatus from, ShipmentMethod method) {
+        return method == ShipmentMethod.HOME_PICKUP && from == PICKUP_ASSIGNED;
+    }
+    public static boolean allowsOriginHandoff(ShipmentStatus from, ShipmentMethod method) {
+        return method == ShipmentMethod.HOME_PICKUP && from == PICKED_UP;
+    }
 }

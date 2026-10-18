@@ -72,7 +72,7 @@ public class LogisticsAccessService {
     }
 
     @PreAuthorize("hasRole('SHIPPER')")
-    public AssignedShipper requireAssignedShipper(@NotNull @Positive Long shipmentId, @NotNull AssignmentType type) {
+    public ShipperProfile requireShipper() {
         User actor = requireActor("ROLE_SHIPPER");
         Employee employee = employees.findByUserId(actor.getId()).orElseThrow(this::forbidden);
         if (employee.getUser() == null || !actor.getId().equals(employee.getUser().getId())
@@ -80,6 +80,14 @@ public class LogisticsAccessService {
                 || employee.getBranch() == null || employee.getBranch().getStatus() != BranchStatus.ACTIVE) {
             throw forbidden();
         }
+        return new ShipperProfile(actor, employee);
+    }
+
+    @PreAuthorize("hasRole('SHIPPER')")
+    public AssignedShipper requireAssignedShipper(@NotNull @Positive Long shipmentId, @NotNull AssignmentType type) {
+        ShipperProfile profile = requireShipper();
+        User actor = profile.actor();
+        Employee employee = profile.employee();
         // TRANSFER needs the trip/custody model of Commit 12, not just an employee role.
         if (type != AssignmentType.PICKUP && type != AssignmentType.DELIVERY) {
             throw new LogisticsRuleException("Nhiệm vụ trung chuyển cần dữ liệu chuyến và bàn giao của commit sau.");
@@ -117,4 +125,5 @@ public class LogisticsAccessService {
     private AccessDeniedException forbidden() { return new AccessDeniedException("Forbidden"); }
     /** Internal context for future operation services, never a web response DTO. */
     public record AssignedShipper(User actor, Employee employee, ShipmentAssignment assignment) { }
+    public record ShipperProfile(User actor, Employee employee) { }
 }
