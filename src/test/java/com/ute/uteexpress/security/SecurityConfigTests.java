@@ -301,6 +301,12 @@ class SecurityConfigTests {
         @Bean com.ute.uteexpress.repository.ShipmentIntakeRepository shipmentIntakeRepository() {
             return mock(com.ute.uteexpress.repository.ShipmentIntakeRepository.class);
         }
+        @Bean com.ute.uteexpress.repository.PickupEvidenceRepository pickupEvidenceRepository() {
+            return mock(com.ute.uteexpress.repository.PickupEvidenceRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.OriginHandoffRepository originHandoffRepository() {
+            return mock(com.ute.uteexpress.repository.OriginHandoffRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.ShipmentRepository shipmentRepository() {
             return mock(com.ute.uteexpress.repository.ShipmentRepository.class);
         }

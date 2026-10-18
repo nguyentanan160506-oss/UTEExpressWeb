@@ -33,7 +33,7 @@ class ManagerLifecycleTests {
     final ShipmentIntakeRepository intakes = mock(ShipmentIntakeRepository.class);
     final LogisticsAccessService access = mock(LogisticsAccessService.class);
     final Clock clock = Clock.fixed(Instant.parse("2026-10-15T12:01:00Z"), ZoneOffset.UTC);
-    final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock, intakes);
+    final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock, intakes, mock(PickupEvidenceRepository.class), mock(OriginHandoffRepository.class));
     Shipment shipment;
     ShipmentAssignment current;
     @BeforeEach void setup() {

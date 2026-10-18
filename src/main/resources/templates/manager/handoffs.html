@@ -1,0 +1,10 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Bàn giao HOME_PICKUP chờ nhận')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<h1 class="h3">Bàn giao HOME_PICKUP chờ nhận</h1><p>Chỉ các chi nhánh ACTIVE thuộc phạm vi của bạn. Thời gian UTC.</p>
+<p th:if="${handoffs.empty}" class="alert alert-info">Không có yêu cầu đang chờ.</p>
+<div class="row g-3"><article th:each="h : ${handoffs}" class="col-12 col-lg-6"><div class="card p-3">
+    <h2 class="h5"><a th:href="@{/manager/handoffs/{id}(id=${h.id})}" th:text="${h.trackingNumber}"></a></h2>
+    <p>Chi nhánh: <span th:text="${h.branch}"></span></p><p>Người giao: <span th:text="${h.shipper}"></span></p><time th:text="${h.requestedAt}"></time>
+</div></article></div><div th:replace="~{shipper/fragments :: pagination(${handoffs}, '/manager/handoffs')}"></div>
+</main></body></html>

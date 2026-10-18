@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to the cumulative V1 + V3 + V4 + V5 schema. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 + V4 + V5 + V6 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -83,6 +83,13 @@ class CoreDatabaseMappingTests {
                     assertFalse(sql.contains("UPDATE dbo."));
                 }
                 assertFalse(sql.contains("INSERT INTO dbo.users"));
+                if (migration.startsWith("V6")) {
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_pickup_evidence_success ON dbo.pickup_evidence (assignment_id) WHERE result = 'SUCCESS';"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_origin_handoffs_pending ON dbo.origin_handoffs (shipment_id) WHERE status = 'PENDING';"));
+                    assertFalse(sql.contains("INSERT INTO"));
+                    assertFalse(sql.contains("UPDATE dbo."));
+                    assertFalse(sql.contains("ALTER TABLE"));
+                }
             }
         }
         registry = new StandardServiceRegistryBuilder()
@@ -112,10 +119,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(22, schema.size());
+        assertEquals(24, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(22, metadata.getEntityBindings().size());
+        assertEquals(24, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -171,7 +178,7 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(48, foreignKeys);
+        assertEquals(60, foreignKeys);
         assertEquals(16, uniqueKeys);
     }
 
@@ -210,8 +217,8 @@ class CoreDatabaseMappingTests {
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(48, associations);
-        assertEquals(21, identities);
+        assertEquals(60, associations);
+        assertEquals(23, identities);
     }
 
     @Test
@@ -267,7 +274,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(27, enumColumns);
+        assertEquals(29, enumColumns);
     }
 
     @Test
@@ -377,7 +384,7 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void all22SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
+    void all24SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
         try (EntityManager entityManager = sessionFactory.createEntityManager()) {
             var factory = new JpaRepositoryFactory(entityManager);
             for (Class<?> entity : ENTITIES) {

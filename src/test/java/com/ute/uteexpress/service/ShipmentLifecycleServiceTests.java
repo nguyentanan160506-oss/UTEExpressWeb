@@ -29,7 +29,7 @@ class ShipmentLifecycleServiceTests {
     private final ShipmentAssignmentRepository assignments = mock(ShipmentAssignmentRepository.class);
     private final LogisticsAccessService access = mock(LogisticsAccessService.class);
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-15T01:02:03.123456789Z"), ZoneOffset.UTC);
-    private final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock, mock(ShipmentIntakeRepository.class));
+    private final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock, mock(ShipmentIntakeRepository.class), mock(PickupEvidenceRepository.class), mock(OriginHandoffRepository.class));
     private Shipment shipment;
     private User actor;
     @BeforeEach void setup() {

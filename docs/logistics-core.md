@@ -1,5 +1,8 @@
 # Commit 08 — Nền tảng logistics
 
+**Cập nhật Commit 11:** HOME_PICKUP có bằng chứng từng lần lấy hàng và bàn giao nguồn độc lập.
+Xem [shipper-pickup.md](shipper-pickup.md) cho V6, route và quyền hiện hành. Phần dưới ghi nhận mốc Commit 08.
+
 **Cập nhật Commit 10:** Các thao tác phân công PICKUP, phân công lại nhiệm vụ còn chờ và tiếp nhận
 BRANCH_DROPOFF có guard/biên nhận riêng đã được mở trong lifecycle. Generic transition vẫn không được
 bỏ qua các điều kiện này. Xem [manager-logistics.md](manager-logistics.md) cho V5, khóa parent và phạm vi Manager hiện hành.

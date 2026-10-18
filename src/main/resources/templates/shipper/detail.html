@@ -1,0 +1,41 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Chi tiết lấy hàng')}"></head><body>
+<nav th:replace="~{shipper/fragments :: nav}"></nav><main class="container py-4">
+<div th:replace="~{shipper/fragments :: messages}"></div><h1 class="h3" th:text="${detail.task.trackingNumber}"></h1>
+<div class="card p-3 mb-3"><h2 class="h5">Thông tin lấy kiện</h2>
+    <p><strong th:text="${detail.task.senderName}"></strong> · <span th:text="${detail.task.phone}"></span></p>
+    <p th:text="${detail.task.address}"></p><p>Chi nhánh nguồn: <span th:text="${detail.task.originBranch}"></span></p>
+    <p><span th:replace="~{shipper/fragments :: assignment(${detail.task.status})}"></span> · <span th:replace="~{shipments/fragments :: status(${detail.task.shipmentStatus})}"></span></p>
+</div>
+<section th:if="${detail.canCollect}" class="card p-3 mb-3"><h2 class="h5">Ghi nhận lần lấy hàng</h2>
+<form th:action="@{/shipper/pickups/{id}/collect(id=${detail.task.id})}" method="post">
+    <input type="hidden" name="expectedVersion" th:value="${detail.version}">
+    <label class="form-label" for="result">Kết quả</label><select id="result" name="result" class="form-select mb-3" required>
+        <option value="SUCCESS">Đã thực nhận kiện</option><option value="FAILED">Chưa lấy được kiện</option></select>
+    <label class="form-label" for="reference">Mã tham chiếu xác nhận (bắt buộc khi thành công)</label><input id="reference" name="reference" maxlength="100" class="form-control mb-3">
+    <label class="form-label" for="notes">Ghi chú / lý do cụ thể (bắt buộc khi thất bại)</label><textarea id="notes" name="notes" maxlength="500" class="form-control mb-3"></textarea>
+    <div class="form-check mb-3"><input id="collected" type="checkbox" name="physicallyCollected" value="true" class="form-check-input">
+        <label class="form-check-label" for="collected">Tôi đã thực sự nhận kiện từ người gửi (chỉ chọn khi thành công).</label></div>
+    <button class="btn btn-primary">Ghi nhận kết quả lấy hàng</button>
+</form></section>
+<section th:if="${detail.canHandoff}" class="card p-3 mb-3"><h2 class="h5">Bàn giao về chi nhánh nguồn</h2>
+<p>Gửi khi đã mang kiện về chi nhánh. Người tiếp nhận phải kiểm tra và xác nhận độc lập.</p>
+<form th:action="@{/shipper/pickups/{id}/handoffs(id=${detail.task.id})}" method="post">
+    <input type="hidden" name="expectedVersion" th:value="${detail.version}">
+    <label class="form-label" for="handoffNotes">Ghi chú bàn giao</label><textarea id="handoffNotes" name="notes" maxlength="500" class="form-control mb-3"></textarea>
+    <button class="btn btn-primary">Gửi yêu cầu bàn giao</button></form></section>
+<h2 class="h5">Lịch sử lấy kiện · UTC</h2><p th:if="${detail.evidence.empty}">Chưa có lần xác nhận.</p>
+<article th:each="proof : ${detail.evidence}" class="card p-3 mb-2">
+    <strong th:text="${proof.result.name() == 'SUCCESS' ? 'Đã thực nhận kiện' : 'Chưa lấy được kiện'}"></strong>
+    <span th:text="${proof.recordedAt}"></span><span th:text="${proof.employee}"></span><span th:text="${proof.reference}"></span><p class="mb-0 text-break" th:text="${proof.notes}"></p>
+</article><div class="d-flex gap-3 my-3">
+    <a th:if="${detail.evidence.hasPrevious()}" th:href="@{/shipper/pickups/{id}(id=${detail.task.id},evidencePage=${detail.evidence.number - 1},handoffPage=${detail.handoffs.number})}">Lần trước</a>
+    <a th:if="${detail.evidence.hasNext()}" th:href="@{/shipper/pickups/{id}(id=${detail.task.id},evidencePage=${detail.evidence.number + 1},handoffPage=${detail.handoffs.number})}">Lần sau</a></div>
+<h2 class="h5">Lịch sử bàn giao · UTC</h2><p th:if="${detail.handoffs.empty}">Chưa gửi yêu cầu.</p>
+<article th:each="h : ${detail.handoffs}" class="card p-3 mb-2"><strong th:replace="~{shipper/fragments :: handoff(${h.status})}"></strong>
+    <span th:text="${h.requestedAt}"></span><p th:text="${h.notes}"></p>
+    <p>Người xử lý: <span th:text="${h.reviewer}"></span> · <span th:text="${h.reviewedAt}"></span></p><p th:text="${h.reason}"></p>
+</article><div class="d-flex gap-3 my-3">
+    <a th:if="${detail.handoffs.hasPrevious()}" th:href="@{/shipper/pickups/{id}(id=${detail.task.id},handoffPage=${detail.handoffs.number - 1},evidencePage=${detail.evidence.number})}">Bàn giao trước</a>
+    <a th:if="${detail.handoffs.hasNext()}" th:href="@{/shipper/pickups/{id}(id=${detail.task.id},handoffPage=${detail.handoffs.number + 1},evidencePage=${detail.evidence.number})}">Bàn giao sau</a></div>
+</main></body></html>

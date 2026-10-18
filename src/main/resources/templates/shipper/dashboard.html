@@ -1,0 +1,10 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Nhiệm vụ lấy hàng')}"></head><body>
+<nav th:replace="~{shipper/fragments :: nav}"></nav><main class="container py-4">
+<h1 class="h3">Tổng quan lấy hàng</h1><p>Chỉ hiển thị nhiệm vụ được phân công cho bạn. Thời gian theo UTC.</p>
+<p>Tổng nhiệm vụ đang thực hiện: <strong th:text="${dashboard.assigned + dashboard.collected}"></strong></p>
+<div class="row g-3 my-3">
+    <div class="col-12 col-md-4"><div class="card p-3"><span>Đang được phân công, chờ lấy</span><strong class="fs-2" th:text="${dashboard.assigned}"></strong></div></div>
+    <div class="col-12 col-md-4"><div class="card p-3"><span>Đã lấy, chưa hoàn tất bàn giao</span><strong class="fs-2" th:text="${dashboard.collected}"></strong></div></div>
+    <div class="col-12 col-md-4"><div class="card p-3"><span>Yêu cầu bàn giao đang chờ</span><strong class="fs-2" th:text="${dashboard.pendingHandoffs}"></strong></div></div>
+</div><a class="btn btn-primary" th:href="@{/shipper/pickups}">Nhiệm vụ và lịch sử công việc</a></main></body></html>
