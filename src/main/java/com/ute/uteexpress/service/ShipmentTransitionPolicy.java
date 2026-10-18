@@ -1,6 +1,7 @@
 package com.ute.uteexpress.service;
 
 import com.ute.uteexpress.enums.ShipmentStatus;
+import com.ute.uteexpress.enums.ShipmentMethod;
 import java.util.Map;
 import java.util.Set;
 import static com.ute.uteexpress.enums.ShipmentStatus.*;
@@ -28,5 +29,11 @@ public final class ShipmentTransitionPolicy {
     public static boolean isEnabled(ShipmentStatus from, ShipmentStatus to) {
         return (from == CREATED && to == CONFIRMED)
             || ((from == CREATED || from == CONFIRMED) && to == CANCELLED);
+    }
+    public static boolean allowsPickupAssignment(ShipmentStatus from, ShipmentMethod method, boolean replacing) {
+        return method == ShipmentMethod.HOME_PICKUP && (replacing ? from == PICKUP_ASSIGNED : from == CONFIRMED);
+    }
+    public static boolean allowsDropoffIntake(ShipmentStatus from, ShipmentMethod method) {
+        return method == ShipmentMethod.BRANCH_DROPOFF && from == CONFIRMED;
     }
 }

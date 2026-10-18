@@ -29,7 +29,7 @@ class ShipmentLifecycleServiceTests {
     private final ShipmentAssignmentRepository assignments = mock(ShipmentAssignmentRepository.class);
     private final LogisticsAccessService access = mock(LogisticsAccessService.class);
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-15T01:02:03.123456789Z"), ZoneOffset.UTC);
-    private final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock);
+    private final ShipmentLifecycleService service = new ShipmentLifecycleService(shipments, events, assignments, access, clock, mock(ShipmentIntakeRepository.class));
     private Shipment shipment;
     private User actor;
     @BeforeEach void setup() {
@@ -43,7 +43,7 @@ class ShipmentLifecycleServiceTests {
     static Shipment versionedShipment() {
         Shipment result = shipment(); ReflectionTestUtils.setField(result, "version", 0L); return result;
     }
-    private ShipmentTransitionCommand command(ShipmentStatus to) { return new ShipmentTransitionCommand(31L, 0L, to); }
+    private ShipmentTransitionCommand command(ShipmentStatus to) { return new ShipmentTransitionCommand(31L, 0L, to, to == ShipmentStatus.CANCELLED ? "Cancellation fixture reason" : null); }
     @Test void confirmationPreservesLegacyMethodHubsAndFrozenPriceAndRecordsRealActor() {
         var fee = shipment.getTotalFee();
         assertEquals(1L, service.transition(command(ShipmentStatus.CONFIRMED)));

@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShipmentEventRepository extends JpaRepository<ShipmentEvent, Long> {
+    // Caller must first authorize the parent shipment; not exposed as a public endpoint.
+    Page<ShipmentEvent> findByShipmentId(Long shipmentId, Pageable pageable);
     Page<ShipmentEvent> findByShipmentIdAndShipmentSenderId(Long shipmentId, Long senderId, Pageable pageable);
 
     // Current schema has no event visibility flag. Restrict in SQL and verify the exact tuple again in the service.

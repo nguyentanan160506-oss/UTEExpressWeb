@@ -298,6 +298,9 @@ class SecurityConfigTests {
         @Bean com.ute.uteexpress.repository.PickupFeeRuleRepository pickupFeeRuleRepository() {
             return mock(com.ute.uteexpress.repository.PickupFeeRuleRepository.class);
         }
+        @Bean com.ute.uteexpress.repository.ShipmentIntakeRepository shipmentIntakeRepository() {
+            return mock(com.ute.uteexpress.repository.ShipmentIntakeRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.ShipmentRepository shipmentRepository() {
             return mock(com.ute.uteexpress.repository.ShipmentRepository.class);
         }

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Tổng quan vận hành · UTEExpress')}"></head>
+<body><nav th:replace="~{manager/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5">
+    <p class="shipment-eyebrow">VẬN HÀNH CHI NHÁNH NGUỒN</p><h1 class="h2 fw-bold">Tổng quan yêu cầu gửi hàng</h1>
+    <p class="text-secondary">Chỉ bao gồm vận đơn có chi nhánh nguồn thuộc phạm vi quản lý đang hoạt động của bạn.</p>
+    <p th:if="${branches.empty}" class="alert alert-warning">Chưa có chi nhánh hoạt động được phân quyền cho tài khoản này.</p>
+    <form th:action="@{/manager}" method="get" class="d-flex flex-wrap gap-2 my-4">
+        <label for="branchId" class="form-label align-self-center mb-0">Phạm vi</label>
+        <select id="branchId" name="branchId" class="form-select w-auto"><option value="">Tất cả chi nhánh được phân quyền</option>
+            <option th:each="branch : ${branches}" th:value="${branch.id}" th:text="${branch.name}" th:selected="${branch.id == selectedBranch}"></option>
+        </select><button type="submit" class="btn btn-outline-primary">Áp dụng</button>
+    </form>
+    <div class="row g-3">
+        <div class="col-sm-6 col-lg-3"><div class="card shipment-card"><div class="card-body p-4"><p>Tổng vận đơn</p><strong class="h2" th:text="${dashboard.total}"></strong></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card shipment-card"><div class="card-body p-4"><p>Chờ xác nhận</p><strong class="h2" th:text="${dashboard.created}"></strong></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card shipment-card"><div class="card-body p-4"><p>Đã xác nhận</p><strong class="h2" th:text="${dashboard.confirmed}"></strong></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card shipment-card"><div class="card-body p-4"><p>Đã phân công lấy</p><strong class="h2" th:text="${dashboard.pickupAssigned}"></strong></div></div></div>
+    </div>
+    <p class="mt-4">Chi nhánh nguồn đã tiếp nhận: <strong th:text="${dashboard.atOriginBranch}"></strong> vận đơn.</p>
+    <a class="btn btn-primary" th:href="@{/manager/shipments(branchId=${selectedBranch})}">Xem yêu cầu trong phạm vi</a>
+</main></body></html>

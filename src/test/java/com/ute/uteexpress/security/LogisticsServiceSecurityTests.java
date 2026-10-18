@@ -22,11 +22,12 @@ import static org.mockito.Mockito.*;
 @SpringJUnitConfig(LogisticsServiceSecurityTests.Config.class)
 class LogisticsServiceSecurityTests {
     @TestConfiguration @EnableMethodSecurity
-    @Import({LogisticsAccessService.class, ShipmentLifecycleService.class, BranchNetworkService.class})
+    @Import({LogisticsAccessService.class, ShipmentLifecycleService.class, BranchNetworkService.class, ManagerLogisticsService.class})
     static class Config { @Bean Clock clock() { return Clock.systemUTC(); } }
     @Autowired LogisticsAccessService access;
     @Autowired ShipmentLifecycleService lifecycle;
     @Autowired BranchNetworkService network;
+    @Autowired ManagerLogisticsService manager;
     @MockitoBean UserRepository users;
     @MockitoBean UserRoleRepository roles;
     @MockitoBean EmployeeRepository employees;
@@ -35,6 +36,7 @@ class LogisticsServiceSecurityTests {
     @MockitoBean ShipmentAssignmentRepository assignments;
     @MockitoBean ShipmentRepository shipments;
     @MockitoBean ShipmentEventRepository events;
+    @MockitoBean ShipmentIntakeRepository intakes;
     @MockitoBean BranchServiceAreaRepository areas;
     private ShipmentTransitionCommand command() { return new ShipmentTransitionCommand(31L, 0L, ShipmentStatus.CONFIRMED); }
 
@@ -42,6 +44,7 @@ class LogisticsServiceSecurityTests {
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> lifecycle.transition(command()));
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> access.requireAssignedShipper(31L, AssignmentType.PICKUP));
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> network.configuredHub(11L));
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> manager.dashboard(null));
         verifyNoInteractions(users, shipments, employees, events, branches);
     }
     @Test @WithMockUser(roles = "USER")
@@ -49,12 +52,18 @@ class LogisticsServiceSecurityTests {
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireManagerForBranch(11L));
         assertThrows(AccessDeniedException.class, () -> access.requireAssignedShipper(31L, AssignmentType.PICKUP));
+        assertThrows(AccessDeniedException.class, manager::branches);
+        assertThrows(AccessDeniedException.class, () -> lifecycle.assignPickup(new com.ute.uteexpress.dto.shipment.PickupAssignmentCommand(31L, 0L, 21L, null, null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, "REF", true, null)));
         verifyNoInteractions(users, shipments, employees, events);
     }
     @Test @WithMockUser(roles = "SHIPPER")
     void shipperCannotConfirmOrCancelAsManager() {
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireManagerForBranch(11L));
+        assertThrows(AccessDeniedException.class, () -> manager.detail(31L, 0, 0, 0));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.assignPickup(new com.ute.uteexpress.dto.shipment.PickupAssignmentCommand(31L, 0L, 21L, null, null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, "REF", true, null)));
         verifyNoInteractions(users, shipments, managers, events);
     }
     @Test @WithMockUser(roles = "MANAGER")

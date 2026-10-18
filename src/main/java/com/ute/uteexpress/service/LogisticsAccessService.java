@@ -31,6 +31,9 @@ public class LogisticsAccessService {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
+    public User requireManager() { return requireActor("ROLE_MANAGER"); }
+
+    @PreAuthorize("hasRole('MANAGER')")
     public User requireManagerForBranch(@NotNull @Positive Long branchId) {
         User actor = requireActor("ROLE_MANAGER");
         if (branches.findByIdAndStatus(branchId, BranchStatus.ACTIVE).isEmpty()
@@ -38,6 +41,34 @@ public class LogisticsAccessService {
             throw forbidden();
         }
         return actor;
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    public Employee requireAssignableShipper(@NotNull @Positive Long employeeId, @NotNull @Positive Long branchId) {
+        requireManagerForBranch(branchId);
+        Employee employee = employees.findByIdAndBranchId(employeeId, branchId)
+            .orElseThrow(() -> new LogisticsRuleException("Nhân viên không đủ điều kiện nhận nhiệm vụ lấy hàng."));
+        if (employee.getStatus() != EmployeeStatus.ACTIVE || employee.getPosition() != EmployeePosition.COURIER_DRIVER
+                || employee.getBranch() == null || !branchId.equals(employee.getBranch().getId())
+                || employee.getBranch().getStatus() != BranchStatus.ACTIVE || employee.getUser() == null
+                || employee.getUser().getStatus() != UserStatus.ACTIVE
+                || !roles.findRoleNamesByUserId(employee.getUser().getId()).contains("ROLE_SHIPPER")) {
+            throw new LogisticsRuleException("Nhân viên không đủ điều kiện nhận nhiệm vụ lấy hàng.");
+        }
+        return employee;
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    public Employee requireIntakeEmployee(@NotNull @Positive Long branchId) {
+        User actor = requireManagerForBranch(branchId);
+        Employee employee = employees.findByUserId(actor.getId()).orElseThrow(this::forbidden);
+        if (employee.getUser() == null || !actor.getId().equals(employee.getUser().getId())
+                || employee.getStatus() != EmployeeStatus.ACTIVE || employee.getBranch() == null
+                || !branchId.equals(employee.getBranch().getId()) || employee.getBranch().getStatus() != BranchStatus.ACTIVE
+                || (employee.getPosition() != EmployeePosition.DISPATCHER && employee.getPosition() != EmployeePosition.WAREHOUSE_STAFF)) {
+            throw forbidden();
+        }
+        return employee;
     }
 
     @PreAuthorize("hasRole('SHIPPER')")

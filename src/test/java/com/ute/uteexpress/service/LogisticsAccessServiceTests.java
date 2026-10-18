@@ -116,4 +116,58 @@ class LogisticsAccessServiceTests {
         assertSame(actor, service.requireManagerForBranch(11L));
         assertThrows(AccessDeniedException.class, () -> service.requireManagerForBranch(12L));
     }
+
+    private void managerScope() {
+        authenticate("ROLE_MANAGER");
+        when(roles.findRoleNamesByUserId(actor.getId())).thenReturn(List.of("ROLE_MANAGER"));
+        when(branches.findByIdAndStatus(11L, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(11L)));
+        when(managers.existsByManagerIdAndBranchId(actor.getId(), 11L)).thenReturn(true);
+    }
+    private void candidate() {
+        managerScope();
+        User shipper = owner(); shipper.setId(2L); employee.setUser(shipper);
+        when(roles.findRoleNamesByUserId(2L)).thenReturn(List.of("ROLE_SHIPPER"));
+        when(employees.findByIdAndBranchId(21L, 11L)).thenReturn(Optional.of(employee));
+    }
+    @Test void managerCanSelectOnlyActiveLinkedDatabaseShipperInOriginBranch() {
+        candidate(); assertSame(employee, service.requireAssignableShipper(21L, 11L));
+        when(employees.findByIdAndBranchId(21L, 11L)).thenReturn(Optional.empty());
+        assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+    }
+    @Test void foreignBranchCourierCannotBeAssignedEvenIfRepositoryReturnsIt() {
+        candidate(); employee.setBranch(branch(99L));
+        assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+    }
+    @ParameterizedTest @EnumSource(value = EmployeeStatus.class, names = {"ON_LEAVE", "INACTIVE"})
+    void inactiveCourierCannotBeSelected(EmployeeStatus status) {
+        candidate(); employee.setStatus(status);
+        assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+    }
+    @ParameterizedTest @EnumSource(value = UserStatus.class, names = {"LOCKED", "UNVERIFIED"})
+    void disabledShipperAccountCannotBeSelected(UserStatus status) {
+        candidate(); employee.getUser().setStatus(status);
+        assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+    }
+    @Test void courierNeedsActualRoleAndUserLink() {
+        candidate(); when(roles.findRoleNamesByUserId(2L)).thenReturn(List.of("ROLE_USER"));
+        assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+        employee.setUser(null); assertThrows(LogisticsRuleException.class, () -> service.requireAssignableShipper(21L, 11L));
+    }
+    @Test void intakeRequiresLinkedActiveDispatcherOrWarehouseStaffInManagerScope() {
+        managerScope(); employee.setPosition(EmployeePosition.DISPATCHER);
+        assertSame(employee, service.requireIntakeEmployee(11L));
+        employee.setPosition(EmployeePosition.WAREHOUSE_STAFF); assertSame(employee, service.requireIntakeEmployee(11L));
+        employee.setPosition(EmployeePosition.COURIER_DRIVER);
+        assertThrows(AccessDeniedException.class, () -> service.requireIntakeEmployee(11L));
+    }
+    @Test void managerWithoutEmployeeCannotReceivePhysicalPackage() {
+        managerScope(); when(employees.findByUserId(actor.getId())).thenReturn(Optional.empty());
+        assertThrows(AccessDeniedException.class, () -> service.requireIntakeEmployee(11L));
+    }
+    @Test void intakeRejectsInactiveOrForeignEmployeeProfile() {
+        managerScope(); employee.setPosition(EmployeePosition.DISPATCHER); employee.setStatus(EmployeeStatus.INACTIVE);
+        assertThrows(AccessDeniedException.class, () -> service.requireIntakeEmployee(11L));
+        employee.setStatus(EmployeeStatus.ACTIVE); employee.setBranch(branch(99L));
+        assertThrows(AccessDeniedException.class, () -> service.requireIntakeEmployee(11L));
+    }
 }
