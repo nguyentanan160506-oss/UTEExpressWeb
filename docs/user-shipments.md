@@ -1,5 +1,10 @@
 # Commit 06 — Vận đơn cho USER (Tân)
 
+**Cập nhật Commit 09:** Phần tạo trực tiếp trong tài liệu lịch sử này đã được thay bằng
+nhập thông tin → báo giá lưu tại server → xác nhận bằng mã báo giá. Luồng hiện hành,
+migration V4, phụ phí và cơ chế chống xác nhận trùng được mô tả tại [shipment-quotes.md](shipment-quotes.md).
+Lịch sử/chi tiết/timeline và phạm vi sở hữu tiếp tục dùng thiết kế Commit 06 dưới đây.
+
 ## Phạm vi
 
 Tạo vận đơn, lịch sử riêng của người dùng và chi tiết/theo dõi bằng Thymeleaf,

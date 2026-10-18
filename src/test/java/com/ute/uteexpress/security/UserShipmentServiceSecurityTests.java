@@ -47,7 +47,7 @@ class UserShipmentServiceSecurityTests {
     @Test @WithMockUser(roles = "MANAGER")
     void managerCannotInvokeServiceDirectly() {
         assertThrows(AccessDeniedException.class, service::options);
-        assertThrows(AccessDeniedException.class, () -> service.create(form()));
+        assertThrows(AccessDeniedException.class, () -> service.detail(31L, 0));
         verifyNoInteractions(users, roles, shipments, events);
     }
 

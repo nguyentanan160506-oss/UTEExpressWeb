@@ -41,6 +41,10 @@ class UserShipmentServiceTests {
     private ShippingRateRuleRepository rates;
     private TrackingNumberGenerator tracking;
     private UserShipmentService service;
+    private QuoteService quoting;
+    private ShipmentQuoteRepository quotes;
+    private BranchNetworkService network;
+    private PickupFeeRuleRepository pickups;
     private User owner;
     private ShippingRateRule rate;
 
@@ -67,13 +71,27 @@ class UserShipmentServiceTests {
         });
         // Deliberately non-UTC clock zone: stored DATETIME2 values must still be UTC.
         Clock clock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneId.of("Asia/Bangkok"));
-        service = new UserShipmentService(users, roles, shipments, events, branches, services, rates,
-            tracking, clock, validation.getValidator());
+        service = new UserShipmentService(users, roles, shipments, events, branches, services);
+        quotes = mock(ShipmentQuoteRepository.class); network = mock(BranchNetworkService.class); pickups = mock(PickupFeeRuleRepository.class);
+        quoting = new QuoteService(users, roles, quotes, shipments, events, branches, services, rates, pickups,
+            network, tracking, clock, validation.getValidator(), Duration.ofMinutes(15));
+        when(network.servingBranches(anyString(), anyString(), anyString(), any())).thenAnswer(call ->
+            branch(11L).getProvince().equalsIgnoreCase(call.getArgument(0))
+                ? List.of(new ShipmentOptions.BranchOption(11L, "Origin", branch(11L).getProvince())) : List.of());
+        when(network.deliveryBranches(anyString(), anyString(), anyString())).thenReturn(
+            List.of(new ShipmentOptions.BranchOption(12L, "Destination", branch(12L).getProvince())));
+        when(network.configuredHub(11L)).thenReturn(101L); when(network.configuredHub(12L)).thenReturn(102L);
+        when(branches.findByIdAndStatus(101L, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(101L)));
+        when(branches.findByIdAndStatus(102L, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(102L)));
+        when(quotes.saveAndFlush(any())).thenAnswer(call -> {
+            ShipmentQuote quote = call.getArgument(0); quote.setId(51L);
+            when(quotes.findOwnedForUpdate(quote.getToken(), 1L)).thenReturn(Optional.of(quote)); return quote;
+        });
     }
 
     @Test void createsOwnedShipmentAndRealCreatedEventUsingIntraProvinceDatabaseRate() {
         ShipmentCreateForm form = form(); form.setCodAmount(new BigDecimal("100000.00"));
-        assertEquals(31L, service.create(form));
+        assertEquals(31L, create(form));
         var saved = org.mockito.ArgumentCaptor.forClass(Shipment.class);
         verify(shipments).saveAndFlush(saved.capture());
         Shipment shipment = saved.getValue();
@@ -100,14 +118,14 @@ class UserShipmentServiceTests {
         ShipmentCreateForm form = form(); form.setReceiverProvince("Đà Nẵng");
         Branch destination = branch(12L); destination.setProvince("Đà Nẵng");
         when(branches.findByIdAndStatus(12L, BranchStatus.ACTIVE)).thenReturn(Optional.of(destination));
-        service.create(form);
+        create(form);
         verify(rates).findEffectiveRules(21L, RateScopeType.INTER_PROVINCE, NOW);
         verify(rates, never()).findEffectiveRules(anyLong(), eq(RateScopeType.INTER_REGION), any());
     }
 
     @Test void missingOrExpiredRateDoesNotPersistShipmentOrEvent() {
         when(rates.findEffectiveRules(anyLong(), any(), any())).thenReturn(List.of());
-        var exception = assertThrows(ShipmentCreationException.class, () -> service.create(form()));
+        var exception = assertThrows(ShipmentCreationException.class, () -> create(form()));
         assertEquals("serviceId", exception.getField());
         assertTrue(exception.getMessage().contains("Chưa có bảng giá"));
         verify(shipments, never()).saveAndFlush(any());
@@ -116,7 +134,7 @@ class UserShipmentServiceTests {
 
     @Test void overlappingEffectiveRulesAreRejectedRatherThanChoosingAnArbitraryPrice() {
         when(rates.findEffectiveRules(anyLong(), any(), any())).thenReturn(List.of(rate, rate()));
-        assertThrows(ShipmentCreationException.class, () -> service.create(form()));
+        assertThrows(ShipmentCreationException.class, () -> create(form()));
         verify(shipments, never()).saveAndFlush(any());
     }
 
@@ -125,7 +143,7 @@ class UserShipmentServiceTests {
                 {"0.50", "20000.00"}, {"1.00", "20000.00"}, {"1.01", "25000.00"},
                 {"1.50", "25000.00"}, {"1.51", "30000.00"}}) {
             ShipmentCreateForm form = form(); form.setWeightKg(new BigDecimal(sample[0]));
-            service.create(form);
+            create(form);
             verify(shipments).saveAndFlush(argThat(shipment ->
                 shipment.getWeightKg().equals(form.getWeightKg())
                     && shipment.getShippingFee().equals(new BigDecimal(sample[1]))));
@@ -135,43 +153,43 @@ class UserShipmentServiceTests {
     @Test void noActiveBranchIsRejectedWithoutInsertingAnything() {
         when(branches.findByIdAndStatus(11L, BranchStatus.ACTIVE)).thenReturn(Optional.empty());
         assertEquals("originBranchId", assertThrows(ShipmentCreationException.class,
-            () -> service.create(form())).getField());
+            () -> create(form())).getField());
         verifyNoInteractions(shipments, events, tracking);
     }
 
     @Test void invalidDestinationAndMismatchedProvinceAreRejected() {
         when(branches.findByIdAndStatus(12L, BranchStatus.ACTIVE)).thenReturn(Optional.empty());
         assertEquals("destinationBranchId", assertThrows(ShipmentCreationException.class,
-            () -> service.create(form())).getField());
+            () -> create(form())).getField());
         ShipmentCreateForm mismatch = form(); mismatch.setSenderProvince("Hà Nội");
         assertEquals("originBranchId", assertThrows(ShipmentCreationException.class,
-            () -> service.create(mismatch)).getField());
+            () -> create(mismatch)).getField());
         verifyNoInteractions(shipments, events);
     }
 
     @Test void inactiveOrMissingShippingServiceIsRejected() {
         when(services.findByIdAndIsActiveTrue(21L)).thenReturn(Optional.empty());
         assertEquals("serviceId", assertThrows(ShipmentCreationException.class,
-            () -> service.create(form())).getField());
+            () -> create(form())).getField());
         verifyNoInteractions(shipments, events, rates);
     }
 
     @Test void invalidFormIsRejectedByServiceEvenWithoutControllerValidation() {
         ShipmentCreateForm form = form(); form.setWeightKg(BigDecimal.ZERO);
-        assertThrows(ConstraintViolationException.class, () -> service.create(form));
+        assertThrows(ConstraintViolationException.class, () -> create(form));
         verifyNoInteractions(branches, services, rates, shipments, events);
     }
 
     @Test void calculatedFeeOverflowIsRejectedBeforePersisting() {
         rate.setBasePrice(new BigDecimal("9999999999999999.99"));
         assertEquals("weightKg", assertThrows(ShipmentCreationException.class,
-            () -> service.create(form())).getField());
+            () -> create(form())).getField());
         verifyNoInteractions(shipments, events);
     }
 
     @Test void uniqueConstraintCollisionCannotCreateAnEventOrReturnSuccess() {
         when(shipments.saveAndFlush(any())).thenThrow(new DataIntegrityViolationException("test-only duplicate"));
-        assertThrows(DataIntegrityViolationException.class, () -> service.create(form()));
+        assertThrows(DataIntegrityViolationException.class, () -> create(form()));
         verifyNoInteractions(events);
     }
 
@@ -182,10 +200,11 @@ class UserShipmentServiceTests {
         interceptor.setTransactionManager(transactions);
         interceptor.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());
         interceptor.afterPropertiesSet();
-        ProxyFactory factory = new ProxyFactory(service); factory.setProxyTargetClass(true);
+        String token = quoting.quote(form());
+        ProxyFactory factory = new ProxyFactory(quoting); factory.setProxyTargetClass(true);
         factory.addAdvice(interceptor);
-        var proxy = (UserShipmentService) factory.getProxy();
-        assertThrows(DataIntegrityViolationException.class, () -> proxy.create(form()));
+        var proxy = (QuoteService) factory.getProxy();
+        assertThrows(DataIntegrityViolationException.class, () -> proxy.confirm(token));
         assertEquals(1, transactions.rollbacks); assertEquals(0, transactions.commits);
         assertFalse(transactions.readOnly);
     }
@@ -260,7 +279,7 @@ class UserShipmentServiceTests {
     @Test void lockedUnverifiedOrRevokedUserCannotUseTheModuleWithAStaleSession() {
         for (UserStatus status : List.of(UserStatus.LOCKED, UserStatus.UNVERIFIED)) {
             owner.setStatus(status);
-            assertThrows(AccessDeniedException.class, () -> service.create(form()));
+            assertThrows(AccessDeniedException.class, () -> create(form()));
             assertThrows(AccessDeniedException.class, service::options);
         }
         owner.setStatus(UserStatus.ACTIVE);
@@ -272,9 +291,9 @@ class UserShipmentServiceTests {
     @Test void multiRoleUserIsAcceptedButAdminOnlyAndGuestsAreDenied() {
         authenticate("ROLE_USER", "ROLE_ADMIN");
         when(roles.findRoleNamesByUserId(1L)).thenReturn(List.of("ROLE_USER", "ROLE_ADMIN"));
-        assertEquals(31L, service.create(form()));
+        assertEquals(31L, create(form()));
         authenticate("ROLE_ADMIN");
-        assertThrows(AccessDeniedException.class, () -> service.create(form()));
+        assertThrows(AccessDeniedException.class, () -> create(form()));
         SecurityContextHolder.clearContext();
         assertThrows(AccessDeniedException.class, service::options);
     }
@@ -288,6 +307,8 @@ class UserShipmentServiceTests {
         assertTrue(Arrays.stream(constraints).anyMatch(constraint ->
             Arrays.equals(new String[] {"tracking_number"}, constraint.columnNames())));
     }
+
+    private Long create(ShipmentCreateForm form) { return quoting.confirm(quoting.quote(form)); }
 
     private void authenticate(String... authorities) {
         SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated(

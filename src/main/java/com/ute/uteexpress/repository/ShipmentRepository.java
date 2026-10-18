@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Lock;
 import jakarta.persistence.LockModeType;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, Long>, JpaSpecificationExecutor<Shipment> {
+    Optional<Shipment> findByQuoteIdAndSenderId(Long quoteId, Long senderId);
     @EntityGraph(attributePaths = {"originBranch", "destinationBranch", "currentBranch", "service"})
     Optional<Shipment> findByIdAndSenderId(Long id, Long senderId);
 

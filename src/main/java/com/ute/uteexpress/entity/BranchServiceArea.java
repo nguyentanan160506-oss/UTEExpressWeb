@@ -38,6 +38,12 @@ public class BranchServiceArea {
     @JdbcTypeCode(SqlTypes.BIT) @Column(name = "is_active", nullable = false) @ColumnDefault("1")
     private boolean isActive = true;
 
+    @JdbcTypeCode(SqlTypes.BIT) @Column(name = "supports_delivery", nullable = false) @ColumnDefault("0")
+    private boolean supportsDelivery;
+
+    public boolean isSupportsDelivery() { return supportsDelivery; }
+    public void setSupportsDelivery(boolean value) { supportsDelivery = value; }
+
     @JdbcTypeCode(SqlTypes.TIMESTAMP)
     @Column(name = "created_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)", updatable = false)
     @ColumnDefault("SYSUTCDATETIME()")

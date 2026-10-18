@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Xác nhận báo giá · UTEExpress')}"></head>
+<body>
+<nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container shipment-shell py-4 py-md-5">
+    <a th:href="@{/user/shipments/create}" class="small">← Nhập lại thông tin và lấy báo giá mới</a>
+    <p class="shipment-eyebrow mt-4 mb-2">KIỂM TRA TRƯỚC KHI GỬI HÀNG</p>
+    <h1 class="h2 fw-bold">Báo giá vận chuyển</h1>
+    <div th:if="${error != null}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+    <p class="text-secondary">Thông tin và chi phí dưới đây được lưu tại server. Xác nhận sẽ tạo một vận đơn với báo giá này.</p>
+    <div class="row g-4">
+        <section class="col-lg-7"><div class="card shipment-card"><div class="card-body p-4">
+            <h2 class="h5 fw-bold" th:text="${quote.shipmentMethod.name() == 'HOME_PICKUP' ? 'Lấy hàng tận nhà' : 'Mang hàng đến chi nhánh'}"></h2>
+            <p th:text="${quote.shipmentMethod.name() == 'HOME_PICKUP' ? 'Shipper sẽ lấy hàng tại địa chỉ người gửi sau khi được phân công; chi nhánh nguồn tiếp nhận sau đó.' : 'Bạn tự mang kiện đến chi nhánh nguồn đã chọn; nhân viên sẽ tiếp nhận sau đó.'}"></p>
+            <h3 class="h6 fw-bold mt-4">Người gửi / địa chỉ lấy hàng</h3>
+            <p th:text="${quote.sender.name + ' · ' + quote.sender.phone}"></p>
+            <p th:text="${quote.sender.address + ', ' + quote.sender.ward + ', ' + quote.sender.district + ', ' + quote.sender.province}"></p>
+            <h3 class="h6 fw-bold mt-4">Người nhận</h3>
+            <p th:text="${quote.receiver.name + ' · ' + quote.receiver.phone}"></p>
+            <p th:text="${quote.receiver.address + ', ' + quote.receiver.ward + ', ' + quote.receiver.district + ', ' + quote.receiver.province}"></p>
+            <dl class="row mb-0">
+                <dt class="col-sm-5">Chi nhánh nguồn</dt><dd class="col-sm-7" th:text="${quote.originBranch}"></dd>
+                <dt class="col-sm-5">Chi nhánh đích</dt><dd class="col-sm-7" th:text="${quote.destinationBranch}"></dd>
+                <dt class="col-sm-5">Dịch vụ</dt><dd class="col-sm-7" th:text="${quote.serviceName}"></dd>
+                <dt class="col-sm-5">Hàng hóa</dt><dd class="col-sm-7" th:text="${quote.packageDescription}"></dd>
+                <dt class="col-sm-5">Trọng lượng (kg)</dt><dd class="col-sm-7" th:text="${quote.weightKg}"></dd>
+                <dt class="col-sm-5">Dài × rộng × cao (cm)</dt><dd class="col-sm-7" th:text="${(quote.lengthCm ?: '—') + ' × ' + (quote.widthCm ?: '—') + ' × ' + (quote.heightCm ?: '—')}"></dd>
+                <dt class="col-sm-5">COD (VND)</dt><dd class="col-sm-7" th:text="${#numbers.formatDecimal(quote.codAmount, 1, 'POINT', 2, 'COMMA')}"></dd>
+                <dt class="col-sm-5">Giá trị khai báo (VND)</dt><dd class="col-sm-7" th:text="${#numbers.formatDecimal(quote.declaredValue, 1, 'POINT', 2, 'COMMA')}"></dd>
+                <dt class="col-sm-5">Bên trả phí</dt><dd class="col-sm-7" th:text="${quote.paymentPayer.name() == 'SENDER' ? 'Người gửi' : 'Người nhận'}"></dd>
+            </dl>
+            <p th:if="${quote.note != null}" class="shipment-note mt-3" th:text="${quote.note}"></p>
+        </div></div></section>
+        <section class="col-lg-5"><div class="card shipment-card"><div class="card-body p-4">
+            <h2 class="h5 fw-bold">Chi tiết báo giá</h2>
+            <dl class="row mt-4">
+                <dt class="col-7 fw-normal">Phí vận chuyển cơ bản</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.shippingFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
+                <dt class="col-7 fw-normal">Phụ phí lấy tận nhà</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.pickupFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
+                <dt class="col-7 fw-normal">Phí bảo hiểm</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.insuranceFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
+                <dt class="col-7 border-top pt-3">Tổng phí cần thanh toán</dt><dd class="col-5 border-top pt-3 text-end fw-bold" th:text="${#numbers.formatDecimal(quote.totalFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
+            </dl>
+            <p class="small text-secondary">Phí vận chuyển cơ bản gồm phần trọng lượng vượt mức. COD là khoản thu hộ, không cộng vào tổng phí. Chưa áp dụng sản phẩm bảo hiểm.</p>
+            <p>Hiệu lực đến <strong th:text="${#temporals.format(quote.expiresAt, 'dd/MM/yyyy HH:mm:ss')}"></strong> UTC.</p>
+            <p th:if="${quote.consumed}" class="alert alert-info">Báo giá đã được sử dụng. Gửi lại xác nhận sẽ mở vận đơn đã tạo, không tạo đơn thứ hai.</p>
+            <p th:if="${!quote.confirmable and !quote.consumed}" class="alert alert-warning">Báo giá đã hết hạn. Vui lòng lấy báo giá mới.</p>
+            <form th:action="@{/user/shipments}" method="post" th:if="${quote.confirmable or quote.consumed}">
+                <input type="hidden" name="quoteToken" th:value="${quote.token}">
+                <button type="submit" class="btn btn-primary w-100" th:text="${quote.consumed ? 'Mở vận đơn đã tạo' : 'Xác nhận tạo vận đơn'}"></button>
+            </form>
+        </div></div></section>
+    </div>
+</main>
+</body>
+</html>

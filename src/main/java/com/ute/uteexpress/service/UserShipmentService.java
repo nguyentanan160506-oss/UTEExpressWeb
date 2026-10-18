@@ -4,15 +4,7 @@ import com.ute.uteexpress.dto.shipment.*;
 import com.ute.uteexpress.entity.*;
 import com.ute.uteexpress.enums.*;
 import com.ute.uteexpress.repository.*;
-import jakarta.validation.Valid;
-import jakarta.validation.Validator;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,17 +28,10 @@ public class UserShipmentService {
     private final ShipmentEventRepository events;
     private final BranchRepository branches;
     private final ShippingServiceRepository services;
-    private final ShippingRateRuleRepository rates;
-    private final TrackingNumberGenerator tracking;
-    private final Clock clock;
-    private final Validator validator;
-
     public UserShipmentService(UserRepository users, UserRoleRepository roles, ShipmentRepository shipments,
-            ShipmentEventRepository events, BranchRepository branches, ShippingServiceRepository services,
-            ShippingRateRuleRepository rates, TrackingNumberGenerator tracking, Clock clock, Validator validator) {
+            ShipmentEventRepository events, BranchRepository branches, ShippingServiceRepository services) {
         this.users = users; this.roles = roles; this.shipments = shipments; this.events = events;
-        this.branches = branches; this.services = services; this.rates = rates;
-        this.tracking = tracking; this.clock = clock; this.validator = validator;
+        this.branches = branches; this.services = services;
     }
 
     public ShipmentOptions options() {
@@ -55,56 +40,6 @@ public class UserShipmentService {
             .map(branch -> new ShipmentOptions.BranchOption(branch.getId(), branch.getName(), branch.getProvince())).toList(),
             services.findByIsActiveTrueOrderByNameAsc().stream()
                 .map(service -> new ShipmentOptions.ServiceOption(service.getId(), service.getName())).toList());
-    }
-
-    @Transactional
-    public Long create(@NotNull @Valid ShipmentCreateForm form) {
-        User owner = requireUser();
-        var violations = validator.validate(form);
-        if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
-        Branch origin = branch(form.getOriginBranchId(), form.getSenderProvince(), "originBranchId");
-        Branch destination = branch(form.getDestinationBranchId(), form.getReceiverProvince(), "destinationBranchId");
-        ShippingService service = services.findByIdAndIsActiveTrue(form.getServiceId())
-            .orElseThrow(() -> new ShipmentCreationException("serviceId", "Dịch vụ không tồn tại hoặc đã ngừng hoạt động."));
-        LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
-        RateScopeType scope = form.getSenderProvince().equalsIgnoreCase(form.getReceiverProvince())
-            ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
-        List<ShippingRateRule> effective = rates.findEffectiveRules(service.getId(), scope, now);
-        if (effective.isEmpty()) {
-            throw new ShipmentCreationException("serviceId", "Chưa có bảng giá đang hiệu lực phù hợp cho dịch vụ và tuyến này. Vui lòng chọn dịch vụ khác hoặc liên hệ hỗ trợ.");
-        }
-        if (effective.size() != 1) {
-            throw new ShipmentCreationException("serviceId", "Có nhiều bảng giá cùng hiệu lực. Vui lòng liên hệ hỗ trợ để kiểm tra.");
-        }
-        BigDecimal fee = shippingFee(effective.getFirst(), form.getWeightKg());
-        Shipment shipment = new Shipment();
-        shipment.setTrackingNumber(tracking.next());
-        shipment.setSender(owner);
-        shipment.setSenderName(form.getSenderName()); shipment.setSenderPhone(form.getSenderPhone());
-        shipment.setSenderProvince(form.getSenderProvince()); shipment.setSenderDistrict(form.getSenderDistrict());
-        shipment.setSenderWard(form.getSenderWard()); shipment.setSenderAddress(form.getSenderAddress());
-        shipment.setReceiverName(form.getReceiverName()); shipment.setReceiverPhone(form.getReceiverPhone());
-        shipment.setReceiverProvince(form.getReceiverProvince()); shipment.setReceiverDistrict(form.getReceiverDistrict());
-        shipment.setReceiverWard(form.getReceiverWard()); shipment.setReceiverAddress(form.getReceiverAddress());
-        shipment.setOriginBranch(origin); shipment.setDestinationBranch(destination);
-        // A new request has not physically arrived at a branch; do not invent a current location.
-        shipment.setService(service); shipment.setPackageDescription(form.getPackageDescription());
-        shipment.setWeightKg(form.getWeightKg()); shipment.setLengthCm(form.getLengthCm());
-        shipment.setWidthCm(form.getWidthCm()); shipment.setHeightCm(form.getHeightCm());
-        shipment.setCodAmount(form.getCodAmount()); shipment.setDeclaredValue(form.getDeclaredValue());
-        shipment.setShippingFee(fee);
-        // No insurance product or insurance pricing rule exists in this flow; retain the schema default.
-        shipment.setTotalFee(fee.add(shipment.getInsuranceFee()));
-        shipment.setStatus(ShipmentStatus.CREATED); shipment.setPaymentStatus(ShipmentPaymentStatus.UNPAID);
-        shipment.setPaymentPayer(form.getPaymentPayer()); shipment.setNote(form.getNote());
-        shipment.setCreatedAt(now); shipment.setUpdatedAt(now);
-        // The existing SQL UNIQUE constraint is the final protection against concurrent tracking collisions.
-        Shipment saved = shipments.saveAndFlush(shipment);
-        ShipmentEvent event = new ShipmentEvent();
-        event.setShipment(saved); event.setActor(owner); event.setToStatus(ShipmentStatus.CREATED);
-        event.setEventTitle("Đã tạo vận đơn"); event.setOccurredAt(now);
-        events.saveAndFlush(event);
-        return saved.getId();
     }
 
     public Page<ShipmentSummary> list(@Size(max = 50) String q, ShipmentStatus status, Pageable requested) {
@@ -135,7 +70,8 @@ public class UserShipmentService {
             shipment.getPackageDescription(), shipment.getWeightKg(), shipment.getLengthCm(), shipment.getWidthCm(),
             shipment.getHeightCm(), shipment.getCodAmount(), shipment.getDeclaredValue(), shipment.getShippingFee(),
             shipment.getInsuranceFee(), shipment.getTotalFee(), shipment.getPaymentPayer(), shipment.getPaymentStatus(),
-            shipment.getStatus(), shipment.getNote(), shipment.getCreatedAt(), shipment.getUpdatedAt(), timeline);
+            shipment.getStatus(), shipment.getNote(), shipment.getCreatedAt(), shipment.getUpdatedAt(), timeline,
+            shipment.getShipmentMethod(), shipment.getPickupFee());
     }
 
     private User requireUser() {
@@ -151,25 +87,6 @@ public class UserShipmentService {
             throw new AccessDeniedException("Forbidden");
         }
         return owner;
-    }
-
-    private Branch branch(Long id, String province, String field) {
-        Branch branch = branches.findByIdAndStatus(id, BranchStatus.ACTIVE)
-            .orElseThrow(() -> new ShipmentCreationException(field, "Chi nhánh không tồn tại hoặc đã ngừng hoạt động."));
-        if (!branch.getProvince().strip().equalsIgnoreCase(province)) {
-            throw new ShipmentCreationException(field, "Vui lòng chọn chi nhánh thuộc tỉnh/thành đã nhập.");
-        }
-        return branch;
-    }
-
-    private BigDecimal shippingFee(ShippingRateRule rule, BigDecimal weight) {
-        BigDecimal extra = weight.subtract(rule.getBaseWeightKg()).max(BigDecimal.ZERO);
-        BigDecimal steps = extra.divide(rule.getExtraWeightStepKg(), 0, RoundingMode.CEILING);
-        BigDecimal fee = rule.getBasePrice().add(steps.multiply(rule.getExtraPricePerStep())).setScale(2);
-        if (fee.compareTo(new BigDecimal("9999999999999999.99")) > 0) {
-            throw new ShipmentCreationException("weightKg", "Phí vượt giới hạn lưu trữ. Vui lòng liên hệ hỗ trợ.");
-        }
-        return fee;
     }
 
     static Specification<Shipment> ownedSearch(Long ownerId, String search, ShipmentStatus status) {

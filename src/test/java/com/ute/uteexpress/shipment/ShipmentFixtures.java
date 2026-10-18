@@ -14,6 +14,7 @@ public final class ShipmentFixtures {
     public static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 15, 12, 0);
     public static ShipmentCreateForm form() {
         ShipmentCreateForm form = new ShipmentCreateForm();
+        form.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF);
         form.setSenderName("Người gửi thử nghiệm"); form.setSenderPhone("0901234567");
         form.setSenderProvince("Hồ Chí Minh"); form.setSenderDistrict("Thủ Đức");
         form.setSenderWard("Linh Chiểu"); form.setSenderAddress("Địa chỉ gửi thử nghiệm");
@@ -67,6 +68,15 @@ public final class ShipmentFixtures {
         return new ShipmentDetailView(31L, "UTE_TEST_TRACKING", contact, contact, "Chi nhánh gửi", "Chi nhánh nhận", null,
             "Dịch vụ thử nghiệm", "Sách", new BigDecimal("1.01"), null, null, null, BigDecimal.ZERO, BigDecimal.ZERO,
             new BigDecimal("25000.00"), BigDecimal.ZERO, new BigDecimal("25000.00"), PaymentPayer.SENDER,
-            ShipmentPaymentStatus.UNPAID, ShipmentStatus.CREATED, null, NOW, NOW, new PageImpl<>(List.of(event)));
+            ShipmentPaymentStatus.UNPAID, ShipmentStatus.CREATED, null, NOW, NOW, new PageImpl<>(List.of(event)), null, null);
+    }
+
+    public static ShipmentQuoteView quoteView() {
+        var detail = detail();
+        return new ShipmentQuoteView("a".repeat(32), ShipmentMethod.HOME_PICKUP, detail.sender(), detail.receiver(),
+            detail.originBranch(), detail.destinationBranch(), detail.serviceName(), detail.packageDescription(),
+            detail.weightKg(), null, null, null, detail.codAmount(), detail.declaredValue(), PaymentPayer.SENDER,
+            "Private quote note", new BigDecimal("25000.00"), new BigDecimal("7500.00"), new BigDecimal("0.00"),
+            new BigDecimal("32500.00"), NOW.plusMinutes(15), true, false);
     }
 }

@@ -38,6 +38,17 @@ public class BranchNetworkService {
         return requireValidHub(branch).getId();
     }
 
+    public List<ShipmentOptions.BranchOption> deliveryBranches(
+            @NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district,
+            @NotBlank @Size(max = 100) String ward) {
+        return areas.findDeliveryBranches(province.strip(), district.strip(), ward.strip(),
+                BranchStatus.ACTIVE, BranchType.LOCAL_BRANCH, BranchType.CENTRAL_HUB).stream()
+            .map(branch -> {
+                requireValidHub(branch);
+                return new ShipmentOptions.BranchOption(branch.getId(), branch.getName(), branch.getProvince());
+            }).toList();
+    }
+
     private Branch requireValidHub(Branch branch) {
         Branch hub = branch.getParentHub();
         if (branch.getStatus() != BranchStatus.ACTIVE || branch.getBranchType() != BranchType.LOCAL_BRANCH
