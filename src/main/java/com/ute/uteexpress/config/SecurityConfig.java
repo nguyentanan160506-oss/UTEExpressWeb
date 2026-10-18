@@ -86,6 +86,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/account").authenticated()
                 .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 .requestMatchers("/manager", "/manager/**").hasRole("MANAGER")
+                .requestMatchers("/shipper", "/shipper/**").hasRole("SHIPPER")
                 .requestMatchers("/user/shipments", "/user/shipments/**").hasRole("USER")
                 // Business routes still need explicit rules when their controllers are added.
                 .anyRequest().denyAll());
