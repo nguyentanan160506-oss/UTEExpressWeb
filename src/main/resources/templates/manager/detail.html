@@ -39,7 +39,8 @@
                     <label for="cancelReason" class="form-label">Lý do hủy / từ chối</label><textarea id="cancelReason" name="reason" rows="2" required maxlength="500" class="form-control mb-2"></textarea>
                     <button type="submit" class="btn btn-outline-danger">Hủy / từ chối yêu cầu</button>
                 </form>
-                <p th:if="${s.method != null and s.method.name() == 'HOME_PICKUP'}" class="small text-secondary">Kiện lấy tận nhà cần hoàn thành bước lấy hàng và bàn giao riêng tại chi nhánh.</p>
+                <p th:if="${s.method != null and s.method.name() == 'HOME_PICKUP'}" class="small text-secondary">Kiện lấy tận nhà cần bằng chứng lấy hàng và người tiếp nhận độc lập.
+                    <a th:href="@{/manager/handoffs}">Kiểm tra bàn giao chờ nhận</a>.</p>
                 <form th:if="${detail.canReceive}" th:action="@{/manager/shipments/{id}/intake(id=${s.id})}" method="post" class="border-top pt-4">
                     <h3 class="h6 fw-bold">Tiếp nhận kiện BRANCH_DROPOFF thực tế</h3>
                     <input type="hidden" name="expectedVersion" th:value="${detail.version}">

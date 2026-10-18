@@ -1,0 +1,20 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<nav th:fragment="nav" class="shipment-nav py-3"><div class="container d-flex flex-wrap justify-content-between gap-3">
+    <a class="brand-name text-decoration-none" th:href="@{/shipper}">UTE<span>Express</span> · Lấy hàng</a>
+    <div class="d-flex flex-wrap gap-3 align-items-center">
+        <a class="text-white" th:href="@{/shipper}">Tổng quan</a><a class="text-white" th:href="@{/shipper/pickups}">Nhiệm vụ &amp; lịch sử</a>
+        <a class="text-white" th:href="@{/account}">Tài khoản</a>
+        <form th:action="@{/logout}" method="post"><button class="btn btn-sm btn-outline-light">Đăng xuất</button></form>
+    </div></div></nav>
+<div th:fragment="messages"><p th:if="${notice}" class="alert alert-success" role="status" th:text="${notice}"></p>
+    <p th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></p></div>
+<span th:fragment="assignment(value)" th:switch="${value.name()}">
+    <span th:case="'ASSIGNED'">Chờ lấy hàng</span><span th:case="'IN_PROGRESS'">Đã lấy, chờ chi nhánh nhận</span>
+    <span th:case="'COMPLETED'">Hoàn thành</span><span th:case="'CANCELLED'">Đã hủy phân công</span><span th:case="*">Thất bại</span></span>
+<span th:fragment="handoff(value)" th:switch="${value.name()}"><span th:case="'PENDING'">Chờ nhận</span>
+    <span th:case="'ACCEPTED'">Đã tiếp nhận</span><span th:case="'REJECTED'">Từ chối</span></span>
+<div th:fragment="pagination(page, path)" class="d-flex flex-wrap gap-3 my-3">
+    <a th:if="${page.hasPrevious()}" th:href="@{${path}(page=${page.number - 1})}">Trang trước</a>
+    <span th:text="|Trang ${page.number + 1} · ${page.totalElements} bản ghi|"></span>
+    <a th:if="${page.hasNext()}" th:href="@{${path}(page=${page.number + 1})}">Trang sau</a></div>
+</body></html>

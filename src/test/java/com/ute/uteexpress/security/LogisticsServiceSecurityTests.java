@@ -37,6 +37,8 @@ class LogisticsServiceSecurityTests {
     @MockitoBean ShipmentRepository shipments;
     @MockitoBean ShipmentEventRepository events;
     @MockitoBean ShipmentIntakeRepository intakes;
+    @MockitoBean PickupEvidenceRepository evidence;
+    @MockitoBean OriginHandoffRepository handoffs;
     @MockitoBean BranchServiceAreaRepository areas;
     private ShipmentTransitionCommand command() { return new ShipmentTransitionCommand(31L, 0L, ShipmentStatus.CONFIRMED); }
 
@@ -59,6 +61,8 @@ class LogisticsServiceSecurityTests {
     }
     @Test @WithMockUser(roles = "SHIPPER")
     void shipperCannotConfirmOrCancelAsManager() {
+        assertThrows(AccessDeniedException.class, () -> lifecycle.reviewOriginHandoff(
+            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, "REF", null)));
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireManagerForBranch(11L));
         assertThrows(AccessDeniedException.class, () -> manager.detail(31L, 0, 0, 0));
@@ -68,11 +72,19 @@ class LogisticsServiceSecurityTests {
     }
     @Test @WithMockUser(roles = "MANAGER")
     void managerCannotImpersonateAssignedShipper() {
+        assertThrows(AccessDeniedException.class, () -> lifecycle.collectPickup(
+            new com.ute.uteexpress.dto.shipment.PickupCollectionCommand(41L, 0L, PickupResult.SUCCESS, true, "REF", null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.requestOriginHandoff(
+            new com.ute.uteexpress.dto.shipment.OriginHandoffCommand(41L, 0L, null)));
         assertThrows(AccessDeniedException.class, () -> access.requireAssignedShipper(31L, AssignmentType.PICKUP));
         verifyNoInteractions(users, employees, assignments);
     }
     @Test @WithMockUser(roles = "ADMIN")
     void adminDoesNotImplicitlyBecomeOperationalManagerOrShipper() {
+        assertThrows(AccessDeniedException.class, () -> lifecycle.collectPickup(
+            new com.ute.uteexpress.dto.shipment.PickupCollectionCommand(41L, 0L, PickupResult.SUCCESS, true, "REF", null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.reviewOriginHandoff(
+            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, "REF", null)));
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireAssignedShipper(31L, AssignmentType.DELIVERY));
         verifyNoInteractions(users, shipments, employees, events);

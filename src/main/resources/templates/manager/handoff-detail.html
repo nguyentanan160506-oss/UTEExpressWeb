@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Kiểm tra bàn giao nguồn')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<div th:replace="~{shipper/fragments :: messages}"></div><h1 class="h3" th:text="${review.handoff.trackingNumber}"></h1>
+<p><a th:href="@{/manager/shipments/{id}(id=${review.shipmentId})}">Vận đơn, biên nhận nguồn và lịch sử thao tác</a></p>
+<div class="card p-3 mb-3"><p>Chi nhánh: <strong th:text="${review.handoff.branch}"></strong></p>
+    <p>Người giao: <span th:text="${review.handoff.shipper}"></span></p><p th:text="${review.handoff.notes}"></p>
+    <p><span th:replace="~{shipper/fragments :: handoff(${review.handoff.status})}"></span> · <span th:text="${review.handoff.requestedAt}"></span> UTC</p>
+    <p>Người xử lý: <span th:text="${review.handoff.reviewer}"></span> · <span th:text="${review.handoff.reviewedAt}"></span></p>
+    <p th:text="${review.handoff.reason}"></p></div>
+<section class="card p-3 mb-3"><h2 class="h5">Bằng chứng pickup</h2>
+    <p>Nhân viên: <span th:text="${review.evidence.employee}"></span> · <span th:text="${review.evidence.recordedAt}"></span> UTC</p>
+    <p>Tham chiếu: <strong th:text="${review.evidence.reference}"></strong></p><p th:text="${review.evidence.notes}"></p>
+    <p class="text-secondary">Xác nhận thực nhận do Shipper ghi nhận; chưa có ảnh, chữ ký hoặc GPS.</p></section>
+<section th:if="${review.canReview}" class="row g-3"><div class="col-12 col-lg-6"><form class="card p-3 h-100" method="post" th:action="@{/manager/handoffs/{id}/accept(id=${review.handoff.id})}">
+    <h2 class="h5">Tiếp nhận thực tế</h2><input type="hidden" name="expectedVersion" th:value="${review.version}">
+    <label class="form-label" for="receipt">Mã biên nhận</label><input id="receipt" name="receiptReference" maxlength="100" required class="form-control mb-3">
+    <label class="form-label" for="receiveNote">Ghi chú kiểm tra</label><textarea id="receiveNote" name="reason" maxlength="500" class="form-control mb-3"></textarea>
+    <div class="form-check mb-3"><input id="received" name="physicallyReceived" value="true" type="checkbox" required class="form-check-input">
+        <label for="received" class="form-check-label">Tôi đã kiểm tra và thực nhận đúng kiện tại chi nhánh.</label></div>
+    <button class="btn btn-primary">Xác nhận tiếp nhận kiện</button></form></div>
+<div class="col-12 col-lg-6"><form class="card p-3 h-100" method="post" th:action="@{/manager/handoffs/{id}/reject(id=${review.handoff.id})}">
+    <h2 class="h5">Từ chối bàn giao</h2><input type="hidden" name="expectedVersion" th:value="${review.version}">
+    <label class="form-label" for="rejectReason">Lý do cụ thể</label><textarea id="rejectReason" name="reason" maxlength="500" required class="form-control mb-3"></textarea>
+    <button class="btn btn-outline-danger">Từ chối, chưa nhận kiện</button></form></div></section>
+<p th:unless="${review.canReview}" class="alert alert-info">Yêu cầu đã xử lý hoặc bạn không đủ điều kiện tiếp nhận độc lập tại chi nhánh.</p>
+</main></body></html>

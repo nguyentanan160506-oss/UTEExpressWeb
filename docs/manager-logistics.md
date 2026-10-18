@@ -1,5 +1,9 @@
 # Commit 10 — Manager logistics và phân công lấy hàng
 
+**Cập nhật Commit 11:** Manager có hàng đợi HOME_PICKUP, kiểm tra bằng chứng và nhận/từ chối bàn giao độc lập.
+Xem [shipper-pickup.md](shipper-pickup.md). Quy tắc BRANCH_DROPOFF và phân công Commit 10 được giữ nguyên;
+HOME_PICKUP tiếp nhận qua handoff V6, không qua endpoint intake trực tiếp. Phần dưới ghi nhận mốc Commit 10.
+
 Nhánh `feature/an-manager-logistics`, phụ trách An. Trước khi triển khai, working tree sạch,
 HEAD chứa merge Commit 01–09, gần nhất `fa6aec5` (Commit 09).
 Không git add/commit/push/merge/PR, không kết nối hoặc thay đổi database thật khi viết code/test.
