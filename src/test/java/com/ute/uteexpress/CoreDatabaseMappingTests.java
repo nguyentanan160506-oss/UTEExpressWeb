@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 + V8 schema. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 + V8 + V9 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class, PricingVersion.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -61,7 +61,7 @@ class CoreDatabaseMappingTests {
                 var alter = Pattern.compile("ALTER TABLE dbo\\.(\\w+) (ADD|DROP CONSTRAINT) ([^;]+);").matcher(sql);
                 while (alter.find()) {
                     SqlTable table = schema.get(alter.group(1));
-                    if (alter.group(2).equals("DROP CONSTRAINT")) { table.checks.remove(alter.group(3)); }
+                    if (alter.group(2).equals("DROP CONSTRAINT")) { table.checks.remove(alter.group(3)); table.uniqueKeys.remove(alter.group(3)); }
                     else { applyDefinition(table, alter.group(3)); }
                 }
                 var index = Pattern.compile("CREATE INDEX (\\w+) ON dbo\\.(\\w+) \\(([^;]+)\\);").matcher(sql);
@@ -83,6 +83,14 @@ class CoreDatabaseMappingTests {
                     assertFalse(sql.contains("UPDATE dbo."));
                 }
                 assertFalse(sql.contains("INSERT INTO dbo.users"));
+                if (migration.startsWith("V9")) {
+                    assertFalse(sql.contains("UPDATE dbo.")); assertFalse(sql.contains("INSERT INTO"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_rate_rules_version_scope"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_pickup_rules_version_branch"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_pickup_legacy_start"));
+                    assertTrue(sql.contains("WHERE pricing_version_id IS NOT NULL"));
+                    assertTrue(sql.contains("DROP CONSTRAINT UQ_pickup_fee_rules_start"));
+                }
                 if (migration.startsWith("V8")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_assignments_active_delivery ON dbo.shipment_assignments (shipment_id) WHERE assignment_type = 'DELIVERY' AND status IN ('ASSIGNED', 'IN_PROGRESS');"));
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_delivery_attempts_success ON dbo.delivery_attempts (shipment_id) WHERE status = 'SUCCESS';"));
@@ -134,10 +142,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(36, schema.size());
+        assertEquals(37, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(36, metadata.getEntityBindings().size());
+        assertEquals(37, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -193,7 +201,7 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(119, foreignKeys);
+        assertEquals(127, foreignKeys);
         assertEquals(27, uniqueKeys);
     }
 
@@ -225,15 +233,15 @@ class CoreDatabaseMappingTests {
                 }
                 assertNull(field.getAnnotation(OneToMany.class));
                 assertNull(field.getAnnotation(ManyToMany.class));
-                if ((entity == Shipment.class || entity == TransportTrip.class) && field.getName().equals("version")) {
+                if ((entity == Shipment.class || entity == TransportTrip.class || entity == ShippingService.class || entity == PricingVersion.class) && field.getName().equals("version")) {
                     assertNotNull(field.getAnnotation(Version.class));
                     assertEquals(Long.class, field.getType());
                     assertTrue(metadata.getEntityBinding(entity.getName()).isVersioned());
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(119, associations);
-        assertEquals(35, identities);
+        assertEquals(127, associations);
+        assertEquals(36, identities);
     }
 
     @Test
@@ -293,7 +301,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(45, enumColumns);
+        assertEquals(46, enumColumns);
     }
 
     @Test
@@ -335,7 +343,7 @@ class CoreDatabaseMappingTests {
                 } else if (actual instanceof Enum<?> value) {
                     assertEquals(expected.replace("'", ""), value.name());
                 } else {
-                    assertEquals(expected.equals("''") ? "" : expected, actual.toString());
+                    assertEquals(expected.startsWith("'") && expected.endsWith("'") ? expected.substring(1, expected.length() - 1) : expected, actual.toString());
                 }
             }
         }

@@ -1,10 +1,13 @@
 package com.ute.uteexpress.service;
 
 import com.ute.uteexpress.dto.shipment.*;
+import com.ute.uteexpress.dto.pricing.*;
 import com.ute.uteexpress.entity.*;
 import com.ute.uteexpress.enums.*;
 import com.ute.uteexpress.repository.*;
 import jakarta.validation.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.validation.constraints.*;
 import java.math.*;
 import java.time.*;
@@ -38,19 +41,21 @@ public class QuoteService {
     private final Clock clock;
     private final Validator validator;
     private final Duration validity;
+    private final EntityManager entityManager;
+    private final PricingVersionRepository versions;
 
     public QuoteService(UserRepository users, UserRoleRepository roles, ShipmentQuoteRepository quotes,
             ShipmentRepository shipments, ShipmentEventRepository events, BranchRepository branches,
             ShippingServiceRepository services, ShippingRateRuleRepository rates, PickupFeeRuleRepository pickups,
             BranchNetworkService network, TrackingNumberGenerator tracking, Clock clock, Validator validator,
-            @Value("${uteexpress.quotes.validity:PT15M}") Duration validity) {
+            @Value("${uteexpress.quotes.validity:PT15M}") Duration validity, EntityManager entityManager, PricingVersionRepository versions) {
         if (validity.isNegative() || validity.isZero() || validity.compareTo(Duration.ofHours(24)) > 0) {
             throw new IllegalArgumentException("Quote validity must be positive and at most 24 hours");
         }
         this.users = users; this.roles = roles; this.quotes = quotes; this.shipments = shipments;
         this.events = events; this.branches = branches; this.services = services; this.rates = rates;
         this.pickups = pickups; this.network = network; this.tracking = tracking; this.clock = clock;
-        this.validator = validator; this.validity = validity;
+        this.validator = validator; this.validity = validity; this.entityManager = entityManager; this.versions = versions;
     }
 
     public record BranchChoices(List<ShipmentOptions.BranchOption> origins, List<ShipmentOptions.BranchOption> destinations) { }
@@ -74,42 +79,17 @@ public class QuoteService {
         User owner = requireUser();
         var violations = validator.validate(form);
         if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
-        BranchChoices choices = choices(form);
-        Long originId = form.getOriginBranchId();
-        if (form.getShipmentMethod() == ShipmentMethod.HOME_PICKUP && originId == null && choices.origins().size() == 1) {
-            originId = choices.origins().getFirst().id();
-        }
-        requireChoice(originId, choices.origins(), "originBranchId",
-            "Không xác định được chi nhánh nguồn duy nhất. Vui lòng chọn chi nhánh trong phạm vi phục vụ hợp lệ.");
-        requireChoice(form.getDestinationBranchId(), choices.destinations(), "destinationBranchId",
-            "Chi nhánh đích không phục vụ địa chỉ nhận hoặc chưa được cấu hình giao đến.");
-        Branch origin = activeBranch(originId, "originBranchId");
-        Branch destination = activeBranch(form.getDestinationBranchId(), "destinationBranchId");
-        Branch originHub = activeBranch(hub(originId, "originBranchId"), "originBranchId");
-        Branch destinationHub = activeBranch(hub(destination.getId(), "destinationBranchId"), "destinationBranchId");
+        Route route = route(form);
+        Branch origin = route.origin(), destination = route.destination(), originHub = route.originHub(), destinationHub = route.destinationHub();
         ShippingService service = activeService(form.getServiceId());
+        requireUser(); // Refresh account/roles after any wait for the pricing gate.
         LocalDateTime now = now();
         RateScopeType scope = form.getSenderProvince().equalsIgnoreCase(form.getReceiverProvince())
             ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
-        List<ShippingRateRule> effective = rates.findEffectiveRules(service.getId(), scope, now);
-        if (effective.isEmpty()) { throw error("serviceId", "Chưa có bảng giá đang hiệu lực phù hợp cho dịch vụ và tuyến này."); }
-        if (effective.size() != 1) { throw error("serviceId", "Có nhiều bảng giá cùng hiệu lực. Vui lòng liên hệ hỗ trợ."); }
-        ShippingRateRule rate = effective.getFirst();
-        BigDecimal shipping = shippingFee(rate, form.getWeightKg());
-        PickupFeeRule pickup = null;
-        BigDecimal pickupFee = new BigDecimal("0.00"); // BRANCH_DROPOFF has no pickup service.
-        LocalDateTime expires = earlier(now.plus(validity), rate.getEffectiveTo());
-        if (form.getShipmentMethod() == ShipmentMethod.HOME_PICKUP) {
-            var rules = pickups.findEffectiveRules(originId, service.getId(), now);
-            if (rules.size() != 1) { throw error("shipmentMethod", "Chưa có đúng một bảng phụ phí lấy hàng đang hiệu lực cho chi nhánh và dịch vụ này."); }
-            pickup = rules.getFirst();
-            if (pickup.getAmount() == null || pickup.getAmount().signum() <= 0) {
-                throw error("shipmentMethod", "Bảng phụ phí lấy hàng không hợp lệ.");
-            }
-            pickupFee = money(pickup.getAmount());
-            expires = earlier(expires, pickup.getEffectiveTo());
-        }
-        if (!expires.isAfter(now)) { throw error("serviceId", "Bảng giá đã hết hiệu lực. Vui lòng báo giá lại."); }
+        conditions(service, form);
+        Price price = price(service, scope, form.getShipmentMethod(), origin.getId(), form.getWeightKg(), now);
+        ShippingRateRule rate = price.rate(); PickupFeeRule pickup = price.pickup();
+        BigDecimal shipping = price.shipping(), pickupFee = price.pickupFee(); LocalDateTime expires = price.expires();
         ShipmentQuote quote = new ShipmentQuote();
         ShipmentQuoteInputs.capture(form, quote);
         quote.setToken(UUID.randomUUID().toString().replace("-", "")); quote.setRequester(owner);
@@ -140,6 +120,7 @@ public class QuoteService {
         User owner = requireUser();
         // Serializes confirmations across all application instances, not just one HTTP session.
         ShipmentQuote quote = quotes.findOwnedForUpdate(token, owner.getId()).orElseThrow(this::notFound);
+        requireUser();
         if (quote.getConsumedAt() != null) {
             return shipments.findByQuoteIdAndSenderId(quote.getId(), owner.getId()).map(Shipment::getId)
                 .orElseThrow(() -> new IllegalStateException("Consumed quote has no shipment"));
@@ -147,7 +128,11 @@ public class QuoteService {
         LocalDateTime now = now();
         if (!now.isBefore(quote.getExpiresAt())) { throw error("shipmentMethod", "Báo giá đã hết hạn. Vui lòng lấy báo giá mới."); }
         // Honor stored prices until expiry, but do not use a disabled service or invalid route.
-        activeService(quote.getService().getId());
+        ShippingService currentService = activeService(quote.getService().getId());
+        requireUser();
+        now = now(); // Recheck after waiting for the catalog lock.
+        if (!now.isBefore(quote.getExpiresAt())) { throw error("shipmentMethod", "Báo giá đã hết hạn trong lúc chờ. Vui lòng lấy báo giá mới."); }
+        conditions(currentService, ShipmentQuoteInputs.form(quote));
         BranchChoices choices = choices(ShipmentQuoteInputs.form(quote));
         requireChoice(quote.getOriginBranch().getId(), choices.origins(), "originBranchId", "Chi nhánh nguồn không còn phục vụ địa chỉ gửi.");
         requireChoice(quote.getDestinationBranch().getId(), choices.destinations(), "destinationBranchId", "Chi nhánh đích không còn phục vụ địa chỉ nhận.");
@@ -173,12 +158,109 @@ public class QuoteService {
         return shipment.getId();
     }
 
+    private record Route(Branch origin, Branch destination, Branch originHub, Branch destinationHub) { }
+    private record Price(ShippingRateRule rate, PickupFeeRule pickup, BigDecimal shipping, BigDecimal pickupFee, LocalDateTime expires) { }
+    private Route route(ShipmentCreateForm form) {
+        BranchChoices choices = choices(form);
+        Long originId = form.getOriginBranchId();
+        if (form.getShipmentMethod() == ShipmentMethod.HOME_PICKUP && originId == null && choices.origins().size() == 1) {
+            originId = choices.origins().getFirst().id();
+        }
+        requireChoice(originId, choices.origins(), "originBranchId",
+            "Không xác định được chi nhánh nguồn duy nhất. Vui lòng chọn chi nhánh trong phạm vi phục vụ hợp lệ.");
+        requireChoice(form.getDestinationBranchId(), choices.destinations(), "destinationBranchId",
+            "Chi nhánh đích không phục vụ địa chỉ nhận hoặc chưa được cấu hình giao đến.");
+        Branch origin = activeBranch(originId, "originBranchId");
+        Branch destination = activeBranch(form.getDestinationBranchId(), "destinationBranchId");
+        Branch originHub = activeBranch(hub(originId, "originBranchId"), "originBranchId");
+        Branch destinationHub = activeBranch(hub(destination.getId(), "destinationBranchId"), "destinationBranchId");
+        return new Route(origin, destination, originHub, destinationHub);
+    }
+    private Price price(ShippingService service, RateScopeType scope, ShipmentMethod method, Long originId, BigDecimal weight, LocalDateTime now) {
+        return price(service, scope, method, originId, weight, now, null, null);
+    }
+    private Price price(ShippingService service, RateScopeType scope, ShipmentMethod method, Long originId, BigDecimal weight, LocalDateTime now,
+            ShippingRateRule shippingOverride, PickupFeeRule pickupOverride) {
+        List<ShippingRateRule> effective = shippingOverride == null ? rates.findEffectiveRules(service.getId(), scope, now) : List.of(shippingOverride);
+        if (effective.isEmpty()) { throw error("serviceId", "Chưa có bảng giá đang hiệu lực phù hợp cho dịch vụ và tuyến này."); }
+        if (effective.size() != 1) { throw error("serviceId", "Có nhiều bảng giá cùng hiệu lực. Vui lòng liên hệ hỗ trợ."); }
+        ShippingRateRule rate = effective.getFirst();
+        BigDecimal shipping = shippingFee(rate, weight);
+        PickupFeeRule pickup = null;
+        BigDecimal pickupFee = new BigDecimal("0.00"); // BRANCH_DROPOFF has no pickup service.
+        LocalDateTime expires = earlier(earlier(earlier(now.plus(validity), rate.getEffectiveTo()), rate.getRetiredFrom()), rate.getPricingVersion() == null ? null : rate.getPricingVersion().getRetiredFrom());
+        if (method == ShipmentMethod.HOME_PICKUP) {
+            var rules = pickupOverride == null ? pickups.findEffectiveRules(originId, service.getId(), now) : List.of(pickupOverride);
+            if (rules.size() != 1) { throw error("shipmentMethod", "Chưa có đúng một bảng phụ phí lấy hàng đang hiệu lực cho chi nhánh và dịch vụ này."); }
+            pickup = rules.getFirst();
+            if (pickup.getAmount() == null || pickup.getAmount().signum() <= 0) {
+                throw error("shipmentMethod", "Bảng phụ phí lấy hàng không hợp lệ.");
+            }
+            pickupFee = money(pickup.getAmount());
+            expires = earlier(earlier(earlier(expires, pickup.getEffectiveTo()), pickup.getRetiredFrom()), pickup.getPricingVersion() == null ? null : pickup.getPricingVersion().getRetiredFrom());
+        }
+        if (!expires.isAfter(now)) { throw error("serviceId", "Bảng giá đã hết hiệu lực. Vui lòng báo giá lại."); }
+        return new Price(rate, pickup, shipping, pickupFee, expires);
+    }
+    @PreAuthorize("hasRole('ADMIN')") @Transactional
+    public PublicQuoteView simulateDraft(@NotNull @Positive Long id, @NotNull @Valid GuestQuoteForm form) {
+        requireRole("ROLE_ADMIN");
+        Long serviceId = versions.findServiceId(id).orElseThrow(this::notFound);
+        ShippingService service = services.findForPricingUpdate(serviceId).orElseThrow(this::notFound);
+        entityManager.refresh(service, LockModeType.PESSIMISTIC_WRITE); requireRole("ROLE_ADMIN");
+        PricingVersion version = versions.findById(id).orElseThrow(this::notFound); entityManager.refresh(version);
+        if (version.getStatus() != PricingVersionStatus.DRAFT || !serviceId.equals(version.getService().getId()) || !serviceId.equals(form.getServiceId())) {
+            throw error("serviceId", "Chỉ mô phỏng bản nháp của đúng dịch vụ; bản đã công bố dùng công cụ giá hiệu lực.");
+        }
+        var violations = validator.validate(form); if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
+        var input = form.toShipmentInput(); Route route = route(input); conditions(service, input);
+        RateScopeType scope = form.getSenderProvince().strip().equalsIgnoreCase(form.getReceiverProvince().strip()) ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
+        var shipping = rates.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getScopeType() == scope).toList();
+        var pickup = pickups.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getBranch().getId().equals(route.origin().getId())).toList();
+        if (shipping.size() > 1 || pickup.size() > 1) { throw error("serviceId", "Bản nháp có quy tắc chồng lấn, cần sửa trước khi mô phỏng."); }
+        Price result = price(service, scope, form.getShipmentMethod(), route.origin().getId(), form.getWeightKg(), version.getValidFrom(),
+            shipping.isEmpty() ? null : shipping.getFirst(), pickup.isEmpty() ? null : pickup.getFirst());
+        return new PublicQuoteView(service.getName(), form.getShipmentMethod(), result.shipping(), result.pickupFee(), new BigDecimal("0.00"),
+            money(result.shipping().add(result.pickupFee())), "VND", version.getValidFrom(), earlier(result.expires(), version.getValidTo()));
+    }
+    @PreAuthorize("permitAll()") @Transactional
+    public PublicQuoteView estimate(@NotNull @Valid GuestQuoteForm form) {
+        var violations = validator.validate(form); if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
+        ShipmentCreateForm input = form.toShipmentInput(); Route route = route(input);
+        ShippingService service = activeService(form.getServiceId()); conditions(service, input); LocalDateTime time = now();
+        RateScopeType scope = form.getSenderProvince().strip().equalsIgnoreCase(form.getReceiverProvince().strip()) ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
+        Price price = price(service, scope, form.getShipmentMethod(), route.origin().getId(), form.getWeightKg(), time);
+        return new PublicQuoteView(service.getName(), form.getShipmentMethod(), price.shipping(), price.pickupFee(), new BigDecimal("0.00"),
+            money(price.shipping().add(price.pickupFee())), "VND", time, price.expires());
+    }
+    @PreAuthorize("permitAll()")
+    public List<ShipmentOptions.ServiceOption> estimateServices() {
+        return services.findByIsActiveTrueOrderByNameAsc().stream().map(s -> new ShipmentOptions.ServiceOption(s.getId(), s.getName())).toList();
+    }
+    @PreAuthorize("permitAll()")
+    public BranchChoices estimateBranches(@NotNull GuestQuoteForm form) {
+        if (form.getShipmentMethod() == null) { throw error("shipmentMethod", "Vui lòng chọn phương thức gửi."); }
+        for (String value : new String[] {form.getSenderProvince(), form.getSenderDistrict(), form.getSenderWard(), form.getReceiverProvince(), form.getReceiverDistrict(), form.getReceiverWard()}) {
+            if (value == null || value.isBlank() || value.length() > 100) { throw error("senderProvince", "Cần nhập đủ tỉnh, huyện, xã hợp lệ của cả hai đầu trước khi tìm chi nhánh."); }
+        }
+        return choices(form.toShipmentInput());
+    }
+    private void conditions(ShippingService service, ShipmentCreateForm form) {
+        limit(service.getMaxWeightKg(), form.getWeightKg(), "weightKg");
+        limit(service.getMaxLengthCm(), form.getLengthCm(), "lengthCm");
+        limit(service.getMaxWidthCm(), form.getWidthCm(), "widthCm");
+        limit(service.getMaxHeightCm(), form.getHeightCm(), "heightCm");
+    }
+    private void limit(BigDecimal max, BigDecimal value, String field) {
+        if (max != null && (value == null || value.compareTo(max) > 0)) { throw error(field, "Vượt giới hạn dịch vụ hoặc chưa nhập số đo bắt buộc. Giới hạn: " + max.toPlainString()); }
+    }
+
     private BranchChoices choices(ShipmentCreateForm form) {
         List<ShipmentOptions.BranchOption> origins;
         List<ShipmentOptions.BranchOption> destinations;
-        try { origins = network.servingBranches(form.getSenderProvince(), form.getSenderDistrict(), form.getSenderWard(), form.getShipmentMethod()); }
+        try { origins = network.quoteServingBranches(form.getSenderProvince(), form.getSenderDistrict(), form.getSenderWard(), form.getShipmentMethod()); }
         catch (LogisticsRuleException failure) { throw error("originBranchId", failure.getMessage()); }
-        try { destinations = network.deliveryBranches(form.getReceiverProvince(), form.getReceiverDistrict(), form.getReceiverWard()); }
+        try { destinations = network.quoteDeliveryBranches(form.getReceiverProvince(), form.getReceiverDistrict(), form.getReceiverWard()); }
         catch (LogisticsRuleException failure) { throw error("destinationBranchId", failure.getMessage()); }
         return new BranchChoices(origins, destinations);
     }
@@ -186,7 +268,7 @@ public class QuoteService {
         if (id == null || choices.stream().noneMatch(option -> id.equals(option.id()))) { throw error(field, message); }
     }
     private Long hub(Long id, String field) {
-        try { return network.configuredHub(id); }
+        try { return network.quoteConfiguredHub(id); }
         catch (LogisticsRuleException failure) { throw error(field, failure.getMessage()); }
     }
     private Branch activeBranch(Long id, String field) {
@@ -194,8 +276,11 @@ public class QuoteService {
             .orElseThrow(() -> error(field, "Chi nhánh không tồn tại hoặc đã ngừng hoạt động."));
     }
     private ShippingService activeService(Long id) {
-        return services.findByIdAndIsActiveTrue(id)
+        ShippingService service = services.findByIdAndIsActiveTrue(id)
             .orElseThrow(() -> error("serviceId", "Dịch vụ không tồn tại hoặc đã ngừng hoạt động."));
+        entityManager.refresh(service, LockModeType.PESSIMISTIC_WRITE);
+        if (!service.isActive()) { throw error("serviceId", "Dịch vụ đã ngừng hoạt động."); }
+        return service;
     }
     private BigDecimal shippingFee(ShippingRateRule rule, BigDecimal weight) {
         if (rule.getBaseWeightKg() == null || rule.getBaseWeightKg().signum() <= 0
@@ -219,12 +304,14 @@ public class QuoteService {
         LocalDateTime time = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
         return time.withNano(time.getNano() / 100 * 100);
     }
-    private User requireUser() {
+    private User requireUser() { return requireRole("ROLE_USER"); }
+    private User requireRole(String requiredRole) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getAuthorities().stream()
-                .noneMatch(role -> "ROLE_USER".equals(role.getAuthority()))) { throw new AccessDeniedException("Forbidden"); }
+                .noneMatch(role -> requiredRole.equals(role.getAuthority()))) { throw new AccessDeniedException("Forbidden"); }
         User owner = users.findByEmail(authentication.getName()).orElseThrow(() -> new AccessDeniedException("Forbidden"));
-        if (owner.getStatus() != UserStatus.ACTIVE || !roles.findRoleNamesByUserId(owner.getId()).contains("ROLE_USER")) {
+        entityManager.refresh(owner);
+        if (owner.getStatus() != UserStatus.ACTIVE || !roles.findRoleNamesByUserId(owner.getId()).contains(requiredRole)) {
             throw new AccessDeniedException("Forbidden");
         }
         return owner;

@@ -74,13 +74,13 @@ class UserShipmentServiceTests {
         service = new UserShipmentService(users, roles, shipments, events, branches, services);
         quotes = mock(ShipmentQuoteRepository.class); network = mock(BranchNetworkService.class); pickups = mock(PickupFeeRuleRepository.class);
         quoting = new QuoteService(users, roles, quotes, shipments, events, branches, services, rates, pickups,
-            network, tracking, clock, validation.getValidator(), Duration.ofMinutes(15));
-        when(network.servingBranches(anyString(), anyString(), anyString(), any())).thenAnswer(call ->
+            network, tracking, clock, validation.getValidator(), Duration.ofMinutes(15), mock(jakarta.persistence.EntityManager.class), mock(PricingVersionRepository.class));
+        when(network.quoteServingBranches(anyString(), anyString(), anyString(), any())).thenAnswer(call ->
             branch(11L).getProvince().equalsIgnoreCase(call.getArgument(0))
                 ? List.of(new ShipmentOptions.BranchOption(11L, "Origin", branch(11L).getProvince())) : List.of());
-        when(network.deliveryBranches(anyString(), anyString(), anyString())).thenReturn(
+        when(network.quoteDeliveryBranches(anyString(), anyString(), anyString())).thenReturn(
             List.of(new ShipmentOptions.BranchOption(12L, "Destination", branch(12L).getProvince())));
-        when(network.configuredHub(11L)).thenReturn(101L); when(network.configuredHub(12L)).thenReturn(102L);
+        when(network.quoteConfiguredHub(11L)).thenReturn(101L); when(network.quoteConfiguredHub(12L)).thenReturn(102L);
         when(branches.findByIdAndStatus(101L, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(101L)));
         when(branches.findByIdAndStatus(102L, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(102L)));
         when(quotes.saveAndFlush(any())).thenAnswer(call -> {

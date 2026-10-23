@@ -1,22 +1,7 @@
 package com.ute.uteexpress.entity;
 
 import com.ute.uteexpress.enums.RateScopeType;
-import jakarta.persistence.CheckConstraint;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
@@ -28,6 +13,7 @@ import org.hibernate.type.SqlTypes;
     name = "shipping_rate_rules",
     schema = "dbo",
     indexes = {
+        @Index(name = "IX_rate_rules_version", columnList = "pricing_version_id, scope_type"),
         @Index(name = "IX_rate_rules_search", columnList = "service_id, scope_type, is_active, effective_from, effective_to")
     },
     check = {
@@ -36,6 +22,7 @@ import org.hibernate.type.SqlTypes;
         @CheckConstraint(name = "CK_rate_rules_base_price", constraint = "base_price >= 0"),
         @CheckConstraint(name = "CK_rate_rules_step_weight", constraint = "extra_weight_step_kg > 0"),
         @CheckConstraint(name = "CK_rate_rules_step_price", constraint = "extra_price_per_step >= 0"),
+        @CheckConstraint(name = "CK_rate_rules_retirement", constraint = "retired_from IS NULL OR (pricing_version_id IS NULL AND retired_from > effective_from AND (effective_to IS NULL OR retired_from < effective_to))"),
         @CheckConstraint(name = "CK_rate_rules_period", constraint = "effective_to IS NULL OR effective_to > effective_from")
     }
 )
@@ -212,4 +199,15 @@ public class ShippingRateRule {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pricing_version_id", foreignKey = @ForeignKey(name = "FK_rate_rules_pricing_version"))
+    private PricingVersion pricingVersion;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "retired_from", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime retiredFrom;
+    public PricingVersion getPricingVersion() { return pricingVersion; }
+    public void setPricingVersion(PricingVersion value) { pricingVersion = value; }
+    public LocalDateTime getRetiredFrom() { return retiredFrom; }
+    public void setRetiredFrom(LocalDateTime value) { retiredFrom = value; }
 }

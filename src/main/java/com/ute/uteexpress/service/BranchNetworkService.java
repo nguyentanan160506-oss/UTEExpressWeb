@@ -21,7 +21,10 @@ public class BranchNetworkService {
         this.areas = areas; this.branches = branches;
     }
 
-    public List<ShipmentOptions.BranchOption> servingBranches(
+    public List<ShipmentOptions.BranchOption> servingBranches(@NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district, @NotBlank @Size(max = 100) String ward, @NotNull ShipmentMethod method) { return quoteServingBranches(province, district, ward, method); }
+
+    @PreAuthorize("permitAll()")
+    public List<ShipmentOptions.BranchOption> quoteServingBranches(
             @NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district,
             @NotBlank @Size(max = 100) String ward, @NotNull ShipmentMethod method) {
         return areas.findServingBranches(province.strip(), district.strip(), ward.strip(), method,
@@ -32,13 +35,19 @@ public class BranchNetworkService {
             }).toList();
     }
 
-    public Long configuredHub(@NotNull @Positive Long localBranchId) {
+    public Long configuredHub(@NotNull @Positive Long localBranchId) { return quoteConfiguredHub(localBranchId); }
+
+    @PreAuthorize("permitAll()")
+    public Long quoteConfiguredHub(@NotNull @Positive Long localBranchId) {
         Branch branch = branches.findByIdAndStatus(localBranchId, BranchStatus.ACTIVE)
             .orElseThrow(() -> new LogisticsRuleException("Chi nhánh chưa đủ điều kiện sử dụng."));
         return requireValidHub(branch).getId();
     }
 
-    public List<ShipmentOptions.BranchOption> deliveryBranches(
+    public List<ShipmentOptions.BranchOption> deliveryBranches(@NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district, @NotBlank @Size(max = 100) String ward) { return quoteDeliveryBranches(province, district, ward); }
+
+    @PreAuthorize("permitAll()")
+    public List<ShipmentOptions.BranchOption> quoteDeliveryBranches(
             @NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district,
             @NotBlank @Size(max = 100) String ward) {
         return areas.findDeliveryBranches(province.strip(), district.strip(), ward.strip(),

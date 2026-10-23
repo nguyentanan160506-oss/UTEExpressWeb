@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BranchRepository extends JpaRepository<Branch, Long> {
+    org.springframework.data.domain.Page<Branch> findByStatusAndBranchType(com.ute.uteexpress.enums.BranchStatus status, com.ute.uteexpress.enums.BranchType type, org.springframework.data.domain.Pageable pageable);
     List<Branch> findByStatusOrderByNameAsc(BranchStatus status);
     Optional<Branch> findByIdAndStatus(Long id, BranchStatus status);
 }

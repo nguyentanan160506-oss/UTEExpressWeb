@@ -1,15 +1,7 @@
 package com.ute.uteexpress.entity;
 
-import jakarta.persistence.CheckConstraint;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -24,7 +16,8 @@ import org.hibernate.type.SqlTypes;
         @UniqueConstraint(name = "UQ_shipping_services_code", columnNames = {"code"})
     },
     check = {
-        @CheckConstraint(name = "CK_services_hours", constraint = "estimated_delivery_hours > 0")
+        @CheckConstraint(name = "CK_services_hours", constraint = "estimated_delivery_hours > 0"),
+        @CheckConstraint(name = "CK_services_limits", constraint = "(max_weight_kg IS NULL OR max_weight_kg > 0) AND (max_length_cm IS NULL OR max_length_cm > 0) AND (max_width_cm IS NULL OR max_width_cm > 0) AND (max_height_cm IS NULL OR max_height_cm > 0)")
     }
 )
 public class ShippingService {
@@ -34,7 +27,7 @@ public class ShippingService {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "code", nullable = false, length = 50)
+    @Column(name = "code", nullable = false, length = 50, updatable = false)
     private String code;
 
     @Nationalized
@@ -62,6 +55,21 @@ public class ShippingService {
     @Column(name = "updated_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)")
     @ColumnDefault("SYSUTCDATETIME()")
     private LocalDateTime updatedAt;
+
+    @Version @ColumnDefault("0") @Column(name = "version", nullable = false)
+    private Long version = 0L;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "created_by", foreignKey = @ForeignKey(name = "FK_services_created_by"))
+    private User createdBy;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "updated_by", foreignKey = @ForeignKey(name = "FK_services_updated_by"))
+    private User updatedBy;
+    @JdbcTypeCode(SqlTypes.DECIMAL) @Column(name = "max_weight_kg", precision = 10, scale = 2)
+    private BigDecimal maxWeightKg;
+    @JdbcTypeCode(SqlTypes.DECIMAL) @Column(name = "max_length_cm", precision = 10, scale = 2)
+    private BigDecimal maxLengthCm;
+    @JdbcTypeCode(SqlTypes.DECIMAL) @Column(name = "max_width_cm", precision = 10, scale = 2)
+    private BigDecimal maxWidthCm;
+    @JdbcTypeCode(SqlTypes.DECIMAL) @Column(name = "max_height_cm", precision = 10, scale = 2)
+    private BigDecimal maxHeightCm;
 
     public ShippingService() {
     }
@@ -145,4 +153,18 @@ public class ShippingService {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public Long getVersion() { return version; }
+    public void setVersion(Long value) { version = value; }
+    public User getCreatedBy() { return createdBy; }
+    public void setCreatedBy(User value) { createdBy = value; }
+    public User getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(User value) { updatedBy = value; }
+    public BigDecimal getMaxWeightKg() { return maxWeightKg; }
+    public void setMaxWeightKg(BigDecimal value) { maxWeightKg = value; }
+    public BigDecimal getMaxLengthCm() { return maxLengthCm; }
+    public void setMaxLengthCm(BigDecimal value) { maxLengthCm = value; }
+    public BigDecimal getMaxWidthCm() { return maxWidthCm; }
+    public void setMaxWidthCm(BigDecimal value) { maxWidthCm = value; }
+    public BigDecimal getMaxHeightCm() { return maxHeightCm; }
+    public void setMaxHeightCm(BigDecimal value) { maxHeightCm = value; }
 }

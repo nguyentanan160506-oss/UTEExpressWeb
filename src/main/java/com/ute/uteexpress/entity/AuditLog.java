@@ -32,7 +32,7 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "IX_audit_logs_resource", columnList = "resource_type, resource_id")
     },
     check = {
-        @CheckConstraint(name = "CK_audit_logs_resource", constraint = "resource_type IN ('SHIPMENT', 'USER', 'RATE_RULE', 'BRANCH', 'EMPLOYEE', 'ROLE')")
+        @CheckConstraint(name = "CK_audit_logs_resource", constraint = "resource_type IN ('SHIPMENT', 'USER', 'RATE_RULE', 'BRANCH', 'EMPLOYEE', 'ROLE', 'SHIPPING_SERVICE', 'PRICE_VERSION', 'PICKUP_RULE')")
     }
 )
 public class AuditLog {

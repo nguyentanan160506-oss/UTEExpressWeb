@@ -34,6 +34,8 @@ class QuoteServiceSecurityTests {
         @Bean static ConversionService conversionService() { return ApplicationConversionService.getSharedInstance(); }
     }
     @Autowired QuoteService service;
+    @MockitoBean jakarta.persistence.EntityManager entityManager;
+    @MockitoBean PricingVersionRepository versions;
     @MockitoBean UserRepository users;
     @MockitoBean UserRoleRepository roles;
     @MockitoBean ShipmentQuoteRepository quotes;
@@ -46,10 +48,16 @@ class QuoteServiceSecurityTests {
     @MockitoBean BranchNetworkService network;
 
     @Test void guestCannotCallAnyQuoteOperation() {
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> service.simulateDraft(1L, new com.ute.uteexpress.dto.pricing.GuestQuoteForm()));
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> service.quote(form()));
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> service.confirm(TOKEN));
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> service.review(TOKEN));
         verifyNoInteractions(users, quotes, shipments, rates);
+    }
+    @Test void guestCanReadOnlyPublicQuoteCatalog() { assertTrue(service.estimateServices().isEmpty()); verify(services).findByIsActiveTrueOrderByNameAsc(); }
+    @Test @WithMockUser(roles = "USER") void customerCannotSimulateAnAdminDraft() {
+        assertThrows(AccessDeniedException.class, () -> service.simulateDraft(1L, new com.ute.uteexpress.dto.pricing.GuestQuoteForm()));
+        verifyNoInteractions(users, versions, quotes, rates);
     }
     private void denied() {
         assertThrows(AccessDeniedException.class, () -> service.quote(form()));
