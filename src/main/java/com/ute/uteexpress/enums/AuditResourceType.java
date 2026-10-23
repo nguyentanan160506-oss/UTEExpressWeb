@@ -6,5 +6,8 @@ public enum AuditResourceType {
     RATE_RULE,
     BRANCH,
     EMPLOYEE,
+    SHIPPING_SERVICE,
+    PRICE_VERSION,
+    PICKUP_RULE,
     ROLE
 }

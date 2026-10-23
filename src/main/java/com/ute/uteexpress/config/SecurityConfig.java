@@ -80,6 +80,8 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tracking").permitAll()
+                .requestMatchers(HttpMethod.GET, "/quote").permitAll()
+                .requestMatchers(HttpMethod.POST, "/quote", "/quote/branches").permitAll()
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/register", "/verify-email").permitAll()
                 .requestMatchers(HttpMethod.POST, "/register", "/verify-email", "/verify-email/resend").permitAll()

@@ -298,6 +298,9 @@ class SecurityConfigTests {
         @Bean com.ute.uteexpress.repository.TransportTripEventRepository transportTripEventRepository() {
             return mock(com.ute.uteexpress.repository.TransportTripEventRepository.class);
         }
+        @Bean jakarta.persistence.EntityManager pricingEntityManager() { return mock(jakarta.persistence.EntityManager.class); }
+        @Bean com.ute.uteexpress.repository.PricingVersionRepository pricingVersionRepository() { return mock(com.ute.uteexpress.repository.PricingVersionRepository.class); }
+        @Bean com.ute.uteexpress.repository.AuditLogRepository auditLogRepository() { return mock(com.ute.uteexpress.repository.AuditLogRepository.class); }
         @Bean com.ute.uteexpress.repository.DeliveryDispatchRepository deliveryDispatchRepository() {
             return mock(com.ute.uteexpress.repository.DeliveryDispatchRepository.class);
         }

@@ -1,0 +1,6 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{pricing/fragments :: head('Tạo bản giá nháp')}"></head><body>
+<nav th:replace="~{admin/fragments :: nav}"></nav><main class="container py-4"><a th:href="@{/admin/pricing}">Các phiên bản</a><h1 class="h3" th:text="|Bản nháp cho ${service.name}|"></h1><div th:replace="~{admin/fragments :: messages}"></div>
+<form method="post" th:action="@{/admin/pricing}" th:object="${draftForm}" class="card p-3"><input th:field="*{serviceId}" type="hidden">
+<label for="code" class="form-label">Mã phiên bản duy nhất trong dịch vụ</label><input th:field="*{code}" required maxlength="50" pattern="[A-Z0-9][A-Z0-9_-]{0,49}" class="form-control mb-3">
+<label for="validFrom" class="form-label">Bắt đầu hiệu lực UTC (khi công bố phải chưa qua thời điểm này)</label><input th:field="*{validFrom}" type="datetime-local" step="1" required class="form-control mb-3">
+<label for="validTo" class="form-label">Kết thúc UTC, không bao gồm mốc này (tùy chọn)</label><input th:field="*{validTo}" type="datetime-local" step="1" class="form-control mb-3"><p>Tiền tệ VND. Tạo nháp chưa làm thay đổi giá đang áp dụng.</p><button class="btn btn-primary">Tạo bản nháp</button></form></main></body></html>

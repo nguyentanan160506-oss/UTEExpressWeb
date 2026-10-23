@@ -57,9 +57,9 @@ class QuoteServiceTests {
         when(users.findByEmail(owner.getEmail())).thenReturn(Optional.of(owner));
         when(roles.findRoleNamesByUserId(1L)).thenReturn(List.of("ROLE_USER"));
         when(clock.instant()).thenReturn(NOW.toInstant(ZoneOffset.UTC));
-        when(network.servingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of(option(11L)));
-        when(network.deliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of(option(12L)));
-        when(network.configuredHub(11L)).thenReturn(101L); when(network.configuredHub(12L)).thenReturn(102L);
+        when(network.quoteServingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of(option(11L)));
+        when(network.quoteDeliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of(option(12L)));
+        when(network.quoteConfiguredHub(11L)).thenReturn(101L); when(network.quoteConfiguredHub(12L)).thenReturn(102L);
         for (long id : new long[] {11L, 12L, 101L, 102L}) {
             when(branches.findByIdAndStatus(id, BranchStatus.ACTIVE)).thenReturn(Optional.of(branch(id)));
         }
@@ -82,7 +82,7 @@ class QuoteServiceTests {
         });
         when(shipments.findByQuoteIdAndSenderId(51L, 1L)).thenAnswer(call -> Optional.ofNullable(created));
         service = new QuoteService(users, roles, quotes, shipments, events, branches, services, rates, pickups,
-            network, tracking, clock, validation.getValidator(), Duration.ofMinutes(15));
+            network, tracking, clock, validation.getValidator(), Duration.ofMinutes(15), mock(jakarta.persistence.EntityManager.class), mock(PricingVersionRepository.class));
     }
     private ShipmentOptions.BranchOption option(Long id) { return new ShipmentOptions.BranchOption(id, "Branch", "Province"); }
     private void authenticate() {
@@ -107,7 +107,7 @@ class QuoteServiceTests {
         service.quote(form); assertEquals(11L, saved.getOriginBranch().getId());
     }
     @Test void ambiguousHomeCoverageRequiresExplicitValidChoice() {
-        when(network.servingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of(option(11L), option(13L)));
+        when(network.quoteServingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of(option(11L), option(13L)));
         var form = form(); form.setShipmentMethod(ShipmentMethod.HOME_PICKUP); form.setOriginBranchId(null);
         assertThrows(ShipmentCreationException.class, () -> service.quote(form)); verifyNoInteractions(quotes, shipments);
     }
@@ -181,22 +181,22 @@ class QuoteServiceTests {
     }
     @Test void invalidOriginIdOrNoCoverageIsRejected() {
         var form = form(); form.setOriginBranchId(99L); assertThrows(ShipmentCreationException.class, () -> service.quote(form));
-        when(network.servingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of());
+        when(network.quoteServingBranches(anyString(), anyString(), anyString(), any())).thenReturn(List.of());
         assertThrows(ShipmentCreationException.class, () -> service.quote(form())); verifyNoInteractions(quotes, shipments);
     }
     @Test void noExplicitDeliveryCoverageIsRejected() {
-        when(network.deliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of());
+        when(network.quoteDeliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of());
         assertThrows(ShipmentCreationException.class, () -> service.quote(form())); verifyNoInteractions(quotes, shipments);
     }
     @Test void disabledServiceOrRemovedCoverageAfterQuoteRequiresNewQuote() {
         String token = service.quote(form()); when(services.findByIdAndIsActiveTrue(21L)).thenReturn(Optional.empty());
         assertThrows(ShipmentCreationException.class, () -> service.confirm(token));
         when(services.findByIdAndIsActiveTrue(21L)).thenReturn(Optional.of(catalog()));
-        when(network.deliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of());
+        when(network.quoteDeliveryBranches(anyString(), anyString(), anyString())).thenReturn(List.of());
         assertThrows(ShipmentCreationException.class, () -> service.confirm(token)); verifyNoInteractions(shipments, events);
     }
     @Test void changedHubAfterQuoteIsRejectedWithoutRewritingSnapshot() {
-        String token = service.quote(form()); when(network.configuredHub(11L)).thenReturn(999L);
+        String token = service.quote(form()); when(network.quoteConfiguredHub(11L)).thenReturn(999L);
         assertThrows(ShipmentCreationException.class, () -> service.confirm(token));
         assertEquals(101L, saved.getOriginHub().getId()); verifyNoInteractions(shipments, events);
     }

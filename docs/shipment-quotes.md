@@ -1,5 +1,9 @@
 # Commit 09 — Hai phương thức gửi và báo giá
 
+**Cập nhật Commit 14:** Catalog/giá đã có quản trị ADMIN, phiên bản DRAFT/PUBLISHED, lịch ngừng có audit,
+Guest estimate và mô phỏng nháp; xem [service-pricing-management.md](service-pricing-management.md).
+QuoteService vẫn tính phí chung, quote User giữ snapshot tới expiry riêng. Phần dưới là mốc lịch sử Commit 09.
+
 Triển khai trên `feature/tan-shipment-pricing`, phụ trách Tân.
 Không chạy migration hoặc kết nối SQL Server thật trong quá trình viết code/test.
 V1–V3, cấu hình kết nối và dependency được giữ nguyên.

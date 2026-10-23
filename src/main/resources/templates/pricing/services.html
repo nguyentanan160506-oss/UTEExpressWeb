@@ -1,0 +1,8 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{pricing/fragments :: head('Dịch vụ vận chuyển')}"></head><body>
+<nav th:replace="~{admin/fragments :: nav}"></nav><main class="container py-4"><h1 class="h3">Danh mục dịch vụ vận chuyển</h1>
+<div th:replace="~{admin/fragments :: messages}"></div><div class="d-flex gap-3 flex-wrap mb-3"><a class="btn btn-primary" th:href="@{/admin/services/new}">Tạo dịch vụ</a><a th:href="@{/admin/pricing}">Các phiên bản giá</a></div>
+<form method="get" th:action="@{/admin/services}" class="d-flex gap-2 mb-3"><label for="q" class="visually-hidden">Mã hoặc tên đầy đủ</label><input id="q" name="q" maxlength="100" th:value="${q}" placeholder="Mã hoặc tên đầy đủ" class="form-control"><button class="btn btn-outline-primary">Tìm</button></form>
+<p th:if="${services.empty}">Không có dịch vụ phù hợp.</p><article th:each="s : ${services}" class="card p-3 mb-3"><h2 class="h5"><a th:href="@{/admin/services/{id}(id=${s.id})}" th:text="|${s.code} · ${s.name}|"></a></h2>
+    <p th:text="${s.description}"></p><p th:text="${s.active ? 'Đang nhận đơn mới' : 'Ngừng nhận đơn mới'}"></p><p th:text="|Dự kiến ${s.hours} giờ|"></p></article>
+<nav class="d-flex gap-3"><a th:if="${services.hasPrevious()}" th:href="@{/admin/services(q=${q},page=${services.number - 1})}">Trang trước</a><a th:if="${services.hasNext()}" th:href="@{/admin/services(q=${q},page=${services.number + 1})}">Trang sau</a></nav>
+</main></body></html>

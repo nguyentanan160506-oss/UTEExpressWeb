@@ -10,9 +10,8 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "pickup_fee_rules",
     schema = "dbo",
-    uniqueConstraints = {@UniqueConstraint(name = "UQ_pickup_fee_rules_start", columnNames = {"branch_id", "service_id", "effective_from"})},
-    indexes = {@Index(name = "IX_pickup_fee_rules_lookup", columnList = "branch_id, service_id, is_active, effective_from, effective_to")},
-    check = {@CheckConstraint(name = "CK_pickup_fee_rules_amount", constraint = "amount > 0"),
+    indexes = {@Index(name = "IX_pickup_rules_version", columnList = "pricing_version_id, branch_id"), @Index(name = "IX_pickup_fee_rules_lookup", columnList = "branch_id, service_id, is_active, effective_from, effective_to")},
+    check = {@CheckConstraint(name = "CK_pickup_rules_retirement", constraint = "retired_from IS NULL OR (pricing_version_id IS NULL AND retired_from > effective_from AND (effective_to IS NULL OR retired_from < effective_to))"), @CheckConstraint(name = "CK_pickup_fee_rules_amount", constraint = "amount > 0"),
         @CheckConstraint(name = "CK_pickup_fee_rules_period", constraint = "effective_to IS NULL OR effective_to > effective_from")})
 public class PickupFeeRule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,4 +70,15 @@ public class PickupFeeRule {
     public void setCreatedAt(LocalDateTime value) { this.createdAt = value; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime value) { this.updatedAt = value; }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pricing_version_id", foreignKey = @ForeignKey(name = "FK_pickup_rules_pricing_version"))
+    private PricingVersion pricingVersion;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "retired_from", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime retiredFrom;
+    public PricingVersion getPricingVersion() { return pricingVersion; }
+    public void setPricingVersion(PricingVersion value) { pricingVersion = value; }
+    public LocalDateTime getRetiredFrom() { return retiredFrom; }
+    public void setRetiredFrom(LocalDateTime value) { retiredFrom = value; }
 }
