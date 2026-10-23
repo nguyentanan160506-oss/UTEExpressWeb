@@ -1,0 +1,11 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Lịch sử chặng vận chuyển')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<div th:replace="~{transport/fragments :: nav}"></div><h1 class="h3">Lịch sử chặng trong phạm vi quản lý</h1>
+<p th:if="${history.empty}" class="alert alert-info">Không có lịch sử chặng phù hợp trong phạm vi của bạn.</p>
+<article th:each="h : ${history}" class="card p-3 mb-3"><h2 class="h5"><a th:href="@{/manager/trips/{id}(id=${h.tripId})}" th:text="${h.code}"></a></h2>
+    <p><span th:text="${h.origin}"></span> → <span th:text="${h.destination}"></span></p><p th:text="${legLabels[h.leg]}"></p>
+    <p><span th:text="${tripLabels[h.tripStatus]}"></span> · <strong th:text="${itemLabels[h.itemStatus]}"></strong></p>
+    <p>Vào manifest: <span th:text="${h.addedAt}"></span> UTC</p><p>Biên nhận: <span th:text="${h.receiptReference}"></span> · <span th:text="${h.receivedAt}"></span> UTC</p>
+</article><div th:replace="~{shipper/fragments :: pagination(${history}, '/manager/trips/shipments/' + ${shipmentId} + '/history')}"></div>
+</main></body></html>

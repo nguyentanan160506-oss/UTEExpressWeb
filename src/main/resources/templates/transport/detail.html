@@ -1,0 +1,81 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Manifest và kiểm nhận chuyến')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4" th:with="d=${detail}">
+<div th:replace="~{transport/fragments :: nav}"></div><div th:replace="~{shipper/fragments :: messages}"></div>
+<h1 class="h3 text-break" th:text="${d.trip.code}"></h1><p><strong th:text="${d.trip.origin}"></strong> → <strong th:text="${d.trip.destination}"></strong></p>
+<p><span th:text="${legLabels[d.trip.leg]}"></span> · <strong th:text="${tripLabels[d.trip.status]}"></strong></p>
+<p>Manifest: <strong th:text="${d.manifest}"></strong> · Niêm phong: <strong th:text="${d.expected}"></strong> · Đã nhận: <strong th:text="${d.received}"></strong>
+    · Thiếu: <strong th:text="${d.missing}"></strong> · Hỏng/cần kiểm tra: <strong th:text="${d.damaged}"></strong> · Từ chối: <strong th:text="${d.rejected}"></strong> · Sai lệch mở: <strong th:text="${d.openIssues}"></strong></p>
+<details class="mb-3"><summary>Người thực hiện và mốc thời gian UTC</summary><dl class="row mt-2">
+    <dt class="col-sm-3">Người tạo</dt><dd class="col-sm-9" th:text="|${d.creator} · ${d.trip.createdAt}|"></dd>
+    <dt class="col-sm-3">Niêm phong</dt><dd class="col-sm-9"><span th:text="${d.sealedBy}"></span> · <span th:text="${d.sealedAt}"></span></dd>
+    <dt class="col-sm-3">Xuất phát</dt><dd class="col-sm-9"><span th:text="${d.departedBy}"></span> · <span th:text="${d.departedAt}"></span></dd>
+    <dt class="col-sm-3">Chuyến đến</dt><dd class="col-sm-9"><span th:text="${d.arrivedBy}"></span> · <span th:text="${d.arrivedAt}"></span></dd>
+    <dt class="col-sm-3">Đóng chuyến</dt><dd class="col-sm-9"><span th:text="${d.closedBy}"></span> · <span th:text="${d.closedAt}"></span></dd>
+</dl></details>
+<section th:if="${d.canPlan}" class="card p-3 mb-3"><h2 class="h5">Chọn nhiều kiện vào manifest</h2>
+    <p>Chỉ kiện đã thực nhận ở đúng điểm xuất phát và phù hợp chặng tiếp theo. Tối đa 500 kiện/chuyến, 50 kiện/lần thêm.</p>
+    <p th:if="${d.candidates.empty}" class="alert alert-info">Không có kiện đủ điều kiện trong trang này.</p>
+    <form th:unless="${d.candidates.empty}" method="post" th:action="@{/manager/trips/{id}/items(id=${d.trip.id})}">
+        <input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <div th:each="s : ${d.candidates}" class="form-check py-2 border-bottom"><input th:id="|candidate-${s.id}|" class="form-check-input" type="checkbox" name="shipmentIds" th:value="${s.id}">
+            <label class="form-check-label" th:for="|candidate-${s.id}|"><strong th:text="${s.trackingNumber}"></strong> · <span th:text="${s.destination}"></span></label></div>
+        <button class="btn btn-primary mt-3">Thêm các kiện đã chọn</button></form>
+    <nav class="d-flex gap-3 mt-3"><a th:if="${d.candidates.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.candidates.number - 1})}">Kiện trước</a>
+        <a th:if="${d.candidates.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.candidates.number + 1})}">Kiện sau</a></nav>
+</section>
+<div class="row g-3"><div class="col-12 col-lg-6" th:if="${d.canSeal}" th:insert="~{transport/fragments :: action(${d}, 'seal', 'Niêm phong manifest', 'Kiểm tra số kiện và ghi mã niêm phong. Manifest không được sửa sau bước này.')}"></div>
+    <div class="col-12 col-lg-6" th:if="${d.canDepart}" th:insert="~{transport/fragments :: action(${d}, 'depart', 'Xác nhận xuất chuyến', 'Chỉ xác nhận khi thực sự xuất kiện. Thao tác này không ghi nhận hàng đã tới điểm đến.')}"></div>
+    <div class="col-12 col-lg-6" th:if="${d.canArrive}" th:insert="~{transport/fragments :: action(${d}, 'arrive', 'Ghi nhận chuyến đã đến', 'Xe đã tới để kiểm đếm; các kiện vẫn chưa được coi là đã tiếp nhận.')}"></div>
+    <div class="col-12 col-lg-6" th:if="${d.canClose}" th:insert="~{transport/fragments :: action(${d}, 'close', 'Đóng chuyến', 'Xác nhận đã nhận đủ manifest và hoàn tất mọi sai lệch.')}"></div></div>
+<section class="mb-4"><h2 class="h4">Manifest và biên nhận từng kiện</h2><p class="text-secondary">Chỉ thực nhận từng kiện mới cập nhật vị trí. Thời gian UTC.</p>
+<p th:if="${d.items.empty}">Chưa có kiện trong manifest.</p>
+<article th:each="i : ${d.items}" class="card p-3 mb-3">
+    <h3 class="h5" th:text="${i.trackingNumber}"></h3><p><strong th:text="${itemLabels[i.status]}"></strong></p>
+    <p><a th:href="@{/manager/trips/shipments/{id}/history(id=${i.shipmentId})}">Lịch sử các chặng trong phạm vi quản lý</a></p>
+    <p th:if="${i.receivedAt != null}">Biên nhận: <strong th:text="${i.receiptReference}"></strong> · <span th:text="${i.receivedBy}"></span> · <span th:text="${i.receivedAt}"></span> UTC</p>
+    <div th:if="${d.canReceive and i.status.name() != 'RECEIVED'}" class="row g-3">
+        <div class="col-12 col-lg-6"><form method="post" th:action="@{/manager/trips/{id}/receipts(id=${d.trip.id})}">
+            <h4 class="h6">Kiểm nhận đúng kiện</h4><input type="hidden" name="expectedVersion" th:value="${d.version}"><input type="hidden" name="itemId" th:value="${i.id}">
+            <label class="form-label" th:for="|receipt-${i.id}|">Mã biên nhận thực tế</label><input th:id="|receipt-${i.id}|" name="reference" required maxlength="100" class="form-control mb-2">
+            <label class="form-label" th:for="|receipt-notes-${i.id}|">Kết quả kiểm tra / xử lý sai lệch</label><textarea th:id="|receipt-notes-${i.id}|" name="notes" maxlength="500" class="form-control mb-2"></textarea>
+            <div class="form-check"><input th:id="|received-${i.id}|" name="confirmed" value="true" type="checkbox" required class="form-check-input"><label class="form-check-label" th:for="|received-${i.id}|">Tôi đã kiểm đếm và thực nhận đúng kiện.</label></div>
+            <div class="form-check mb-3"><input th:id="|resolved-${i.id}|" name="resolveDiscrepancy" value="true" type="checkbox" class="form-check-input"><label class="form-check-label" th:for="|resolved-${i.id}|">Đã xử lý sai lệch của kiện; kết quả được ghi rõ ở trên.</label></div>
+            <button class="btn btn-primary">Lưu biên nhận kiện</button></form></div>
+        <div class="col-12 col-lg-6"><form method="post" th:action="@{/manager/trips/{id}/discrepancies(id=${d.trip.id})}">
+            <h4 class="h6">Kiện chưa đủ điều kiện nhận</h4><input type="hidden" name="expectedVersion" th:value="${d.version}"><input type="hidden" name="itemId" th:value="${i.id}">
+            <label class="form-label" th:for="|kind-${i.id}|">Tình trạng</label><select th:id="|kind-${i.id}|" name="kind" class="form-select mb-2" required>
+                <option value="MISSING">Thiếu kiện</option><option value="DAMAGED">Hư hỏng/cần kiểm tra</option><option value="REJECTED">Từ chối nhận</option></select>
+            <label class="form-label" th:for="|issue-ref-${i.id}|">Tham chiếu kiểm đếm</label><input th:id="|issue-ref-${i.id}|" name="reference" required maxlength="100" class="form-control mb-2">
+            <label class="form-label" th:for="|issue-notes-${i.id}|">Lý do cụ thể</label><textarea th:id="|issue-notes-${i.id}|" name="notes" required maxlength="500" class="form-control mb-3"></textarea>
+            <button class="btn btn-outline-danger">Ghi sai lệch, chưa nhận kiện</button></form></div>
+    </div></article>
+<nav class="d-flex gap-3"><a th:if="${d.items.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},itemPage=${d.items.number - 1})}">Manifest trước</a>
+    <a th:if="${d.items.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},itemPage=${d.items.number + 1})}">Manifest sau</a></nav></section>
+<section class="card p-3 mb-4" th:if="${d.canReceive}"><h2 class="h5">Kiện không khớp / ngoài manifest</h2>
+    <p>Ghi nhận và cách ly để đối chiếu. Thao tác này không tạo biên nhận hoặc tự thêm kiện vào chuyến.</p>
+    <form method="post" th:action="@{/manager/trips/{id}/discrepancies(id=${d.trip.id})}">
+        <input type="hidden" name="expectedVersion" th:value="${d.version}"><input type="hidden" name="kind" value="UNEXPECTED">
+        <label for="unexpected-ref" class="form-label">Tham chiếu kiện / biên bản</label><input id="unexpected-ref" name="reference" maxlength="100" required class="form-control mb-2">
+        <label for="unexpected-notes" class="form-label">Nội dung không khớp</label><textarea id="unexpected-notes" name="notes" required maxlength="500" class="form-control mb-3"></textarea>
+        <button class="btn btn-outline-danger">Ghi nhận kiện ngoài manifest</button></form></section>
+<section class="mb-4"><h2 class="h4">Sai lệch và xử lý</h2><p th:if="${d.issues.empty}">Chưa ghi nhận sai lệch.</p>
+    <article th:each="issue : ${d.issues}" class="card p-3 mb-3"><h3 class="h6" th:text="${issueLabels[issue.kind]}"></h3>
+        <p><strong th:text="${issue.status.name() == 'OPEN' ? 'Đang mở' : 'Đã xử lý'}"></strong> · <span th:text="${issue.reference}"></span></p>
+        <p th:text="${issue.notes}"></p><p><span th:text="${issue.actor}"></span> · <span th:text="${issue.recordedAt}"></span> UTC</p>
+        <p th:text="${issue.resolution}"></p><p><span th:text="${issue.resolvedBy}"></span> · <span th:text="${issue.resolvedAt}"></span></p>
+        <form th:if="${d.canReceive and issue.kind.name() == 'UNEXPECTED' and issue.status.name() == 'OPEN'}" method="post" th:action="@{/manager/trips/{id}/discrepancies/resolve(id=${d.trip.id})}">
+            <input type="hidden" name="expectedVersion" th:value="${d.version}"><input type="hidden" name="discrepancyId" th:value="${issue.id}">
+            <label class="form-label" th:for="|resolution-ref-${issue.id}|">Tham chiếu xử lý</label><input th:id="|resolution-ref-${issue.id}|" name="reference" maxlength="100" required class="form-control mb-2">
+            <label class="form-label" th:for="|resolution-notes-${issue.id}|">Kết quả xử lý thực tế</label><textarea th:id="|resolution-notes-${issue.id}|" name="notes" maxlength="500" required class="form-control mb-2"></textarea>
+            <div class="form-check mb-2"><input th:id="|resolution-confirm-${issue.id}|" name="confirmed" value="true" type="checkbox" required class="form-check-input">
+                <label class="form-check-label" th:for="|resolution-confirm-${issue.id}|">Đã cách ly/đối chiếu và xử lý kiện ngoài manifest.</label></div><button class="btn btn-outline-primary">Kết thúc sai lệch ngoài manifest</button>
+        </form></article>
+    <nav class="d-flex gap-3"><a th:if="${d.issues.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},issuePage=${d.issues.number - 1})}">Sai lệch trước</a>
+        <a th:if="${d.issues.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},issuePage=${d.issues.number + 1})}">Sai lệch sau</a></nav></section>
+<section><h2 class="h4">Lịch sử vận hành · UTC</h2><article th:each="e : ${d.events}" class="border-bottom py-3">
+    <strong th:text="${eventLabels[e.type]}"></strong> · <time th:text="${e.occurredAt}"></time><p><span th:text="${e.actor}"></span> · <span th:text="${e.point}"></span></p>
+    <p th:text="${e.reference}"></p><p th:text="${e.notes}"></p></article>
+    <nav class="d-flex gap-3 my-3"><a th:if="${d.events.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},eventPage=${d.events.number - 1})}">Lịch sử mới hơn</a>
+        <a th:if="${d.events.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},eventPage=${d.events.number + 1})}">Lịch sử cũ hơn</a></nav></section>
+</main></body></html>

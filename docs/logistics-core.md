@@ -1,5 +1,8 @@
 # Commit 08 — Nền tảng logistics
 
+**Cập nhật Commit 12:** Chuyến, hub và kiểm nhận từng chặng đã có lifecycle tập trung và V7.
+Xem [transport-hub.md](transport-hub.md); không mở generic transition để bỏ qua bằng chứng vận chuyển.
+
 **Cập nhật Commit 11:** HOME_PICKUP có bằng chứng từng lần lấy hàng và bàn giao nguồn độc lập.
 Xem [shipper-pickup.md](shipper-pickup.md) cho V6, route và quyền hiện hành. Phần dưới ghi nhận mốc Commit 08.
 

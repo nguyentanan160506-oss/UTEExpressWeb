@@ -1,0 +1,13 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<div th:fragment="nav" class="d-flex flex-wrap gap-3 mb-3">
+    <a th:href="@{/manager/trips}">Danh sách chuyến</a><a th:href="@{/manager/trips/new}">Tạo chuyến</a>
+    <a th:href="@{/manager/trips/local-ready}">Kiện cùng chi nhánh nguồn/đích</a></div>
+<form th:fragment="action(d, action, title, help)" class="card p-3 mb-3" method="post" th:action="@{/manager/trips/{id}/{action}(id=${d.trip.id},action=${action})}">
+    <h2 class="h5" th:text="${title}"></h2><p th:text="${help}"></p>
+    <input type="hidden" name="expectedVersion" th:value="${d.version}">
+    <label class="form-label" th:for="|ref-${action}|">Mã tham chiếu / biên bản</label><input th:id="|ref-${action}|" name="reference" required maxlength="100" class="form-control mb-2">
+    <label class="form-label" th:for="|notes-${action}|">Ghi chú</label><textarea th:id="|notes-${action}|" name="notes" maxlength="500" class="form-control mb-2"></textarea>
+    <div class="form-check mb-3"><input th:id="|confirm-${action}|" class="form-check-input" name="confirmed" value="true" type="checkbox" required>
+        <label class="form-check-label" th:for="|confirm-${action}|">Tôi đã kiểm tra và xác nhận thao tác thực tế nêu trên.</label></div>
+    <button class="btn btn-primary" th:text="${title}"></button></form>
+</body></html>
