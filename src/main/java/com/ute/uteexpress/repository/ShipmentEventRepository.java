@@ -11,6 +11,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShipmentEventRepository extends JpaRepository<ShipmentEvent, Long> {
+    @Query("select e.id from ShipmentEvent e where e.notificationEnabled = true and e.notificationProcessedAt is null and (e.notificationRetryAt is null or e.notificationRetryAt <= :now) order by e.id")
+    List<Long> findNotificationWork(LocalDateTime now, Pageable page);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from ShipmentEvent e where e.id = :id")
+    java.util.Optional<ShipmentEvent> lockNotificationWork(Long id);
     boolean existsByShipmentIdAndFromStatusAndToStatusAndEventTitle(Long shipmentId, ShipmentStatus fromStatus, ShipmentStatus toStatus, String title);
     // Caller must first authorize the parent shipment; not exposed as a public endpoint.
     Page<ShipmentEvent> findByShipmentId(Long shipmentId, Pageable pageable);

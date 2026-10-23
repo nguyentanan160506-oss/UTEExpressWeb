@@ -58,8 +58,8 @@ public class LastMileService {
             if (old.getEmployee().getId().equals(employee.getId())) { throw rule("Chọn Shipper khác để phân công lại."); }
             cancelPrepared(old); closeAssignment(old, AssignmentStatus.CANCELLED);
         }
-        newAssignment(s, employee, actor, reason);
-        record(s, actor, s.getStatus(), s.getDestinationBranch(), replacing ? "Phân công lại giao hàng" : "Phân công giao hàng", reason);
+        ShipmentAssignment assigned = newAssignment(s, employee, actor, reason);
+        record(s, actor, s.getStatus(), s.getDestinationBranch(), replacing ? "Phân công lại giao hàng" : "Phân công giao hàng", reason, assigned, replacing ? active.getFirst() : null);
     }
     @Transactional @PreAuthorize("hasRole('MANAGER')")
     public void prepare(@NotNull @Valid Prepare c) {
@@ -136,7 +136,7 @@ public class LastMileService {
         }
         RedeliveryDecision decision = new RedeliveryDecision(); decision.setShipment(s); decision.setAssignment(a); decision.setActor(actor);
         decision.setAfterAttemptNumber(s.getDeliveryAttemptCount()); decision.setMode(mode); decision.setReason(reason); decision.setDecidedAt(now()); decisions.saveAndFlush(decision);
-        record(s, actor, s.getStatus(), s.getDestinationBranch(), "Manager cho phép giao lại", reason);
+        record(s, actor, s.getStatus(), s.getDestinationBranch(), "Manager cho phép giao lại", reason, a, null);
     }
     @Transactional @PreAuthorize("hasRole('SHIPPER')")
     public void requestRecovery(@NotNull @Valid Recover c) {
@@ -167,7 +167,7 @@ public class LastMileService {
             closeAssignment(a, ret == null ? AssignmentStatus.FAILED : AssignmentStatus.CANCELLED); s.setCurrentBranch(s.getDestinationBranch());
             if (ret != null) { ret.setStage(atSameBranch(s) ? ReturnStage.AT_ORIGIN : ReturnStage.READY_FOR_TRANSPORT); returns.saveAndFlush(ret); }
         } else { d.setStatus(ret == null ? DeliveryDispatchStatus.FAILED : DeliveryDispatchStatus.RECALL_REQUIRED); dispatches.saveAndFlush(d); }
-        record(s, actor, s.getStatus(), s.getDestinationBranch(), c.accept() ? "Chi nhánh đã thực nhận lại kiện" : "Chi nhánh từ chối nhận lại kiện", c.accept() ? reference : reason);
+        record(s, actor, s.getStatus(), s.getDestinationBranch(), c.accept() ? "Chi nhánh đã thực nhận lại kiện" : "Chi nhánh từ chối nhận lại kiện", c.accept() ? reference : reason, a, null);
     }
     @Transactional @PreAuthorize("hasRole('MANAGER')")
     public void initiateReturn(@NotNull @Valid ReturnStart c) {
@@ -188,7 +188,7 @@ public class LastMileService {
             if (d.getStatus() != DeliveryDispatchStatus.RECOVERY_REQUESTED) { d.setStatus(DeliveryDispatchStatus.RECALL_REQUIRED); dispatches.saveAndFlush(d); }
             r.setStage(ReturnStage.REQUESTED);
         }
-        returns.saveAndFlush(r); record(s, actor, ShipmentStatus.RETURNING, s.getDestinationBranch(), "Manager khởi tạo hoàn, chờ thu hồi/vận chuyển thực tế", r.getReason());
+        returns.saveAndFlush(r); record(s, actor, ShipmentStatus.RETURNING, s.getDestinationBranch(), "Manager khởi tạo hoàn, chờ thu hồi/vận chuyển thực tế", r.getReason(), active.isEmpty() ? null : active.getFirst(), null);
     }
     @Transactional @PreAuthorize("hasRole('MANAGER')")
     public void returnToSender(@NotNull @Valid SenderReceipt c) {
@@ -258,10 +258,15 @@ public class LastMileService {
     private boolean atSameBranch(Shipment s) { return TransportRouting.same(s.getOriginBranch(), s.getDestinationBranch()); }
     private void version(Shipment s, Long expected) { if (expected == null || !Objects.equals(s.getVersion(), expected)) { throw new ObjectOptimisticLockingFailureException(Shipment.class, s.getId()); } }
     private void record(Shipment s, User actor, ShipmentStatus to, Branch point, String title, String description) {
+        record(s, actor, to, point, title, description, null, null);
+    }
+    private void record(Shipment s, User actor, ShipmentStatus to, Branch point, String title, String description,
+            ShipmentAssignment assignment, ShipmentAssignment previous) {
         ShipmentStatus from = s.getStatus(); if (from != to && !ShipmentTransitionPolicy.isPotentialEdge(from, to)) { throw rule("Chuyển trạng thái giao/hoàn không hợp lệ."); }
         s.setStatus(to); s.setUpdatedAt(s.getUpdatedAt() != null && !now().isAfter(s.getUpdatedAt()) ? s.getUpdatedAt().plusNanos(100) : now()); shipments.saveAndFlush(s);
         ShipmentEvent e = new ShipmentEvent(); e.setShipment(s); e.setActor(actor); e.setBranch(point); e.setFromStatus(from); e.setToStatus(to);
-        e.setEventTitle(title); e.setDescription(description == null ? null : description.substring(0, Math.min(500, description.length()))); e.setOccurredAt(now()); events.saveAndFlush(e);
+        e.setEventTitle(title); e.setDescription(description == null ? null : description.substring(0, Math.min(500, description.length()))); e.setOccurredAt(now());
+        e.setNotificationAssignment(assignment); e.setNotificationPreviousAssignment(previous); events.saveAndFlush(e);
     }
     private String text(String value, int max, boolean required) { if ((required && (value == null || value.isBlank())) || (value != null && value.length() > max)) { throw rule("Thiếu dữ liệu xác nhận/lý do hoặc vượt độ dài cho phép."); } return value == null || value.isBlank() ? null : value.strip(); }
     private LocalDateTime now() { var t = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC); return t.withNano(t.getNano() / 100 * 100); }

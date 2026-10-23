@@ -1,0 +1,39 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Thông báo · UTEExpress')}"></head>
+<body class="bg-light">
+<nav class="shipment-nav py-3"><div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <a th:href="@{/account}" class="text-white text-decoration-none fw-bold">UTEExpress · Tài khoản</a>
+    <span th:replace="~{notifications/fragments :: bell}"></span>
+    <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-light">Đăng xuất</button></form>
+</div></nav>
+<main class="container py-4" data-notification-center th:data-page="${inbox.page}" th:data-unread="${unread}">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <h1 class="h3 mb-0">Thông báo của tôi</h1>
+        <form th:action="@{/notifications/read-all}" method="post" data-notification-read>
+            <button class="btn btn-outline-primary" type="submit">Đánh dấu tất cả đã đọc</button></form>
+    </div>
+    <div class="d-flex flex-wrap gap-3 mb-3">
+        <a th:href="@{/notifications}" th:class="${!unread ? 'btn btn-primary' : 'btn btn-outline-primary'}">Tất cả</a>
+        <a th:href="@{/notifications(unread=true)}" th:class="${unread ? 'btn btn-primary' : 'btn btn-outline-primary'}">Chưa đọc</a>
+    </div>
+    <p data-notification-status class="text-secondary small" role="status">Thời gian hiển thị theo UTC. Nội dung cập nhật từ dữ liệu đã lưu.</p>
+    <div data-notification-items class="list-group mb-3">
+        <p th:if="${inbox.items.isEmpty()}" class="alert alert-info">Chưa có thông báo trong mục này.</p>
+        <article th:each="item : ${inbox.items}" class="list-group-item p-3" th:classappend="${!item.read ? 'border-start border-primary border-4' : ''}" th:data-id="${item.id}">
+            <h2 class="h6 text-break" th:text="${item.title}"></h2>
+            <p class="text-break mb-2" th:text="${item.message}"></p>
+            <time class="small text-secondary" th:text="|${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm:ss')} UTC|"></time>
+            <div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+                <a th:href="@{/notifications/{id}/open(id=${item.id})}">Mở mục liên quan</a>
+                <form th:if="${!item.read}" th:action="@{/notifications/{id}/read(id=${item.id})}" method="post" class="mb-0" data-notification-read>
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Đã đọc</button></form>
+                <span th:if="${item.read}" class="small text-secondary">Đã đọc</span>
+            </div>
+        </article>
+    </div>
+    <nav aria-label="Phân trang thông báo" class="d-flex flex-wrap gap-3 align-items-center" data-notification-pagination>
+        <a th:if="${inbox.page > 0}" th:href="@{/notifications(page=${inbox.page - 1},unread=${unread})}">Trang trước</a>
+        <span th:text="|Trang ${inbox.page + 1} · ${inbox.totalElements} thông báo|"></span>
+        <a th:if="${inbox.page + 1 < inbox.totalPages}" th:href="@{/notifications(page=${inbox.page + 1},unread=${unread})}">Trang sau</a>
+    </nav>
+</main></body></html>

@@ -27,9 +27,12 @@ import org.hibernate.type.SqlTypes;
     name = "notifications",
     schema = "dbo",
     indexes = {
-        @Index(name = "IX_notifications_user_read", columnList = "user_id, is_read, created_at DESC")
+        @Index(name = "IX_notifications_user_read", columnList = "user_id, is_read, created_at DESC"),
+        @Index(name = "IX_notifications_inbox", columnList = "user_id, created_at DESC, id DESC"),
+        @Index(name = "IX_notifications_delivery", columnList = "delivered_at, delivery_retry_at, id")
     },
     check = {
+        @CheckConstraint(name = "CK_notifications_audience", constraint = "audience IS NULL OR audience IN ('USER', 'SHIPPER', 'MANAGER')"),
         @CheckConstraint(name = "CK_notifications_type", constraint = "notification_type IN ('SHIPMENT_STATUS', 'PAYMENT', 'SUPPORT', 'SYSTEM')")
     }
 )
@@ -70,6 +73,43 @@ public class Notification {
     @Column(name = "created_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)", updatable = false)
     @ColumnDefault("SYSUTCDATETIME()")
     private LocalDateTime createdAt;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_event_id", foreignKey = @ForeignKey(name = "FK_notifications_source_event"))
+    private ShipmentEvent sourceEvent;
+    @Column(name = "audience", length = 20)
+    private String audience;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "scope_branch_id", foreignKey = @ForeignKey(name = "FK_notifications_scope_branch"))
+    private Branch scopeBranch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignment_id", foreignKey = @ForeignKey(name = "FK_notifications_assignment"))
+    private ShipmentAssignment assignment;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "read_at", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime readAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "delivered_at", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime deliveredAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "delivery_retry_at", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime deliveryRetryAt;
+    @Column(name = "delivery_attempts", nullable = false) @ColumnDefault("0")
+    private int deliveryAttempts;
+    public ShipmentEvent getSourceEvent() { return sourceEvent; }
+    public void setSourceEvent(ShipmentEvent v) { sourceEvent = v; }
+    public String getAudience() { return audience; }
+    public void setAudience(String v) { audience = v; }
+    public Branch getScopeBranch() { return scopeBranch; }
+    public void setScopeBranch(Branch v) { scopeBranch = v; }
+    public ShipmentAssignment getAssignment() { return assignment; }
+    public void setAssignment(ShipmentAssignment v) { assignment = v; }
+    public LocalDateTime getReadAt() { return readAt; }
+    public void setReadAt(LocalDateTime v) { readAt = v; }
+    public LocalDateTime getDeliveredAt() { return deliveredAt; }
+    public void setDeliveredAt(LocalDateTime v) { deliveredAt = v; }
+    public LocalDateTime getDeliveryRetryAt() { return deliveryRetryAt; }
+    public void setDeliveryRetryAt(LocalDateTime v) { deliveryRetryAt = v; }
+    public int getDeliveryAttempts() { return deliveryAttempts; }
+    public void setDeliveryAttempts(int v) { deliveryAttempts = v; }
 
     public Notification() {
     }

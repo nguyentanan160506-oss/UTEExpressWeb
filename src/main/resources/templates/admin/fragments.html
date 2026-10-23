@@ -9,6 +9,7 @@
             <a th:href="@{/admin/users}" class="text-white text-decoration-none">Tài khoản</a>
             <a th:href="@{/admin/services}" class="text-white text-decoration-none">Dịch vụ</a>
             <a th:href="@{/admin/pricing}" class="text-white text-decoration-none">Bảng giá</a>
+            <span th:replace="~{notifications/fragments :: bell}"></span>
             <a th:href="@{/account}" class="text-white text-decoration-none">Tài khoản của tôi</a>
             <form th:action="@{/logout}" method="post" class="mb-0">
                 <button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button>

@@ -99,7 +99,7 @@ public class ShipmentLifecycleService {
             + (replacing ? "; thay phân công #" + command.replacesAssignmentId() : "")
             + (reason == null ? "" : "; " + reason);
         record(shipment, actor, shipment.getStatus(), ShipmentStatus.PICKUP_ASSIGNED,
-            replacing ? "Đã phân công lại lấy hàng" : "Đã phân công lấy hàng", description, now);
+            replacing ? "Đã phân công lại lấy hàng" : "Đã phân công lấy hàng", description, now, assignment, replacing ? active.getFirst() : null);
         return shipment.getVersion();
     }
 
@@ -236,7 +236,7 @@ public class ShipmentLifecycleService {
         }
         record(s, actor, s.getStatus(), command.accept() ? ShipmentStatus.AT_ORIGIN_BRANCH : s.getStatus(),
             command.accept() ? "Chi nhánh nhận bàn giao HOME_PICKUP" : "Chi nhánh từ chối bàn giao",
-            "Bàn giao #" + h.getId() + (command.accept() ? "; biên nhận: " + reference : "; " + reason), time);
+            "Bàn giao #" + h.getId() + (command.accept() ? "; biên nhận: " + reference : "; " + reason), time, a, null);
         return s.getVersion();
     }
 
@@ -270,6 +270,10 @@ public class ShipmentLifecycleService {
     }
     private void record(Shipment shipment, User actor, ShipmentStatus from, ShipmentStatus to,
             String title, String description, LocalDateTime now) {
+        record(shipment, actor, from, to, title, description, now, null, null);
+    }
+    private void record(Shipment shipment, User actor, ShipmentStatus from, ShipmentStatus to,
+            String title, String description, LocalDateTime now, ShipmentAssignment assignment, ShipmentAssignment previous) {
         shipment.setStatus(to);
         // A reassignment has the same status; still dirty the parent so @Version increments.
         shipment.setUpdatedAt(shipment.getUpdatedAt() != null && !now.isAfter(shipment.getUpdatedAt())
@@ -280,6 +284,7 @@ public class ShipmentLifecycleService {
         // Full evidence/rejection text is retained in its own audit row; the event is a bounded summary.
         event.setEventTitle(title); event.setDescription(description != null && description.length() > 500 ? description.substring(0, 500) : description);
         event.setOccurredAt(now);
+        event.setNotificationAssignment(assignment); event.setNotificationPreviousAssignment(previous);
         events.saveAndFlush(event);
     }
     private String clean(String value) { return value == null || value.isBlank() ? null : value.strip(); }
