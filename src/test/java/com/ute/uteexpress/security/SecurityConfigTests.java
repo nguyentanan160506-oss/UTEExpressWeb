@@ -280,6 +280,24 @@ class SecurityConfigTests {
     static class TestApplication {
         // Shared MVC contexts disable JPA. Supply the new module's persistence boundaries
         // so the existing Auth/Admin tests keep exercising their real controllers and filters.
+        @Bean com.ute.uteexpress.repository.TransportRouteRepository transportRouteRepository() {
+            return mock(com.ute.uteexpress.repository.TransportRouteRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.TransportTripRepository transportTripRepository() {
+            return mock(com.ute.uteexpress.repository.TransportTripRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.TransportTripItemRepository transportTripItemRepository() {
+            return mock(com.ute.uteexpress.repository.TransportTripItemRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.TripReceiptRepository tripReceiptRepository() {
+            return mock(com.ute.uteexpress.repository.TripReceiptRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.TripDiscrepancyRepository tripDiscrepancyRepository() {
+            return mock(com.ute.uteexpress.repository.TripDiscrepancyRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.TransportTripEventRepository transportTripEventRepository() {
+            return mock(com.ute.uteexpress.repository.TransportTripEventRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.EmployeeRepository employeeRepository() {
             return mock(com.ute.uteexpress.repository.EmployeeRepository.class);
         }

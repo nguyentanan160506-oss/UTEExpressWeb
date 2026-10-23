@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import static com.ute.uteexpress.enums.ShipmentStatus.*;
 
-/** Graph of potential edges. Physical edges remain disabled until custody/trip evidence exists. */
+/** Potential graph. Generic transitions cannot bypass the guarded pickup/intake/transport operations. */
 public final class ShipmentTransitionPolicy {
     private ShipmentTransitionPolicy() { }
     private static final Map<ShipmentStatus, Set<ShipmentStatus>> EDGES = Map.ofEntries(
@@ -14,7 +14,7 @@ public final class ShipmentTransitionPolicy {
         Map.entry(CONFIRMED, Set.of(PICKUP_ASSIGNED, AT_ORIGIN_BRANCH, CANCELLED)),
         Map.entry(PICKUP_ASSIGNED, Set.of(PICKED_UP, CANCELLED)),
         Map.entry(PICKED_UP, Set.of(AT_ORIGIN_BRANCH)),
-        Map.entry(AT_ORIGIN_BRANCH, Set.of(IN_TRANSIT)),
+        Map.entry(AT_ORIGIN_BRANCH, Set.of(IN_TRANSIT, AT_DESTINATION_BRANCH)),
         Map.entry(AT_ORIGIN_HUB, Set.of(IN_TRANSIT)),
         Map.entry(IN_TRANSIT, Set.of(AT_ORIGIN_HUB, AT_DESTINATION_HUB, AT_DESTINATION_BRANCH)),
         Map.entry(AT_DESTINATION_HUB, Set.of(IN_TRANSIT)),

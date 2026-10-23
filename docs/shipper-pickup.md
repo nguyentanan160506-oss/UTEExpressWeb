@@ -1,5 +1,8 @@
 # Commit 11 — HOME_PICKUP và bàn giao nguồn
 
+**Cập nhật Commit 12:** Kiện đã có biên nhận nguồn đi vào luồng chuyến/hub tại [transport-hub.md](transport-hub.md).
+Pickup/handoff nguồn giữ nguyên; không dùng ShipmentIntake để tạo biên nhận các hub/chặng sau.
+
 Nhánh `feature/an-shipper-pickup`. Tái sử dụng phân công Commit 10, snapshot phí Commit 09 và biên nhận nguồn V5.
 Source hiện tại không có ShipmentEventType: giữ ShipmentEvent với from/to status, title, description, actor, branch và UTC.
 

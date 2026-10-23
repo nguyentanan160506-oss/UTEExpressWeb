@@ -1,0 +1,15 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Phân loại kiện tại cùng chi nhánh')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<div th:replace="~{transport/fragments :: nav}"></div><div th:replace="~{shipper/fragments :: messages}"></div>
+<h1 class="h3">Nguồn và đích cùng chi nhánh</h1><p>Kiện đã có biên nhận nguồn, không cần vận chuyển sang điểm khác. Kiểm tra thực tế và phân loại chờ giao tại chỗ.</p>
+<p th:if="${shipments.empty}" class="alert alert-info">Chưa có kiện phù hợp.</p>
+<article class="card p-3 mb-3" th:each="s : ${shipments}"><h2 class="h5" th:text="${s.trackingNumber}"></h2><p th:text="${s.origin}"></p>
+<form method="post" th:action="@{/manager/trips/local-ready}">
+    <input type="hidden" name="shipmentId" th:value="${s.id}"><input type="hidden" name="expectedVersion" th:value="${s.version}">
+    <label class="form-label" th:for="|local-ref-${s.id}|">Tham chiếu phân loại</label><input th:id="|local-ref-${s.id}|" name="reference" maxlength="100" required class="form-control mb-2">
+    <div class="form-check mb-3"><input th:id="|local-confirm-${s.id}|" name="confirmed" value="true" type="checkbox" required class="form-check-input">
+        <label class="form-check-label" th:for="|local-confirm-${s.id}|">Tôi đã kiểm tra kiện thực sự có mặt tại chi nhánh, đủ điều kiện chờ giao.</label></div>
+    <button class="btn btn-primary">Ghi nhận phân loại tại chỗ</button></form></article>
+<div th:replace="~{shipper/fragments :: pagination(${shipments}, '/manager/trips/local-ready')}"></div>
+</main></body></html>

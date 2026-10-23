@@ -1,5 +1,8 @@
 # Commit 10 — Manager logistics và phân công lấy hàng
 
+**Cập nhật Commit 12:** Manager được gán đúng điểm có UI chuyến/hub và kiểm nhận từng kiện.
+Xem [transport-hub.md](transport-hub.md) cho quyền nguồn/đích, V7 và route. Phạm vi nguồn Commit 10 vẫn giữ nguyên.
+
 **Cập nhật Commit 11:** Manager có hàng đợi HOME_PICKUP, kiểm tra bằng chứng và nhận/từ chối bàn giao độc lập.
 Xem [shipper-pickup.md](shipper-pickup.md). Quy tắc BRANCH_DROPOFF và phân công Commit 10 được giữ nguyên;
 HOME_PICKUP tiếp nhận qua handoff V6, không qua endpoint intake trực tiếp. Phần dưới ghi nhận mốc Commit 10.

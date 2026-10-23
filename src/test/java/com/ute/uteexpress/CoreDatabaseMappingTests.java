@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to the cumulative V1 + V3 + V4 + V5 + V6 schema. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -83,6 +83,13 @@ class CoreDatabaseMappingTests {
                     assertFalse(sql.contains("UPDATE dbo."));
                 }
                 assertFalse(sql.contains("INSERT INTO dbo.users"));
+                if (migration.startsWith("V7")) {
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_trip_items_active_shipment ON dbo.transport_trip_items (shipment_id) WHERE is_active = 1;"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_trip_discrepancies_open_item ON dbo.trip_discrepancies (item_id) WHERE item_id IS NOT NULL AND status = 'OPEN';"));
+                    assertFalse(sql.contains("INSERT INTO"));
+                    assertFalse(sql.contains("UPDATE dbo."));
+                    assertFalse(sql.contains("ALTER TABLE"));
+                }
                 if (migration.startsWith("V6")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_pickup_evidence_success ON dbo.pickup_evidence (assignment_id) WHERE result = 'SUCCESS';"));
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_origin_handoffs_pending ON dbo.origin_handoffs (shipment_id) WHERE status = 'PENDING';"));
@@ -119,10 +126,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(24, schema.size());
+        assertEquals(30, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(24, metadata.getEntityBindings().size());
+        assertEquals(30, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -178,8 +185,8 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(60, foreignKeys);
-        assertEquals(16, uniqueKeys);
+        assertEquals(88, foreignKeys);
+        assertEquals(21, uniqueKeys);
     }
 
     @Test
@@ -210,15 +217,15 @@ class CoreDatabaseMappingTests {
                 }
                 assertNull(field.getAnnotation(OneToMany.class));
                 assertNull(field.getAnnotation(ManyToMany.class));
-                if (entity == Shipment.class && field.getName().equals("version")) {
+                if ((entity == Shipment.class || entity == TransportTrip.class) && field.getName().equals("version")) {
                     assertNotNull(field.getAnnotation(Version.class));
                     assertEquals(Long.class, field.getType());
-                    assertTrue(metadata.getEntityBinding(Shipment.class.getName()).isVersioned());
+                    assertTrue(metadata.getEntityBinding(entity.getName()).isVersioned());
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(60, associations);
-        assertEquals(23, identities);
+        assertEquals(88, associations);
+        assertEquals(29, identities);
     }
 
     @Test
@@ -257,12 +264,15 @@ class CoreDatabaseMappingTests {
                 if (field.getType().isEnum()) {
                     enumColumns++;
                     assertEquals(EnumType.STRING, field.getAnnotation(Enumerated.class).value());
-                    var match = Pattern.compile("^(?:" + column.name() + " IS NULL OR )?" + column.name() + " IN \\((.*)\\)$")
+                    var match = Pattern.compile("^(?:" + column.name() + " IS NULL OR )?" + column.name() + " IN \\(('[^']+'(?:,\\s*'[^']+')*)\\)$")
                         .matcher(String.join("\n", table.checks.values()));
-                    // Check each named SQL CHECK independently; event statuses have no CHECK in V1.
+                    // Only a complete membership CHECK defines the enum domain. Conditional lifecycle
+                    // CHECKs such as status IN ('DRAFT', 'SEALED') OR ... define additional state rules.
+                    boolean domainFound = false;
                     for (String check : table.checks.values()) {
                         match.reset(check);
                         if (match.matches()) {
+                            domainFound = true;
                             Set<String> allowed = Pattern.compile("'([^']+)'").matcher(match.group(1))
                                 .results().map(m -> m.group(1)).collect(Collectors.toSet());
                             Set<String> actual = Arrays.stream(field.getType().getEnumConstants())
@@ -270,11 +280,12 @@ class CoreDatabaseMappingTests {
                             assertEquals(allowed, actual, field.toString());
                         }
                     }
+                    assertTrue(domainFound, "Missing complete enum domain CHECK: " + field);
                 }
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(29, enumColumns);
+        assertEquals(38, enumColumns);
     }
 
     @Test
@@ -384,7 +395,7 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void all24SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
+    void all30SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
         try (EntityManager entityManager = sessionFactory.createEntityManager()) {
             var factory = new JpaRepositoryFactory(entityManager);
             for (Class<?> entity : ENTITIES) {
