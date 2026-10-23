@@ -1,0 +1,3 @@
+package com.ute.uteexpress.enums;
+
+public enum DeliveryDispatchStatus { PREPARED, ACCEPTED, STARTED, FAILED, RECOVERY_REQUESTED, BRANCH_RETURNED, RECALL_REQUIRED, COMPLETED, CANCELLED }

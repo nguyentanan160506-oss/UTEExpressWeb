@@ -12,4 +12,15 @@ public interface TripReceiptRepository extends JpaRepository<TripReceipt, Long> 
         and r.item.trip.destination.id = :branchId and r.item.status = com.ute.uteexpress.enums.TripItemStatus.RECEIVED
         """)
     long countProofAt(Long shipmentId, Long branchId);
+    @Query("""
+        select count(r) from TripReceipt r where r.item.shipment.id = :shipmentId and r.branch.id = :branchId
+        and r.item.trip.destination.id = :branchId and r.item.status = com.ute.uteexpress.enums.TripItemStatus.RECEIVED
+        and r.item.returnRequest is null
+        """)
+    long countForwardProofAt(Long shipmentId, Long branchId);
+    @Query("""
+        select count(r) from TripReceipt r where r.item.returnRequest.id = :requestId and r.branch.id = :branchId
+        and r.item.trip.destination.id = :branchId and r.item.status = com.ute.uteexpress.enums.TripItemStatus.RECEIVED
+        """)
+    long countReturnProofAt(Long requestId, Long branchId);
 }

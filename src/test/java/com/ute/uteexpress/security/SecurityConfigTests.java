@@ -298,6 +298,27 @@ class SecurityConfigTests {
         @Bean com.ute.uteexpress.repository.TransportTripEventRepository transportTripEventRepository() {
             return mock(com.ute.uteexpress.repository.TransportTripEventRepository.class);
         }
+        @Bean com.ute.uteexpress.repository.DeliveryDispatchRepository deliveryDispatchRepository() {
+            return mock(com.ute.uteexpress.repository.DeliveryDispatchRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.DeliveryProofRepository deliveryProofRepository() {
+            return mock(com.ute.uteexpress.repository.DeliveryProofRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.DeliveryRecoveryRepository deliveryRecoveryRepository() {
+            return mock(com.ute.uteexpress.repository.DeliveryRecoveryRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.RedeliveryDecisionRepository redeliveryDecisionRepository() {
+            return mock(com.ute.uteexpress.repository.RedeliveryDecisionRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ReturnRequestRepository returnRequestRepository() {
+            return mock(com.ute.uteexpress.repository.ReturnRequestRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.ReturnReceiptRepository returnReceiptRepository() {
+            return mock(com.ute.uteexpress.repository.ReturnReceiptRepository.class);
+        }
+        @Bean com.ute.uteexpress.repository.DeliveryAttemptRepository deliveryAttemptRepository() {
+            return mock(com.ute.uteexpress.repository.DeliveryAttemptRepository.class);
+        }
         @Bean com.ute.uteexpress.repository.EmployeeRepository employeeRepository() {
             return mock(com.ute.uteexpress.repository.EmployeeRepository.class);
         }

@@ -1,0 +1,36 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Thực hiện giao hàng')}"></head><body>
+<nav th:replace="~{shipper/fragments :: nav}"></nav><main class="container py-4" th:with="d=${detail}">
+<div th:replace="~{shipper/fragments :: messages}"></div><p><a th:href="@{/shipper/deliveries}">Nhiệm vụ giao hàng</a></p><h1 class="h3" th:text="${d.task.trackingNumber}"></h1>
+<p th:replace="~{delivery/fragments :: taskStatus(${d.task.status})}"></p>
+<section th:if="${d.recipient != null}" class="card p-3 mb-3"><h2 class="h5">Người nhận cần liên hệ</h2><strong th:text="${d.recipient.name}"></strong><span th:text="${d.recipient.phone}"></span><p th:text="${d.recipient.address}"></p></section>
+<section th:replace="~{delivery/fragments :: dispatch(${d.dispatch})}"></section>
+<section th:if="${d.canAccept}" class="card p-3 mb-3"><h2 class="h5">Xác nhận đã thực nhận từ chi nhánh</h2>
+    <form method="post" th:action="@{/shipper/deliveries/{id}/accept(id=${d.task.id})}"><input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <label for="acceptReference" class="form-label">Tham chiếu thực nhận</label><input id="acceptReference" name="reference" maxlength="100" required class="form-control mb-2">
+        <div class="form-check mb-3"><input id="acceptConfirmed" name="confirmed" value="true" type="checkbox" required class="form-check-input"><label for="acceptConfirmed" class="form-check-label">Tôi đã kiểm tra và thực sự nhận đúng kiện từ nhân viên chi nhánh.</label></div><button class="btn btn-primary">Xác nhận nhận kiện</button></form></section>
+<section th:if="${d.canStart}" class="card p-3 mb-3"><h2 class="h5">Bắt đầu lần giao được phép</h2>
+    <form method="post" th:action="@{/shipper/deliveries/{id}/start(id=${d.task.id})}"><input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <label for="startReference" class="form-label">Tham chiếu lần giao</label><input id="startReference" name="reference" maxlength="100" required class="form-control mb-2">
+        <div class="form-check mb-3"><input id="startConfirmed" name="confirmed" value="true" type="checkbox" required class="form-check-input"><label for="startConfirmed" class="form-check-label">Đang giữ kiện và bắt đầu đi giao thực tế.</label></div><button class="btn btn-primary">Bắt đầu giao</button></form></section>
+<div th:if="${d.canResult}" class="row g-3 mb-3"><div class="col-12 col-lg-6"><section class="card p-3 h-100"><h2 class="h5">Đã giao thành công</h2>
+    <form method="post" th:action="@{/shipper/deliveries/{id}/complete(id=${d.task.id})}"><input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <label for="recipientType" class="form-label">Loại người thực nhận</label><select id="recipientType" name="recipientType" required class="form-select mb-2"><option value="RECIPIENT">Người nhận theo vận đơn</option><option value="FAMILY">Người thân nhận hộ</option><option value="AUTHORIZED_REP">Đại diện hợp lệ</option></select>
+        <label for="recipientName" class="form-label">Họ tên thực nhận</label><input id="recipientName" name="recipientName" required maxlength="100" class="form-control mb-2">
+        <label for="completeReference" class="form-label">Mã tham chiếu xác nhận giao</label><input id="completeReference" name="reference" required maxlength="100" class="form-control mb-2">
+        <label for="completeNotes" class="form-label">Ghi chú xác nhận</label><textarea id="completeNotes" name="notes" maxlength="500" class="form-control mb-2"></textarea>
+        <div class="form-check mb-3"><input id="completeConfirmed" name="confirmed" value="true" type="checkbox" required class="form-check-input"><label for="completeConfirmed" class="form-check-label">Đã bàn giao và người thực nhận nêu trên thực sự nhận kiện.</label></div><button class="btn btn-primary">Lưu xác nhận giao thành công</button></form></section></div>
+<div class="col-12 col-lg-6"><section class="card p-3 h-100"><h2 class="h5">Lần giao thất bại</h2>
+    <form method="post" th:action="@{/shipper/deliveries/{id}/fail(id=${d.task.id})}"><input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <label for="failureCode" class="form-label">Nhóm lý do</label><select id="failureCode" name="code" required class="form-select mb-2"><option th:each="entry : ${failureLabels}" th:value="${entry.key}" th:text="${entry.value}"></option></select>
+        <label for="failureReason" class="form-label">Lý do cụ thể</label><textarea id="failureReason" name="reason" required maxlength="255" class="form-control mb-2"></textarea>
+        <label for="failureNotes" class="form-label">Ghi chú bổ sung</label><textarea id="failureNotes" name="notes" maxlength="500" class="form-control mb-2"></textarea>
+        <div class="form-check mb-3"><input id="failureConfirmed" name="confirmed" value="true" type="checkbox" required class="form-check-input"><label for="failureConfirmed" class="form-check-label">Đã thực hiện lần thử giao, chưa giao được và vẫn đang giữ kiện.</label></div><button class="btn btn-outline-danger">Ghi thất bại, chờ Manager xử lý</button></form></section></div></div>
+<section th:if="${d.canRecover}" class="card p-3 mb-3"><h2 class="h5">Mang kiện về chi nhánh đích</h2><p>Gửi yêu cầu khi mang kiện về bàn giao; chỉ nhân viên chi nhánh độc lập mới xác nhận đã nhận lại.</p>
+    <form method="post" th:action="@{/shipper/deliveries/{id}/return-to-branch(id=${d.task.id})}"><input type="hidden" name="expectedVersion" th:value="${d.version}">
+        <label for="recoveryNotes" class="form-label">Ghi chú bàn giao</label><textarea id="recoveryNotes" name="notes" maxlength="500" class="form-control mb-3"></textarea><button class="btn btn-primary">Gửi yêu cầu trả kiện về chi nhánh</button></form></section>
+<section th:replace="~{delivery/fragments :: attempts(${d.attempts})}"></section><section><h2 class="h5">Lịch sử nhận lại tại chi nhánh</h2>
+    <div th:each="r : ${d.recoveries}"><article th:replace="~{delivery/fragments :: recovery(${r}, ${d.version}, ${d.task.shipmentId})}"></article></div></section>
+<nav class="d-flex gap-3 my-3"><a th:if="${d.attempts.hasPrevious() or d.recoveries.hasPrevious()}" th:href="@{/shipper/deliveries/{id}(id=${d.task.id},page=${d.attempts.number - 1})}">Lịch sử trước</a>
+    <a th:if="${d.attempts.hasNext() or d.recoveries.hasNext()}" th:href="@{/shipper/deliveries/{id}(id=${d.task.id},page=${d.attempts.number + 1})}">Lịch sử sau</a></nav>
+</main></body></html>

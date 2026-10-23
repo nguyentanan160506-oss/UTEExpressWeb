@@ -32,13 +32,17 @@ public class TransportTripService {
     private final ShipmentAssignmentRepository assignments;
     private final LogisticsAccessService access;
     private final Clock clock;
+    private final ReturnRequestRepository returns;
+    private final DeliveryCustodyService deliveryCustody;
     public TransportTripService(TransportRouteRepository routes, TransportTripRepository trips, TransportTripItemRepository items,
             TripReceiptRepository receipts, TripDiscrepancyRepository discrepancies, TransportTripEventRepository events,
             ShipmentRepository shipments, ShipmentEventRepository shipmentEvents, ShipmentIntakeRepository intakes,
-            ShipmentAssignmentRepository assignments, LogisticsAccessService access, Clock clock) {
+            ShipmentAssignmentRepository assignments, LogisticsAccessService access, Clock clock,
+            ReturnRequestRepository returns, DeliveryCustodyService deliveryCustody) {
         this.routes = routes; this.trips = trips; this.items = items; this.receipts = receipts; this.discrepancies = discrepancies;
         this.events = events; this.shipments = shipments; this.shipmentEvents = shipmentEvents; this.intakes = intakes;
         this.assignments = assignments; this.access = access; this.clock = clock;
+        this.returns = returns; this.deliveryCustody = deliveryCustody;
     }
     @Transactional
     public Long create(@NotNull @Valid Create c) {
@@ -72,7 +76,8 @@ public class TransportTripService {
                     || items.findByTripIdAndShipmentId(t.getId(), s.getId()).isPresent()) { throw rule("Kiện đã nằm trong manifest hoặc chuyến đang hoạt động."); }
         }
         for (Shipment s : locked) {
-            TransportTripItem i = new TransportTripItem(); i.setTrip(t); i.setShipment(s); i.setAddedAt(now()); items.saveAndFlush(i);
+            TransportTripItem i = new TransportTripItem(); i.setTrip(t); i.setShipment(s); i.setAddedAt(now());
+            i.setReturnRequest(returns.findByShipmentId(s.getId()).orElse(null)); items.saveAndFlush(i);
             shipmentEvent(s, s.getStatus(), t.getOrigin(), actor, "Đã đưa kiện vào manifest", t.getCode());
             event(t, i, TripEventType.ITEMS_ADDED, t.getStatus(), actor, null, t.getOrigin(), null, "Thêm kiện vào manifest.");
         }
@@ -94,8 +99,11 @@ public class TransportTripService {
         if (manifest.size() != t.getExpectedCount()) { throw rule("Số kiện không khớp manifest đã niêm phong."); }
         validateReserved(t, manifest);
         for (Shipment s : manifest) {
+            TransportTripItem i = items.findByTripIdAndShipmentId(t.getId(), s.getId()).orElseThrow(() -> rule("Mất kiện trong manifest."));
             s.setCurrentBranch(null);
-            shipmentEvent(s, ShipmentStatus.IN_TRANSIT, t.getOrigin(), actor, "Kiện đã xuất chuyến", t.getCode() + "; " + clean(c.reference()));
+            if (i.getReturnRequest() != null) { i.getReturnRequest().setStage(ReturnStage.IN_TRANSIT); returns.saveAndFlush(i.getReturnRequest()); }
+            shipmentEvent(s, i.getReturnRequest() == null ? ShipmentStatus.IN_TRANSIT : ShipmentStatus.RETURNING,
+                t.getOrigin(), actor, i.getReturnRequest() == null ? "Kiện đã xuất chuyến" : "Kiện hoàn đã xuất chuyến", t.getCode() + "; " + clean(c.reference()));
         }
         t.setDepartedBy(actor); t.setDepartedEmployee(employee); t.setDepartedAt(now()); t.setStatus(TripStatus.DEPARTED);
         touch(t); event(t, null, TripEventType.DEPARTED, TripStatus.SEALED, actor, employee, t.getOrigin(), clean(c.reference()), clean(c.notes()));
@@ -116,7 +124,13 @@ public class TransportTripService {
         var issues = discrepancies.findByItemIdAndStatus(i.getId(), TripDiscrepancyStatus.OPEN);
         if (!issues.isEmpty() && (!c.resolveDiscrepancy() || clean(c.notes()) == null)) { throw rule("Kiện có sai lệch: cần xác nhận đã xử lý và ghi rõ kết quả kiểm tra."); }
         if (receipts.existsByItemId(i.getId())) { throw rule("Kiện đã có biên nhận tại chặng này."); }
-        ShipmentStatus to = TransportRouting.receiptStatus(s, t);
+        ShipmentStatus to;
+        if (i.getReturnRequest() == null) { to = TransportRouting.receiptStatus(s, t); }
+        else {
+            TransportRouting.requireReturnReceipt(s, t, i.getReturnRequest()); to = ShipmentStatus.RETURNING;
+            i.getReturnRequest().setStage(TransportRouting.same(t.getDestination(), s.getOriginBranch()) ? ReturnStage.AT_ORIGIN : ReturnStage.READY_FOR_TRANSPORT);
+            returns.saveAndFlush(i.getReturnRequest());
+        }
         TripReceipt r = new TripReceipt(); r.setItem(i); r.setBranch(t.getDestination()); r.setActor(receiver.getUser());
         r.setEmployee(receiver); r.setReference(clean(c.reference())); r.setNotes(clean(c.notes())); r.setReceivedAt(now()); receipts.saveAndFlush(r);
         i.setStatus(TripItemStatus.RECEIVED); i.setActive(false); items.saveAndFlush(i);
@@ -195,11 +209,21 @@ public class TransportTripService {
         for (Shipment s : manifest) {
             requireCustody(s, t); TransportTripItem i = items.findByShipmentIdAndActiveTrue(s.getId()).orElseThrow(() -> rule("Mất giữ chỗ kiện."));
             if (!i.getTrip().getId().equals(t.getId()) || i.getStatus() != TripItemStatus.MANIFESTED) { throw rule("Giữ chỗ hoặc tình trạng manifest đã thay đổi."); }
+            ReturnRequest currentReturn = returns.findByShipmentId(s.getId()).orElse(null);
+            if ((currentReturn == null) != (i.getReturnRequest() == null)
+                    || (currentReturn != null && !currentReturn.getId().equals(i.getReturnRequest().getId()))) { throw rule("Hướng vận chuyển/hoàn đã thay đổi."); }
         }
     }
     private void requireCustody(Shipment s, TransportTrip t) {
         if (s.getShipmentMethod() == null || assignments.existsByShipmentIdAndStatusIn(s.getId(), LogisticsAccessService.ACTIVE_ASSIGNMENTS)) {
             throw rule("Kiện chưa xác định phương thức hoặc còn nhiệm vụ xung đột.");
+        }
+        ReturnRequest request = returns.findByShipmentId(s.getId()).orElse(null);
+        if (request != null) {
+            TransportRouting.requireReturnNext(s, t, request); originProof(s);
+            if (TransportRouting.same(t.getOrigin(), s.getDestinationBranch())) { deliveryCustody.requireAtDestination(s, t.getId()); }
+            else if (receipts.countReturnProofAt(request.getId(), t.getOrigin().getId()) == 0) { throw rule("Chưa có biên nhận chặng hoàn trước tại điểm xuất phát."); }
+            return;
         }
         TransportRouting.requireNext(s, t); originProof(s);
         if (!TransportRouting.same(s.getCurrentBranch(), s.getOriginBranch()) && receipts.countProofAt(s.getId(), t.getOrigin().getId()) == 0) {
@@ -218,7 +242,9 @@ public class TransportTripService {
     private void requireInTransit(Shipment s, TransportTrip t, TransportTripItem i) {
         if (!i.getTrip().getId().equals(t.getId()) || !i.getShipment().getId().equals(s.getId())
                 || !Boolean.TRUE.equals(i.getActive()) || i.getStatus() == TripItemStatus.RECEIVED
-                || s.getStatus() != ShipmentStatus.IN_TRANSIT || s.getCurrentBranch() != null) { throw rule("Kiện không còn chờ kiểm nhận tại chuyến này."); }
+                || s.getStatus() != (i.getReturnRequest() == null ? ShipmentStatus.IN_TRANSIT : ShipmentStatus.RETURNING)
+                || (i.getReturnRequest() != null && i.getReturnRequest().getStage() != ReturnStage.IN_TRANSIT)
+                || s.getCurrentBranch() != null) { throw rule("Kiện không còn chờ kiểm nhận tại chuyến này."); }
     }
     private Employee destination(TransportTrip t) {
         User actor = access.requireManagerForBranch(t.getDestination().getId()); Employee receiver = access.requireIntakeEmployee(t.getDestination().getId());

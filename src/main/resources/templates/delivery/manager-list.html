@@ -1,0 +1,18 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Giao cuối và hoàn hàng')}"></head><body>
+<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4"><h1 class="h3">Giao cuối, giao lại và hoàn hàng</h1>
+<p>Vận đơn thuộc chi nhánh đích được gán cho bạn; chi nhánh nguồn có thể theo dõi kiện đã khởi tạo hoàn. Thời gian UTC.</p>
+<form method="get" th:action="@{/manager/deliveries}" class="row g-3 mb-4">
+    <div class="col-12 col-md-5"><label for="tracking" class="form-label">Mã vận đơn chính xác</label><input id="tracking" name="tracking" maxlength="50" th:value="${tracking}" class="form-control"></div>
+    <div class="col-12 col-md-5"><label for="status" class="form-label">Trạng thái</label><select id="status" name="status" class="form-select">
+        <option value="">Tất cả</option><option th:each="value : ${ {'AT_DESTINATION_BRANCH','OUT_FOR_DELIVERY','DELIVERED','DELIVERY_FAILED','RETURNING','RETURNED'} }"
+            th:value="${value}" th:selected="${selectedStatus != null and selectedStatus.name() == value}" th:text="${value == 'AT_DESTINATION_BRANCH' ? 'Đã nhận tại đích' : (value == 'OUT_FOR_DELIVERY' ? 'Đang giao' : (value == 'DELIVERED' ? 'Đã giao' : (value == 'DELIVERY_FAILED' ? 'Giao thất bại' : (value == 'RETURNING' ? 'Đang hoàn' : 'Đã trả người gửi'))))}"></option></select></div>
+    <div class="col-12 col-md-2 align-self-end"><button class="btn btn-primary">Lọc</button></div></form>
+<p th:if="${shipments.empty}" class="alert alert-info">Chưa có vận đơn phù hợp trong phạm vi quản lý.</p>
+<div class="row g-3"><article th:each="s : ${shipments}" class="col-12 col-lg-6"><div class="card p-3 h-100">
+    <h2 class="h5"><a th:href="@{/manager/deliveries/{id}(id=${s.id})}" th:text="${s.trackingNumber}"></a></h2>
+    <span th:replace="~{shipments/fragments :: status(${s.status})}"></span><p><span th:text="${s.origin}"></span> → <span th:text="${s.destination}"></span></p>
+    <p>Điểm giữ theo tiếp nhận: <span th:text="${s.currentPoint}"></span></p><p th:text="|Số lần đã thử: ${s.attempts}/${s.maxAttempts}|"></p>
+</div></article></div><nav class="d-flex gap-3 my-3"><a th:if="${shipments.hasPrevious()}" th:href="@{/manager/deliveries(page=${shipments.number - 1},status=${selectedStatus},tracking=${tracking})}">Trang trước</a>
+    <a th:if="${shipments.hasNext()}" th:href="@{/manager/deliveries(page=${shipments.number + 1},status=${selectedStatus},tracking=${tracking})}">Trang sau</a></nav>
+</main></body></html>

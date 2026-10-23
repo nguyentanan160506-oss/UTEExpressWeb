@@ -1,5 +1,8 @@
 # Commit 08 — Nền tảng logistics
 
+**Cập nhật Commit 13:** Giao cuối, giao lại, thu hồi và hoàn có bằng chứng qua V8.
+Xem [last-mile-delivery.md](last-mile-delivery.md); không dùng generic transition để bỏ qua các bước thực nhận.
+
 **Cập nhật Commit 12:** Chuyến, hub và kiểm nhận từng chặng đã có lifecycle tập trung và V7.
 Xem [transport-hub.md](transport-hub.md); không mở generic transition để bỏ qua bằng chứng vận chuyển.
 

@@ -7,6 +7,20 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 
 public interface TransportTripItemRepository extends JpaRepository<TransportTripItem, Long> {
+    String RETURN_CANDIDATES = """
+         s.status = com.ute.uteexpress.enums.ShipmentStatus.RETURNING and s.currentBranch.id = :originId
+         and exists (select r.id from ReturnRequest r where r.shipment.id = s.id and r.stage = com.ute.uteexpress.enums.ReturnStage.READY_FOR_TRANSPORT)
+         and s.originBranch.parentHub.id = s.originHub.id and s.destinationBranch.parentHub.id = s.destinationHub.id
+         and s.originBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE and s.destinationBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE
+         and s.originHub.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE and s.destinationHub.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE
+         and not exists (select i.id from TransportTripItem i where i.shipment.id = s.id and i.active = true)
+         and not exists (select a.id from ShipmentAssignment a where a.shipment.id = s.id and a.status in (com.ute.uteexpress.enums.AssignmentStatus.ASSIGNED, com.ute.uteexpress.enums.AssignmentStatus.IN_PROGRESS))
+         and ((:leg = com.ute.uteexpress.enums.TransportLeg.COLLECTION and s.destinationBranch.id = :originId and s.destinationHub.id = :destinationId)
+         or (:leg = com.ute.uteexpress.enums.TransportLeg.LINEHAUL and s.destinationHub.id = :originId and s.originHub.id = :destinationId and s.originHub.id <> s.destinationHub.id)
+         or (:leg = com.ute.uteexpress.enums.TransportLeg.DISTRIBUTION and s.originHub.id = :originId and s.originBranch.id = :destinationId))
+        """;
+    @Query(value = "select s from Shipment s where " + RETURN_CANDIDATES, countQuery = "select count(s) from Shipment s where " + RETURN_CANDIDATES)
+    Page<com.ute.uteexpress.entity.Shipment> findReturnCandidates(Long originId, Long destinationId, com.ute.uteexpress.enums.TransportLeg leg, Pageable pageable);
     String CANDIDATES = """
          s.currentBranch.id = :originId and s.shipmentMethod is not null and s.originBranch.id <> s.destinationBranch.id
          and s.originBranch.parentHub.id = s.originHub.id and s.destinationBranch.parentHub.id = s.destinationHub.id

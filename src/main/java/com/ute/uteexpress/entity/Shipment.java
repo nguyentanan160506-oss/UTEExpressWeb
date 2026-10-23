@@ -42,6 +42,8 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "IX_shipments_branches", columnList = "origin_branch_id, destination_branch_id, current_branch_id")
     },
     check = {
+        @CheckConstraint(name = "CK_shipments_delivered_time", constraint = "delivered_at IS NULL OR status = 'DELIVERED'"),
+        @CheckConstraint(name = "CK_shipments_returned_time", constraint = "returned_at IS NULL OR status = 'RETURNED'"),
         @CheckConstraint(name = "CK_shipments_weight", constraint = "weight_kg > 0"),
         @CheckConstraint(name = "CK_shipments_length", constraint = "length_cm IS NULL OR length_cm > 0"),
         @CheckConstraint(name = "CK_shipments_width", constraint = "width_cm IS NULL OR width_cm > 0"),
@@ -155,6 +157,17 @@ public class Shipment {
     @Column(name = "version", nullable = false)
     @ColumnDefault("0")
     private Long version;
+
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "delivered_at", nullable = true, secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime deliveredAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "returned_at", nullable = true, secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime returnedAt;
+    public LocalDateTime getDeliveredAt() { return deliveredAt; }
+    public void setDeliveredAt(LocalDateTime value) { deliveredAt = value; }
+    public LocalDateTime getReturnedAt() { return returnedAt; }
+    public void setReturnedAt(LocalDateTime value) { returnedAt = value; }
 
     @JdbcTypeCode(SqlTypes.DECIMAL)
     @Column(name = "pickup_fee", nullable = true, precision = 18, scale = 2)

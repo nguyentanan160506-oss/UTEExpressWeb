@@ -3,7 +3,7 @@
     <a class="brand-name text-decoration-none" th:href="@{/shipper}">UTE<span>Express</span> · Lấy hàng</a>
     <div class="d-flex flex-wrap gap-3 align-items-center">
         <a class="text-white" th:href="@{/shipper}">Tổng quan</a><a class="text-white" th:href="@{/shipper/pickups}">Nhiệm vụ &amp; lịch sử</a>
-        <a class="text-white" th:href="@{/account}">Tài khoản</a>
+        <a class="text-white" th:href="@{/shipper/deliveries}">Giao hàng &amp; trả kiện</a><a class="text-white" th:href="@{/account}">Tài khoản</a>
         <form th:action="@{/logout}" method="post"><button class="btn btn-sm btn-outline-light">Đăng xuất</button></form>
     </div></div></nav>
 <div th:fragment="messages"><p th:if="${notice}" class="alert alert-success" role="status" th:text="${notice}"></p>
