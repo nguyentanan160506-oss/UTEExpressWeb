@@ -27,11 +27,13 @@ import org.hibernate.type.SqlTypes;
     name = "shipment_events",
     schema = "dbo",
     check = {
+        @CheckConstraint(name = "CK_shipment_events_notification_assignment_status", constraint = "notification_assignment_status IS NULL OR notification_assignment_status IN ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED')"),
         @CheckConstraint(name = "CK_shipment_events_from_status", constraint = "from_status IS NULL OR from_status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')"),
         @CheckConstraint(name = "CK_shipment_events_to_status", constraint = "to_status IN ('CREATED', 'CONFIRMED', 'PICKUP_ASSIGNED', 'PICKED_UP', 'AT_ORIGIN_BRANCH', 'AT_ORIGIN_HUB', 'IN_TRANSIT', 'AT_DESTINATION_HUB', 'AT_DESTINATION_BRANCH', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNING', 'RETURNED', 'CANCELLED')")
     },
     indexes = {
-        @Index(name = "IX_shipment_events_timeline", columnList = "shipment_id, occurred_at DESC")
+        @Index(name = "IX_shipment_events_timeline", columnList = "shipment_id, occurred_at DESC"),
+        @Index(name = "IX_shipment_events_notification_work", columnList = "notification_enabled, notification_processed_at, notification_retry_at, id")
     }
 )
 public class ShipmentEvent {
@@ -79,6 +81,50 @@ public class ShipmentEvent {
     @Column(name = "occurred_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)", updatable = false)
     @ColumnDefault("SYSUTCDATETIME()")
     private LocalDateTime occurredAt;
+
+
+    // Persisted with the business event: no volatile after-commit hand-off or high-water ID cursor.
+    @JdbcTypeCode(SqlTypes.BIT) @Column(name = "notification_enabled", nullable = false) @ColumnDefault("0")
+    private boolean notificationEnabled = true;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "notification_processed_at", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime notificationProcessedAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "notification_retry_at", secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime notificationRetryAt;
+    @Column(name = "notification_attempts", nullable = false) @ColumnDefault("0")
+    private int notificationAttempts;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_assignment_id", foreignKey = @ForeignKey(name = "FK_shipment_events_notification_assignment"))
+    private ShipmentAssignment notificationAssignment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_previous_assignment_id", foreignKey = @ForeignKey(name = "FK_shipment_events_notification_previous_assignment"))
+    private ShipmentAssignment notificationPreviousAssignment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_assignee_user_id", foreignKey = @ForeignKey(name = "FK_shipment_events_notification_assignee_user"))
+    private User notificationAssigneeUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_previous_user_id", foreignKey = @ForeignKey(name = "FK_shipment_events_notification_previous_user"))
+    private User notificationPreviousUser;
+    @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "notification_assignment_status", length = 30)
+    private com.ute.uteexpress.enums.AssignmentStatus notificationAssignmentStatus;
+    public com.ute.uteexpress.enums.AssignmentStatus getNotificationAssignmentStatus() { return notificationAssignmentStatus; }
+    public User getNotificationAssigneeUser() { return notificationAssigneeUser; }
+    public User getNotificationPreviousUser() { return notificationPreviousUser; }
+    public boolean isNotificationEnabled() { return notificationEnabled; }
+    public void setNotificationEnabled(boolean v) { notificationEnabled = v; }
+    public LocalDateTime getNotificationProcessedAt() { return notificationProcessedAt; }
+    public void setNotificationProcessedAt(LocalDateTime v) { notificationProcessedAt = v; }
+    public LocalDateTime getNotificationRetryAt() { return notificationRetryAt; }
+    public void setNotificationRetryAt(LocalDateTime v) { notificationRetryAt = v; }
+    public int getNotificationAttempts() { return notificationAttempts; }
+    public void setNotificationAttempts(int v) { notificationAttempts = v; }
+    public ShipmentAssignment getNotificationAssignment() { return notificationAssignment; }
+    public void setNotificationAssignment(ShipmentAssignment v) {
+        notificationAssignment = v; notificationAssigneeUser = v == null ? null : v.getEmployee().getUser();
+        notificationAssignmentStatus = v == null ? null : v.getStatus();
+    }
+    public ShipmentAssignment getNotificationPreviousAssignment() { return notificationPreviousAssignment; }
+    public void setNotificationPreviousAssignment(ShipmentAssignment v) { notificationPreviousAssignment = v; notificationPreviousUser = v == null ? null : v.getEmployee().getUser(); }
 
     public ShipmentEvent() {
     }

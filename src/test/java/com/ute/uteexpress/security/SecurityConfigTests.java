@@ -278,6 +278,17 @@ class SecurityConfigTests {
     @Import({SecurityConfig.class, SecurityErrorHandlers.class,
         DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
+        // MVC fixtures mock persistence. Disable autonomous polling so it cannot race assertions
+        // about read-only shipment/quote requests; notification worker behavior is tested separately.
+        @Bean static org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor notificationWorkerIsolation() {
+            return new org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor() {
+                @Override public void postProcessBeanDefinitionRegistry(org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
+                    if (registry.containsBeanDefinition("notificationWorker")) { registry.removeBeanDefinition("notificationWorker"); }
+                }
+                @Override public void postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) { }
+            };
+        }
+        @Bean com.ute.uteexpress.repository.NotificationRepository notificationRepository() { return mock(com.ute.uteexpress.repository.NotificationRepository.class); }
         // Shared MVC contexts disable JPA. Supply the new module's persistence boundaries
         // so the existing Auth/Admin tests keep exercising their real controllers and filters.
         @Bean com.ute.uteexpress.repository.TransportRouteRepository transportRouteRepository() {

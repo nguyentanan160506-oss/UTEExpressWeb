@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 + V8 + V9 schema. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 + V8 + V9 + V10 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -62,7 +62,7 @@ class CoreDatabaseMappingTests {
                 while (alter.find()) {
                     SqlTable table = schema.get(alter.group(1));
                     if (alter.group(2).equals("DROP CONSTRAINT")) { table.checks.remove(alter.group(3)); table.uniqueKeys.remove(alter.group(3)); }
-                    else { applyDefinition(table, alter.group(3)); }
+                    else { for (String definition : splitTopLevel(alter.group(3))) { applyDefinition(table, definition); } }
                 }
                 var index = Pattern.compile("CREATE INDEX (\\w+) ON dbo\\.(\\w+) \\(([^;]+)\\);").matcher(sql);
                 while (index.find()) { schema.get(index.group(2)).indexes.put(index.group(1), normalize(index.group(3))); }
@@ -74,6 +74,12 @@ class CoreDatabaseMappingTests {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_shipments_quote_nonnull ON dbo.shipments (quote_id) WHERE quote_id IS NOT NULL;"));
                     assertFalse(sql.contains("INSERT INTO"));
                     assertFalse(sql.contains("UPDATE dbo.shipments"));
+                }
+                if (migration.startsWith("V10")) {
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_notifications_source_recipient_audience ON dbo.notifications (source_event_id, user_id, audience) WHERE source_event_id IS NOT NULL;"));
+                    assertTrue(sql.contains("notification_enabled BIT NOT NULL CONSTRAINT DF_shipment_events_notification_enabled DEFAULT (0)"));
+                    assertFalse(sql.contains("INSERT INTO")); assertFalse(sql.contains("UPDATE dbo."));
+                    assertFalse(sql.contains("DROP ")); assertFalse(sql.contains("DELETE FROM"));
                 }
                 if (migration.startsWith("V5")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_assignments_active_pickup ON dbo.shipment_assignments (shipment_id)"));
@@ -201,7 +207,7 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(127, foreignKeys);
+        assertEquals(134, foreignKeys);
         assertEquals(27, uniqueKeys);
     }
 
@@ -240,7 +246,7 @@ class CoreDatabaseMappingTests {
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(127, associations);
+        assertEquals(134, associations);
         assertEquals(36, identities);
     }
 
@@ -301,7 +307,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(46, enumColumns);
+        assertEquals(47, enumColumns);
     }
 
     @Test
@@ -337,7 +343,8 @@ class CoreDatabaseMappingTests {
                     assertFalse(timestamp.isAfter(LocalDateTime.now(ZoneOffset.UTC).plusSeconds(1)));
                     assertEquals(0, timestamp.getNano() % 100);
                 } else if (actual instanceof Boolean flag) {
-                    assertEquals(expected.equals("1"), flag);
+                    // New Java events opt in; SQL DEFAULT(0) intentionally excludes legacy/direct-SQL events.
+                    assertEquals(entity == ShipmentEvent.class && field.getName().equals("notificationEnabled") || expected.equals("1"), flag);
                 } else if (actual instanceof BigDecimal amount) {
                     assertEquals(0, new BigDecimal(expected).compareTo(amount));
                 } else if (actual instanceof Enum<?> value) {
