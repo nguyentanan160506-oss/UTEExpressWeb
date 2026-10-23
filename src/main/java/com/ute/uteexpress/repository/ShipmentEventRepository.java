@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShipmentEventRepository extends JpaRepository<ShipmentEvent, Long> {
+    boolean existsByShipmentIdAndFromStatusAndToStatusAndEventTitle(Long shipmentId, ShipmentStatus fromStatus, ShipmentStatus toStatus, String title);
     // Caller must first authorize the parent shipment; not exposed as a public endpoint.
     Page<ShipmentEvent> findByShipmentId(Long shipmentId, Pageable pageable);
     Page<ShipmentEvent> findByShipmentIdAndShipmentSenderId(Long shipmentId, Long senderId, Pageable pageable);

@@ -1,5 +1,8 @@
 # Commit 11 — HOME_PICKUP và bàn giao nguồn
 
+**Cập nhật Commit 13:** Dashboard có thêm nhiệm vụ DELIVERY, bàn giao đích và yêu cầu thu hồi.
+Xem [last-mile-delivery.md](last-mile-delivery.md); nghiệp vụ PICKUP và bàn giao nguồn dưới đây giữ nguyên.
+
 **Cập nhật Commit 12:** Kiện đã có biên nhận nguồn đi vào luồng chuyến/hub tại [transport-hub.md](transport-hub.md).
 Pickup/handoff nguồn giữ nguyên; không dùng ShipmentIntake để tạo biên nhận các hub/chặng sau.
 

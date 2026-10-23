@@ -10,7 +10,7 @@ public final class TripViews {
     public record Row(Long id, String code, String origin, String destination, TransportLeg leg, TripStatus status, LocalDateTime createdAt) { }
     public record Candidate(Long id, String trackingNumber, String origin, String destination, ShipmentStatus status, Long version) { }
     public record Item(Long id, Long shipmentId, String trackingNumber, TripItemStatus status, ShipmentStatus shipmentStatus,
-            String receiptReference, String receivedBy, LocalDateTime receivedAt) { }
+            String receiptReference, String receivedBy, LocalDateTime receivedAt, boolean returning) { }
     public record Issue(Long id, Long itemId, TripDiscrepancyKind kind, TripDiscrepancyStatus status,
             String reference, String notes, String actor, LocalDateTime recordedAt, String resolution, String resolvedBy, LocalDateTime resolvedAt) { }
     public record Event(TripEventType type, TripStatus fromStatus, TripStatus toStatus, String actor,
@@ -18,8 +18,8 @@ public final class TripViews {
     public record Detail(Row trip, Long version, String creator, String sealedBy, String departedBy, String arrivedBy,
             String closedBy, LocalDateTime sealedAt, LocalDateTime departedAt, LocalDateTime arrivedAt, LocalDateTime closedAt,
             int expected, long manifest, long received, long missing, long damaged, long rejected, long openIssues,
-            Page<Item> items, Page<Candidate> candidates, Page<Issue> issues, Page<Event> events,
+            Page<Item> items, Page<Candidate> candidates, Page<Candidate> returnCandidates, Page<Issue> issues, Page<Event> events,
             boolean canPlan, boolean canSeal, boolean canDepart, boolean canArrive, boolean canReceive, boolean canClose) { }
     public record History(Long tripId, String code, String origin, String destination, TransportLeg leg, TripStatus tripStatus,
-            TripItemStatus itemStatus, LocalDateTime addedAt, String receiptReference, LocalDateTime receivedAt) { }
+            TripItemStatus itemStatus, LocalDateTime addedAt, String receiptReference, LocalDateTime receivedAt, boolean returning) { }
 }

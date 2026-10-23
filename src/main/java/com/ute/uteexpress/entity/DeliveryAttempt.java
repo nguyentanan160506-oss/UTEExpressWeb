@@ -1,6 +1,7 @@
 package com.ute.uteexpress.entity;
 
 import com.ute.uteexpress.enums.DeliveryAttemptStatus;
+import com.ute.uteexpress.enums.DeliveryFailureCode;
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,14 +32,37 @@ import org.hibernate.type.SqlTypes;
         @UniqueConstraint(name = "UQ_delivery_attempts", columnNames = {"shipment_id", "attempt_number"})
     },
     indexes = {
+        @Index(name = "IX_delivery_attempts_assignment", columnList = "assignment_id, attempt_time DESC"),
         @Index(name = "IX_delivery_attempts_employee", columnList = "employee_id")
     },
     check = {
+        @CheckConstraint(name = "CK_delivery_attempts_code", constraint = "failure_code IS NULL OR failure_code IN ('UNREACHABLE', 'ABSENT', 'REFUSED', 'INVALID_ADDRESS', 'OPERATIONAL', 'DAMAGED')"),
+        @CheckConstraint(name = "CK_delivery_attempts_context", constraint = "(assignment_id IS NULL AND actor_id IS NULL AND failure_code IS NULL AND started_at IS NULL) OR (assignment_id IS NOT NULL AND actor_id IS NOT NULL AND started_at IS NOT NULL AND ((status = 'SUCCESS' AND failure_code IS NULL) OR (status = 'FAILED' AND failure_code IS NOT NULL AND failure_reason IS NOT NULL)))"),
         @CheckConstraint(name = "CK_delivery_attempts_number", constraint = "attempt_number >= 1"),
         @CheckConstraint(name = "CK_delivery_attempts_status", constraint = "status IN ('SUCCESS', 'FAILED')")
     }
 )
 public class DeliveryAttempt {
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "assignment_id", nullable = true, foreignKey = @ForeignKey(name = "FK_delivery_attempts_assignment"))
+    private ShipmentAssignment assignment;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "actor_id", nullable = true, foreignKey = @ForeignKey(name = "FK_delivery_attempts_actor"))
+    private User actor;
+    @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "failure_code", nullable = true, length = 30)
+    private DeliveryFailureCode failureCode;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
+    @Column(name = "started_at", nullable = true, secondPrecision = 7, columnDefinition = "datetime2(7)")
+    private LocalDateTime startedAt;
+    public ShipmentAssignment getAssignment() { return assignment; }
+    public void setAssignment(ShipmentAssignment value) { assignment = value; }
+    public User getActor() { return actor; }
+    public void setActor(User value) { actor = value; }
+    public DeliveryFailureCode getFailureCode() { return failureCode; }
+    public void setFailureCode(DeliveryFailureCode value) { failureCode = value; }
+    public LocalDateTime getStartedAt() { return startedAt; }
+    public void setStartedAt(LocalDateTime value) { startedAt = value; }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

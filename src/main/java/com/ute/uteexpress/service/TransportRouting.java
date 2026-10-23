@@ -45,6 +45,27 @@ public final class TransportRouting {
         }
         throw new LogisticsRuleException("Kiện chưa ở đúng điểm xuất phát hoặc chuyến không phải chặng tiếp theo.");
     }
+    public static List<Branch> returnPath(Shipment s) {
+        var reversed = new ArrayList<>(path(s)); Collections.reverse(reversed); return List.copyOf(reversed);
+    }
+    public static void requireReturnNext(Shipment s, TransportTrip t, ReturnRequest request) {
+        validateLinks(s);
+        if (request == null || !s.getId().equals(request.getShipment().getId()) || request.getStage() != ReturnStage.READY_FOR_TRANSPORT
+                || s.getStatus() != ShipmentStatus.RETURNING || !same(s.getCurrentBranch(), t.getOrigin())) { throw rule(); }
+        var path = returnPath(s);
+        for (int i = 0; i < path.size() - 1; i++) {
+            if (same(path.get(i), t.getOrigin()) && same(path.get(i + 1), t.getDestination())) { return; }
+        }
+        throw rule();
+    }
+    public static void requireReturnReceipt(Shipment s, TransportTrip t, ReturnRequest request) {
+        if (!s.getId().equals(request.getShipment().getId()) || request.getStage() != ReturnStage.IN_TRANSIT) { throw rule(); }
+        var path = returnPath(s);
+        for (int i = 0; i < path.size() - 1; i++) {
+            if (same(path.get(i), t.getOrigin()) && same(path.get(i + 1), t.getDestination())) { return; }
+        }
+        throw rule();
+    }
     public static ShipmentStatus statusAt(Shipment s, Branch point) {
         if (same(point, s.getDestinationBranch())) { return ShipmentStatus.AT_DESTINATION_BRANCH; }
         if (same(point, s.getOriginBranch())) { return ShipmentStatus.AT_ORIGIN_BRANCH; }

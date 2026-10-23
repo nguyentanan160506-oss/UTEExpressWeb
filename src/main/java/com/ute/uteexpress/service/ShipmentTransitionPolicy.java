@@ -18,8 +18,8 @@ public final class ShipmentTransitionPolicy {
         Map.entry(AT_ORIGIN_HUB, Set.of(IN_TRANSIT)),
         Map.entry(IN_TRANSIT, Set.of(AT_ORIGIN_HUB, AT_DESTINATION_HUB, AT_DESTINATION_BRANCH)),
         Map.entry(AT_DESTINATION_HUB, Set.of(IN_TRANSIT)),
-        Map.entry(AT_DESTINATION_BRANCH, Set.of(OUT_FOR_DELIVERY)),
-        Map.entry(OUT_FOR_DELIVERY, Set.of(DELIVERED, DELIVERY_FAILED)),
+        Map.entry(AT_DESTINATION_BRANCH, Set.of(OUT_FOR_DELIVERY, RETURNING)),
+        Map.entry(OUT_FOR_DELIVERY, Set.of(DELIVERED, DELIVERY_FAILED, RETURNING)),
         Map.entry(DELIVERY_FAILED, Set.of(OUT_FOR_DELIVERY, RETURNING)),
         Map.entry(RETURNING, Set.of(RETURNED)));
 

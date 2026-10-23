@@ -76,6 +76,7 @@ class TransportTripFlowTests {
             when(memberships.existsByManagerIdAndBranchId(actor.getId(), b.getId())).thenReturn(true);
             when(employees.findByUserId(actor.getId())).thenReturn(Optional.of(b == hub ? hubEmployee : employee(b)));
         }
+        when(items.findReturnCandidates(anyLong(), anyLong(), any(), any())).thenReturn(Page.empty());
         route = route(1, origin, hub, TransportLeg.COLLECTION); when(routes.findById(1L)).thenReturn(Optional.of(route));
         s = parcel(31, origin, destination);
         trip = new TransportTrip(); trip.setId(1L); trip.setRoute(route); trip.setOrigin(origin); trip.setDestination(hub); trip.setLeg(TransportLeg.COLLECTION);

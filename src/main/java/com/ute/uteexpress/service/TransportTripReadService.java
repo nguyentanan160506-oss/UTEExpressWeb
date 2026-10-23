@@ -58,6 +58,7 @@ public class TransportTripReadService {
             items.countByTripIdAndStatus(id, TripItemStatus.MISSING), items.countByTripIdAndStatus(id, TripItemStatus.DAMAGED),
             items.countByTripIdAndStatus(id, TripItemStatus.REJECTED), open,
             items.findByTripId(id, page(itemPage, "addedAt")).map(this::item), candidates,
+            canPlan ? items.findReturnCandidates(t.getOrigin().getId(), t.getDestination().getId(), t.getLeg(), page(candidatePage, "createdAt")).map(this::candidate) : Page.empty(),
             discrepancies.findByTripId(id, page(issuePage, "recordedAt")).map(d -> new Issue(d.getId(), d.getItem() == null ? null : d.getItem().getId(),
                 d.getKind(), d.getStatus(), d.getReference(), d.getNotes(), name(d.getActor()), d.getRecordedAt(), d.getResolution(), name(d.getResolvedBy()), d.getResolvedAt())),
             events.findByTripId(id, page(eventPage, "occurredAt")).map(e -> new Event(e.getType(), e.getFromStatus(), e.getToStatus(), name(e.getActor()),
@@ -70,7 +71,7 @@ public class TransportTripReadService {
         return items.findManagedHistory(shipmentId, access.requireManager().getId(), page(page, "addedAt")).map(i -> {
             TripReceipt r = receipts.findByItemId(i.getId()).orElse(null); TransportTrip t = i.getTrip();
             return new History(t.getId(), t.getCode(), t.getOrigin().getName(), t.getDestination().getName(), t.getLeg(), t.getStatus(), i.getStatus(),
-                i.getAddedAt(), r == null ? null : r.getReference(), r == null ? null : r.getReceivedAt());
+                i.getAddedAt(), r == null ? null : r.getReference(), r == null ? null : r.getReceivedAt(), i.getReturnRequest() != null);
         });
     }
     private boolean permits(Long branchId) { try { access.requireIntakeEmployee(branchId); return true; } catch (AccessDeniedException denied) { return false; } }
@@ -79,7 +80,7 @@ public class TransportTripReadService {
     private Item item(TransportTripItem i) {
         TripReceipt r = receipts.findByItemId(i.getId()).orElse(null);
         return new Item(i.getId(), i.getShipment().getId(), i.getShipment().getTrackingNumber(), i.getStatus(), i.getShipment().getStatus(),
-            r == null ? null : r.getReference(), r == null ? null : name(r.getActor()), r == null ? null : r.getReceivedAt());
+            r == null ? null : r.getReference(), r == null ? null : name(r.getActor()), r == null ? null : r.getReceivedAt(), i.getReturnRequest() != null);
     }
     private static Row row(TransportTrip t) { return new Row(t.getId(), t.getCode(), t.getOrigin().getName(), t.getDestination().getName(), t.getLeg(), t.getStatus(), t.getCreatedAt()); }
     private String name(User u) { return u == null ? null : (u.getFullName() == null ? u.getUsername() : u.getFullName()); }

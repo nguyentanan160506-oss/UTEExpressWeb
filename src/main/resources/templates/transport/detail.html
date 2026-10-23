@@ -24,6 +24,16 @@
     <nav class="d-flex gap-3 mt-3"><a th:if="${d.candidates.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.candidates.number - 1})}">Kiện trước</a>
         <a th:if="${d.candidates.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.candidates.number + 1})}">Kiện sau</a></nav>
 </section>
+<section th:if="${d.canPlan}" class="card p-3 mb-3"><h2 class="h5">Kiện hoàn đi theo tuyến ngược của chuyến này</h2>
+    <p th:if="${d.returnCandidates.empty}">Chưa có kiện hoàn đủ điều kiện tại điểm xuất phát.</p>
+    <form th:unless="${d.returnCandidates.empty}" method="post" th:action="@{/manager/trips/{id}/items(id=${d.trip.id})}">
+        <input type="hidden" name="expectedVersion" th:value="${d.version}"><div th:each="s : ${d.returnCandidates}" class="form-check py-2">
+            <input th:id="|return-candidate-${s.id}|" type="checkbox" name="shipmentIds" th:value="${s.id}" class="form-check-input">
+            <label th:for="|return-candidate-${s.id}|" class="form-check-label"><strong th:text="${s.trackingNumber}"></strong> · Hoàn về <span th:text="${s.origin}"></span></label></div>
+        <button class="btn btn-primary mt-3">Thêm các kiện hoàn đã chọn</button></form>
+    <nav class="d-flex gap-3 mt-3"><a th:if="${d.returnCandidates.hasPrevious()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.returnCandidates.number - 1})}">Kiện hoàn trước</a>
+        <a th:if="${d.returnCandidates.hasNext()}" th:href="@{/manager/trips/{id}(id=${d.trip.id},candidatePage=${d.returnCandidates.number + 1})}">Kiện hoàn sau</a></nav>
+</section>
 <div class="row g-3"><div class="col-12 col-lg-6" th:if="${d.canSeal}" th:insert="~{transport/fragments :: action(${d}, 'seal', 'Niêm phong manifest', 'Kiểm tra số kiện và ghi mã niêm phong. Manifest không được sửa sau bước này.')}"></div>
     <div class="col-12 col-lg-6" th:if="${d.canDepart}" th:insert="~{transport/fragments :: action(${d}, 'depart', 'Xác nhận xuất chuyến', 'Chỉ xác nhận khi thực sự xuất kiện. Thao tác này không ghi nhận hàng đã tới điểm đến.')}"></div>
     <div class="col-12 col-lg-6" th:if="${d.canArrive}" th:insert="~{transport/fragments :: action(${d}, 'arrive', 'Ghi nhận chuyến đã đến', 'Xe đã tới để kiểm đếm; các kiện vẫn chưa được coi là đã tiếp nhận.')}"></div>
@@ -32,6 +42,7 @@
 <p th:if="${d.items.empty}">Chưa có kiện trong manifest.</p>
 <article th:each="i : ${d.items}" class="card p-3 mb-3">
     <h3 class="h5" th:text="${i.trackingNumber}"></h3><p><strong th:text="${itemLabels[i.status]}"></strong></p>
+    <p th:text="${i.returning ? 'Kiện hoàn về nguồn' : 'Kiện chuyển đi'}"></p>
     <p><a th:href="@{/manager/trips/shipments/{id}/history(id=${i.shipmentId})}">Lịch sử các chặng trong phạm vi quản lý</a></p>
     <p th:if="${i.receivedAt != null}">Biên nhận: <strong th:text="${i.receiptReference}"></strong> · <span th:text="${i.receivedBy}"></span> · <span th:text="${i.receivedAt}"></span> UTC</p>
     <div th:if="${d.canReceive and i.status.name() != 'RECEIVED'}" class="row g-3">

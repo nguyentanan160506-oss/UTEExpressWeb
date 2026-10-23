@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface ShipmentAssignmentRepository extends JpaRepository<ShipmentAssignment, Long> {
+    @Query("select a.shipment.id from ShipmentAssignment a where a.id = :id and a.employee.id = :employeeId and a.assignmentType = :type")
+    Optional<Long> findShipmentIdForOwner(Long id, Long employeeId, AssignmentType type);
     @Query("select a.shipment.id from ShipmentAssignment a where a.id = :id and a.employee.id = :employeeId and a.assignmentType = com.ute.uteexpress.enums.AssignmentType.PICKUP")
     Optional<Long> findPickupShipmentIdForOwner(Long id, Long employeeId);
     Optional<ShipmentAssignment> findByIdAndEmployeeIdAndAssignmentType(Long id, Long employeeId, AssignmentType type);

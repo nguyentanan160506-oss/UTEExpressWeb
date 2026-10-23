@@ -39,7 +39,7 @@ class TransportTripServiceTests {
     final ShipmentAssignmentRepository assignments = mock(ShipmentAssignmentRepository.class);
     final LogisticsAccessService access = mock(LogisticsAccessService.class);
     final TransportTripService service = new TransportTripService(routes, trips, items, receipts, discrepancies, events,
-        shipments, shipmentEvents, intakes, assignments, access, Clock.fixed(Instant.parse("2026-10-23T05:00:00Z"), ZoneOffset.UTC));
+        shipments, shipmentEvents, intakes, assignments, access, Clock.fixed(Instant.parse("2026-10-23T05:00:00Z"), ZoneOffset.UTC), mock(ReturnRequestRepository.class), mock(DeliveryCustodyService.class));
     final Branch origin = point(11, BranchType.LOCAL_BRANCH), destination = point(12, BranchType.LOCAL_BRANCH);
     final Branch h1 = point(101, BranchType.CENTRAL_HUB), h2 = point(102, BranchType.CENTRAL_HUB);
     final Map<Long, TransportTrip> tripRows = new LinkedHashMap<>();

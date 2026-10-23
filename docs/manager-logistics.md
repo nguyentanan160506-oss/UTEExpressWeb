@@ -1,5 +1,8 @@
 # Commit 10 — Manager logistics và phân công lấy hàng
 
+**Cập nhật Commit 13:** Manager chi nhánh đích điều hành DELIVERY; trả người gửi tại chi nhánh nguồn cần biên nhận riêng.
+Xem [last-mile-delivery.md](last-mile-delivery.md). Các thao tác nguồn Commit 10 không bị thay thế.
+
 **Cập nhật Commit 12:** Manager được gán đúng điểm có UI chuyến/hub và kiểm nhận từng kiện.
 Xem [transport-hub.md](transport-hub.md) cho quyền nguồn/đích, V7 và route. Phạm vi nguồn Commit 10 vẫn giữ nguyên.
 

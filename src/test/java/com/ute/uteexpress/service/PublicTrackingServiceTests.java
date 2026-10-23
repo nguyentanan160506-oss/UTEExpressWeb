@@ -86,7 +86,7 @@ class PublicTrackingServiceTests {
         assertEquals("Đã giao", result.statusLabel()); assertTrue(result.events().isEmpty());
     }
 
-    @ParameterizedTest @EnumSource(value = ShipmentStatus.class, names = {"AT_ORIGIN_BRANCH", "AT_DESTINATION_BRANCH"})
+    @ParameterizedTest @EnumSource(value = ShipmentStatus.class, names = {"AT_ORIGIN_BRANCH", "AT_DESTINATION_BRANCH", "OUT_FOR_DELIVERY", "DELIVERY_FAILED", "DELIVERED", "RETURNING", "RETURNED"})
     void newBranchStatusesDoNotMakeInternalEventsPublic(ShipmentStatus branchStatus) {
         when(shipments.findPublicTrackingSummary(CODE)).thenReturn(Optional.of(summary(branchStatus)));
         when(events.findPublicTrackingEvents(anyString(), any(), anyString(), any())).thenReturn(List.of(

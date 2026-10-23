@@ -1,5 +1,9 @@
 # Commit 12 — Chuyến vận chuyển, hub và bàn giao nhiều chặng
 
+**Cập nhật Commit 13:** TransportTrip/manifest/receipt được tái sử dụng cho tuyến hoàn có cấu hình.
+V8 thêm liên kết yêu cầu hoàn trên từng kiện; xem [last-mile-delivery.md](last-mile-delivery.md).
+Các giới hạn giao cuối được ghi bên dưới là phạm vi lịch sử của Commit 12.
+
 Nhánh `feature/an-transport-hub`; phụ trách An. Working tree ban đầu sạch; HEAD ban đầu `f176012`
 đã có PR Commit 11 và PR `fix/commit11-missing-sources` (`18994f6`). Không stage/commit/push/stash/merge/PR.
 Không sửa V1–V6, pom.xml, cấu hình DB/SMTP hoặc dependency. Không chạy migration/database thật trong quá trình triển khai.

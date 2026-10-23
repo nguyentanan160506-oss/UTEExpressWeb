@@ -11,12 +11,17 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "transport_trip_items", schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_trip_items_manifest", columnNames = {"trip_id", "shipment_id"})},
-    indexes = {@Index(name = "IX_trip_items_trip_status", columnList = "trip_id, status"), @Index(name = "IX_trip_items_shipment", columnList = "shipment_id, added_at DESC")},
+    indexes = {@Index(name = "IX_trip_items_trip_status", columnList = "trip_id, status"), @Index(name = "IX_trip_items_shipment", columnList = "shipment_id, added_at DESC"), @Index(name = "IX_trip_items_return_request", columnList = "return_request_id")},
     check = {
         @CheckConstraint(name = "CK_trip_items_status", constraint = "status IN ('MANIFESTED', 'RECEIVED', 'MISSING', 'DAMAGED', 'REJECTED')"),
         @CheckConstraint(name = "CK_trip_items_active", constraint = "(status = 'RECEIVED' AND is_active = 0) OR (status IN ('MANIFESTED', 'MISSING', 'DAMAGED', 'REJECTED') AND is_active = 1)")
     })
 public class TransportTripItem {
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "return_request_id", nullable = true, foreignKey = @ForeignKey(name = "FK_trip_items_return_request"))
+    private ReturnRequest returnRequest;
+    public ReturnRequest getReturnRequest() { return returnRequest; }
+    public void setReturnRequest(ReturnRequest value) { returnRequest = value; }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

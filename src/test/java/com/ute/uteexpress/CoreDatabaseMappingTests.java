@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Boots the actual Hibernate mappings without JDBC access or schema export, and
- * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 schema. The SQL Server integration test is separately opt-in.
+ * compares them to the cumulative V1 + V3 + V4 + V5 + V6 + V7 + V8 schema. The SQL Server integration test is separately opt-in.
  */
 class CoreDatabaseMappingTests {
 
@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -83,6 +83,14 @@ class CoreDatabaseMappingTests {
                     assertFalse(sql.contains("UPDATE dbo."));
                 }
                 assertFalse(sql.contains("INSERT INTO dbo.users"));
+                if (migration.startsWith("V8")) {
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_assignments_active_delivery ON dbo.shipment_assignments (shipment_id) WHERE assignment_type = 'DELIVERY' AND status IN ('ASSIGNED', 'IN_PROGRESS');"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_delivery_attempts_success ON dbo.delivery_attempts (shipment_id) WHERE status = 'SUCCESS';"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_delivery_recoveries_pending ON dbo.delivery_recoveries (shipment_id) WHERE status = 'PENDING';"));
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_delivery_recoveries_received ON dbo.delivery_recoveries (assignment_id) WHERE status = 'RECEIVED';"));
+                    assertTrue(sql.contains("THROW 51002")); assertTrue(sql.contains("THROW 51003"));
+                    assertFalse(sql.contains("UPDATE dbo.")); assertFalse(sql.contains("INSERT INTO"));
+                }
                 if (migration.startsWith("V7")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_trip_items_active_shipment ON dbo.transport_trip_items (shipment_id) WHERE is_active = 1;"));
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_trip_discrepancies_open_item ON dbo.trip_discrepancies (item_id) WHERE item_id IS NOT NULL AND status = 'OPEN';"));
@@ -126,10 +134,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(30, schema.size());
+        assertEquals(36, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(30, metadata.getEntityBindings().size());
+        assertEquals(36, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -185,8 +193,8 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(88, foreignKeys);
-        assertEquals(21, uniqueKeys);
+        assertEquals(119, foreignKeys);
+        assertEquals(27, uniqueKeys);
     }
 
     @Test
@@ -224,8 +232,8 @@ class CoreDatabaseMappingTests {
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(88, associations);
-        assertEquals(29, identities);
+        assertEquals(119, associations);
+        assertEquals(35, identities);
     }
 
     @Test
@@ -285,7 +293,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(38, enumColumns);
+        assertEquals(45, enumColumns);
     }
 
     @Test
@@ -395,7 +403,7 @@ class CoreDatabaseMappingTests {
     }
 
     @Test
-    void all30SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
+    void all36SpringDataRepositoriesInitializeAgainstHibernate() throws Exception {
         try (EntityManager entityManager = sessionFactory.createEntityManager()) {
             var factory = new JpaRepositoryFactory(entityManager);
             for (Class<?> entity : ENTITIES) {
