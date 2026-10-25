@@ -1,5 +1,7 @@
 # Commit 15 — Thông báo vận đơn và WebSocket
 
+> Tích hợp Commit 17: [Customer Support](customer-support.md) mở rộng TicketNotificationProcessor cùng worker hiện hữu. Ticket CUSTOMER mới báo Manager đúng branch; customer message/reopen request báo assignee hợp lệ hoặc fallback Manager đúng branch. PUBLIC reply/resolution và một số trạng thái quan trọng báo chủ ticket. Target USER là `/account/support/{ticketId}`, ownership được kiểm tra lại; INTERNAL không gửi khách. Không thay shipment policy, WebSocket config, destination, CSRF hoặc payload REFRESH. Có thêm test embedded Tomcat cho ticket refresh/reconnect/link; persistence socket test được mock, transaction tests dùng H2 riêng.
+
 Phụ trách: Thuận. Nhánh: `feature/thuan-shipment-notifications`.
 Đã đối chiếu trước khi sửa: working tree sạch; HEAD và main cùng `2942f12`, có merge Commit 14 và lịch sử Commit 01–14. Không thao tác stage/commit/push/merge/stash/PR.
 

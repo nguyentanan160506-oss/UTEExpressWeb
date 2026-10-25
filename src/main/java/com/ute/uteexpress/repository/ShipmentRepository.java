@@ -13,6 +13,9 @@ import org.springframework.data.jpa.repository.Lock;
 import jakarta.persistence.LockModeType;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, Long>, JpaSpecificationExecutor<Shipment> {
+    @Query("select s.id as id,s.trackingNumber as trackingNumber from Shipment s where s.sender.id=:owner")
+    org.springframework.data.domain.Page<SupportShipmentOption> findSupportOptions(Long owner,org.springframework.data.domain.Pageable page);
+    interface SupportShipmentOption {Long getId();String getTrackingNumber();}
     @Override
     @EntityGraph(attributePaths = {"originBranch"})
     org.springframework.data.domain.Page<Shipment> findAll(org.springframework.data.jpa.domain.Specification<Shipment> spec,

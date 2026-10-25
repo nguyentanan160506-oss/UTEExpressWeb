@@ -14,7 +14,8 @@ public class NotificationController {
     private final NotificationService service;
     public NotificationController(NotificationService service) { this.service = service; }
     @GetMapping("/notifications") public String page(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "false") boolean unread, Model model) {
+            @RequestParam(defaultValue = "false") boolean unread, Model model, org.springframework.security.core.Authentication authentication) {
+        model.addAttribute("showCustomerSupport", authentication.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
         model.addAttribute("inbox", service.list(page, 20, unread)); model.addAttribute("unread", unread); return "notifications/index";
     }
     @GetMapping("/notifications/{id}/open") public String open(@PathVariable Long id) { return "redirect:" + service.target(id); }

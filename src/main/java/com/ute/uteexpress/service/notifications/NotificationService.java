@@ -40,7 +40,7 @@ public class NotificationService {
     public String target(Long id) {
         Notification n = visible(id, identity.current().getId());
         if (n.getRelatedTicket() != null) {
-            return "MANAGER".equals(n.getAudience()) ? "/manager/tickets/" + n.getRelatedTicket().getId() : "/account";
+            return "MANAGER".equals(n.getAudience()) ? "/manager/tickets/" + n.getRelatedTicket().getId() : "/account/support/" + n.getRelatedTicket().getId();
         }
         Shipment s = n.getRelatedShipment();
         if ("USER".equals(n.getAudience()) && s != null) { return "/user/shipments/" + s.getId(); }

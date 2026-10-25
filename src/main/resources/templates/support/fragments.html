@@ -1,0 +1,4 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<span th:fragment="status(value)" class="badge rounded-pill" th:classappend="${value.name() == 'RESOLVED' ? 'text-bg-success' : (value.name() == 'CLOSED' ? 'text-bg-secondary' : 'text-bg-primary')}" th:text="${labels.status(value)}"></span>
+<div th:fragment="version(value,token)" hidden><input type="hidden" name="version" th:value="${value}"><input type="hidden" name="token" th:value="${token}"></div>
+</body></html>

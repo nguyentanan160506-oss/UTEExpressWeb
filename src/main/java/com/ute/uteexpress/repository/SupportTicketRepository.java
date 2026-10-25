@@ -9,6 +9,14 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 
 public interface SupportTicketRepository extends JpaRepository<SupportTicket,Long> {
+    String CUSTOMER=" t.user.id=:owner and t.shipment.sender.id=:owner and t.handlingBranch is not null "
+        +"and t.user.status=com.ute.uteexpress.enums.UserStatus.ACTIVE and exists (select r.id from UserRole r where r.user.id=:owner and r.role.name='ROLE_USER')";
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from SupportTicket t where t.id=:id and "+CUSTOMER)
+    Optional<SupportTicket> lockOwnedForCustomer(Long id,Long owner);
+    @EntityGraph(attributePaths={"shipment"})
+    @Query("select t from SupportTicket t where "+CUSTOMER+" and t.status in :statuses")
+    Page<SupportTicket> searchCustomer(Long owner,java.util.Collection<TicketStatus> statuses,Pageable page);
     String SCOPE=" exists (select m.id from ManagerBranch m where m.manager.id=:actorId and m.branch.id=t.handlingBranch.id and m.branch.status=com.ute.uteexpress.enums.BranchStatus.ACTIVE)";
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from SupportTicket t where t.id=:id and "+SCOPE)
@@ -25,6 +33,6 @@ public interface SupportTicketRepository extends JpaRepository<SupportTicket,Lon
         Long assignee,boolean unassigned,boolean overdue,LocalDateTime now,Pageable page);
     Optional<SupportTicket> findByRequestTokenAndCreatedById(String token,Long creatorId);
     @EntityGraph(attributePaths={"shipment"})
-    @Query("select t from SupportTicket t where t.id=:id and t.user.id=:owner and t.shipment.sender.id=:owner and t.handlingBranch is not null")
+    @Query("select t from SupportTicket t where t.id=:id and "+CUSTOMER)
     Optional<SupportTicket> findOwnedForCustomer(Long id,Long owner);
 }

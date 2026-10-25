@@ -21,7 +21,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         + "and exists (select r.id from UserRole r where r.user.id = :userId and r.role.name = 'ROLE_MANAGER') "
         + "and (n.relatedTicket is null or (exists (select t.id from SupportTicket t where t.id=n.relatedTicket.id and t.handlingBranch.id=n.scopeBranch.id) and exists (select e.id from Employee e where e.user.id=:userId "
         + "and e.status=com.ute.uteexpress.enums.EmployeeStatus.ACTIVE and e.branch.id=n.scopeBranch.id)))) or "
-        + "(n.audience='USER' and exists (select t.id from SupportTicket t where t.id=n.relatedTicket.id and t.user.id=:userId and t.shipment.sender.id=:userId) "
+        + "(n.audience='USER' and exists (select t.id from SupportTicket t where t.id=n.relatedTicket.id and t.user.id=:userId and t.shipment.sender.id=:userId and t.handlingBranch is not null) "
         + "and exists (select r.id from UserRole r where r.user.id=:userId and r.role.name='ROLE_USER')))";
     @Query("select n from Notification n where " + VISIBLE + " and (:unread = false or n.isRead = false) order by n.createdAt desc, n.id desc")
     Page<Notification> findVisible(Long userId, boolean unread, Pageable page);

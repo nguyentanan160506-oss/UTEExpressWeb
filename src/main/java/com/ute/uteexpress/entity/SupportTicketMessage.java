@@ -9,7 +9,7 @@ import org.hibernate.annotations.Nationalized;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "support_ticket_messages", schema = "dbo", indexes = {@Index(name = "IX_support_ticket_messages_timeline", columnList = "ticket_id, created_at DESC, id DESC")}, check = {@CheckConstraint(name = "CK_support_ticket_messages_kind", constraint = "kind IN ('INTERNAL', 'PUBLIC')"), @CheckConstraint(name = "CK_support_ticket_messages_body", constraint = "LEN(LTRIM(RTRIM(body))) > 0")})
+@Table(name = "support_ticket_messages", schema = "dbo", indexes = {@Index(name = "IX_support_ticket_messages_timeline", columnList = "ticket_id, created_at DESC, id DESC")}, check = {@CheckConstraint(name = "CK_support_ticket_messages_request", constraint = "(request_token IS NULL AND request_fingerprint IS NULL) OR (request_token IS NOT NULL AND LEN(request_token) = 32 AND request_fingerprint IS NOT NULL AND LEN(request_fingerprint) = 64 AND kind = 'PUBLIC')"), @CheckConstraint(name = "CK_support_ticket_messages_kind", constraint = "kind IN ('INTERNAL', 'PUBLIC')"), @CheckConstraint(name = "CK_support_ticket_messages_body", constraint = "LEN(LTRIM(RTRIM(body))) > 0")})
 public class SupportTicketMessage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false)
     private Long id;
@@ -29,6 +29,14 @@ public class SupportTicketMessage {
     @ColumnDefault("SYSUTCDATETIME()")
     @Column(name = "created_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)", updatable = false)
     private LocalDateTime createdAt;
+    @Column(name = "request_token", length = 32, updatable = false)
+    private String requestToken;
+    @Column(name = "request_fingerprint", length = 64, updatable = false)
+    private String requestFingerprint;
+    public String getRequestToken(){return requestToken;}
+    public void setRequestToken(String value){requestToken=value;}
+    public String getRequestFingerprint(){return requestFingerprint;}
+    public void setRequestFingerprint(String value){requestFingerprint=value;}
     @PrePersist void initializeDefaults() {
         if (createdAt == null) { createdAt = UtcTimestamps.now(); }
     }

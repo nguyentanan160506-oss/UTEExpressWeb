@@ -1,5 +1,7 @@
 # Commit 16 — Operations Dashboard & Complaint Ticket Management
 
+> Tích hợp Commit 17: xem [customer-support.md](customer-support.md). Customer portal dùng `/account/support`, giữ ownership kép, content intake thủ công vẫn nội bộ. TicketService bổ sung customer create/message/reopen request; request không tự đổi status. V12 bổ sung routing DB được cấu hình rõ, idempotency message và hai TicketAction. Các mô tả “chờ Commit17”/target `/account` bên dưới là snapshot lịch sử Commit16, đã được thay bằng customer route có guard. Dashboard/Manager scope và lifecycle không đổi.
+
 Phụ trách: An. Nhánh: `feature/an-operations-dashboard-tickets`.
 
 Đầu phiên: working tree sạch, HEAD `f4ed5f1` là merge Commit 15 (`c6452c8`), nối tiếp lịch sử Commit 01–14 và các bản sửa đã có trên main. Baseline chạy thực tế: **801 tests, 800 passed, 0 failures/errors, 1 skipped**. Không thay đổi Git index/lịch sử, không stage/commit/push/merge/stash/PR.

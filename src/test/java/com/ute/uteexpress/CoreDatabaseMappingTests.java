@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class, PricingVersion.class, SupportTicketAssignment.class, SupportTicketMessage.class, SupportTicketEvent.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class, PricingVersion.class, SupportTicketAssignment.class, SupportTicketMessage.class, SupportTicketEvent.class, SupportTicketRoute.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql", "V12__add_customer_support_portal.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -74,6 +74,10 @@ class CoreDatabaseMappingTests {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_shipments_quote_nonnull ON dbo.shipments (quote_id) WHERE quote_id IS NOT NULL;"));
                     assertFalse(sql.contains("INSERT INTO"));
                     assertFalse(sql.contains("UPDATE dbo.shipments"));
+                }
+                if (migration.startsWith("V12")) {
+                    assertTrue(sql.contains("CREATE UNIQUE INDEX UX_support_ticket_messages_request ON dbo.support_ticket_messages (request_token) WHERE request_token IS NOT NULL;"));
+                    assertFalse(sql.contains("INSERT INTO")); assertFalse(sql.contains("UPDATE dbo.")); assertFalse(sql.contains("DELETE FROM"));
                 }
                 if (migration.startsWith("V10")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_notifications_source_recipient_audience ON dbo.notifications (source_event_id, user_id, audience) WHERE source_event_id IS NOT NULL;"));
@@ -148,10 +152,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(40, schema.size());
+        assertEquals(41, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(40, metadata.getEntityBindings().size());
+        assertEquals(41, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -207,8 +211,8 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(151, foreignKeys);
-        assertEquals(27, uniqueKeys);
+        assertEquals(153, foreignKeys);
+        assertEquals(28, uniqueKeys);
     }
 
     @Test
@@ -246,8 +250,8 @@ class CoreDatabaseMappingTests {
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(151, associations);
-        assertEquals(39, identities);
+        assertEquals(153, associations);
+        assertEquals(40, identities);
     }
 
     @Test

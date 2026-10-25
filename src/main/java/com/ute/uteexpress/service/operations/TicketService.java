@@ -27,10 +27,79 @@ public class TicketService {
     private final ShipmentRepository shipments;
     private final OperationsSettings settings;
     private final Clock clock;
+    private final CustomerSupportAccess customerAccess;
+    private final CustomerSupportThrottle throttle;
+    private final SupportTicketRouteRepository routes;
     public TicketService(OperationsAccessService access,SupportTicketRepository tickets,SupportTicketAssignmentRepository assignments,
-            SupportTicketMessageRepository messages,SupportTicketEventRepository events,ShipmentRepository shipments,OperationsSettings settings,Clock clock) {
+            SupportTicketMessageRepository messages,SupportTicketEventRepository events,ShipmentRepository shipments,OperationsSettings settings,Clock clock,
+            CustomerSupportAccess customerAccess,CustomerSupportThrottle throttle,SupportTicketRouteRepository routes) {
         this.access=access;this.tickets=tickets;this.assignments=assignments;this.messages=messages;this.events=events;this.shipments=shipments;this.settings=settings;this.clock=clock;
+        this.customerAccess=customerAccess;this.throttle=throttle;this.routes=routes;
     }
+    @PreAuthorize("hasRole('USER')")
+    @Transactional(timeout=15)
+    public Long createCustomer(@NotNull @Valid com.ute.uteexpress.dto.operations.CustomerTicketCommands.Create c) {
+        User actor=customerAccess.lockCurrent();
+        String fingerprint=hash("CUSTOMER",c.shipmentId().toString(),c.category().name(),c.subject().strip(),c.content().strip());
+        var previous=tickets.findByRequestTokenAndCreatedById(c.token(),actor.getId());
+        if(previous.isPresent()) {
+            SupportTicket t=previous.get();
+            if(tickets.findOwnedForCustomer(t.getId(),actor.getId()).isEmpty())throw missingCustomer();
+            if(t.getSource()!=TicketSource.CUSTOMER || !fingerprint.equals(t.getRequestFingerprint()))throw rule("Mã yêu cầu đã được dùng với nội dung khác. Hãy tải lại form.");
+            return t.getId();
+        }
+        Shipment s=shipments.findByIdAndSenderId(c.shipmentId(),actor.getId()).orElseThrow(this::missingCustomer);
+        // Commit16 requires an explicit responsible branch related to the shipment. No origin/destination fallback.
+        var route=routes.findByOriginBranchIdAndActiveTrue(s.getOriginBranch().getId())
+            .orElseThrow(()->rule("Chưa có cấu hình chi nhánh hỗ trợ cho vận đơn này. Vui lòng liên hệ chi nhánh qua kênh tiếp nhận hiện có."));
+        Branch branch=route.getHandlingBranch();Long branchId=branch.getId();
+        if(route.getOriginBranch().getStatus()!=BranchStatus.ACTIVE || branch.getStatus()!=BranchStatus.ACTIVE
+                || !(branchId.equals(s.getOriginBranch().getId()) || branchId.equals(s.getDestinationBranch().getId())
+                || (s.getCurrentBranch()!=null && branchId.equals(s.getCurrentBranch().getId()))))
+            throw rule("Cấu hình chi nhánh hỗ trợ hiện không hợp lệ cho vận đơn này. Vui lòng liên hệ chi nhánh.");
+        throttle.check(actor.getId());
+        SupportTicket t=new SupportTicket();t.setTicketCode("TK"+UUID.randomUUID().toString().replace("-","").substring(0,24));
+        t.setRequestToken(c.token());t.setRequestFingerprint(fingerprint);t.setUser(actor);t.setCreatedBy(actor);t.setShipment(s);
+        t.setHandlingBranch(branch);t.setSource(TicketSource.CUSTOMER);t.setCategory(c.category());t.setPriority(TicketPriority.MEDIUM);
+        t.setSubject(text(c.subject(),200,true));t.setContent(text(c.content(),2000,true));t.setStatus(TicketStatus.OPEN);
+        var now=now();t.setCreatedAt(now);t.setUpdatedAt(now);if(!settings.ticketWarningAge().isZero())t.setWarningDueAt(now.plus(settings.ticketWarningAge()));
+        tickets.saveAndFlush(t);record(t,actor,TicketAction.CREATED,null,"Khách hàng gửi yêu cầu hỗ trợ",null,null,null);return t.getId();
+    }
+    @PreAuthorize("hasRole('USER')")
+    @Transactional(timeout=15)
+    public void customerMessage(@NotNull @Positive Long id,@NotNull @Valid com.ute.uteexpress.dto.operations.CustomerTicketCommands.Message c) {
+        customerPost(id,c,false);
+    }
+    @PreAuthorize("hasRole('USER')")
+    @Transactional(timeout=15)
+    public void requestCustomerReopen(@NotNull @Positive Long id,@NotNull @Valid com.ute.uteexpress.dto.operations.CustomerTicketCommands.Message c) {
+        customerPost(id,c,true);
+    }
+    private void customerPost(Long id,com.ute.uteexpress.dto.operations.CustomerTicketCommands.Message c,boolean reopen) {
+        User actor=customerAccess.current();
+        SupportTicket t=tickets.lockOwnedForCustomer(id,actor.getId()).orElseThrow(this::missingCustomer);
+        actor=customerAccess.lockCurrent();
+        // Recheck after waiting; ownership/branch changes cannot be authorized by a stale form.
+        if(tickets.findOwnedForCustomer(id,actor.getId()).isEmpty())throw missingCustomer();
+        String body=text(c.body(),2000,true),fingerprint=hash(reopen?"REOPEN_REQUESTED":"CUSTOMER_MESSAGE",id.toString(),body);
+        var previous=messages.findByRequestTokenAndAuthorId(c.token(),actor.getId());
+        if(previous.isPresent()) {
+            var m=previous.get();
+            if(!m.getTicket().getId().equals(id) || !fingerprint.equals(m.getRequestFingerprint()))throw rule("Mã gửi đã được dùng với nội dung khác. Hãy tải lại form.");
+            return;
+        }
+        if(!Objects.equals(t.getVersion(),c.version()))throw new ObjectOptimisticLockingFailureException(SupportTicket.class,id);
+        if(reopen) {
+            if(!TicketStatePolicy.customerReopenRequest(t.getStatus()))throw rule("Chỉ yêu cầu mở lại ticket đã giải quyết hoặc đã đóng.");
+            if(events.pendingReopenRequests(id)>0)throw rule("Yêu cầu mở lại đang chờ Manager xem xét. Không cần gửi thêm yêu cầu.");
+        } else if(!TicketStatePolicy.customerMessage(t.getStatus()))throw rule("Ticket đã giải quyết hoặc đã đóng. Vui lòng dùng yêu cầu mở lại nếu cần.");
+        throttle.check(actor.getId());
+        SupportTicketMessage m=new SupportTicketMessage();m.setTicket(t);m.setAuthor(actor);m.setKind(TicketMessageKind.PUBLIC);
+        m.setBody(body);m.setCreatedAt(now());m.setRequestToken(c.token());m.setRequestFingerprint(fingerprint);messages.saveAndFlush(m);
+        // A customer reply intentionally leaves the physical and ticket status unchanged. Manager decides next transition.
+        touch(t);record(t,actor,reopen?TicketAction.REOPEN_REQUESTED:TicketAction.CUSTOMER_MESSAGE,t.getStatus(),null,t.getAssignedManager(),null,m);
+    }
+    private ResponseStatusException missingCustomer(){return new ResponseStatusException(HttpStatus.NOT_FOUND,"Không tìm thấy yêu cầu hoặc vận đơn được phép sử dụng.");}
     public Long create(@NotNull @Valid Create c) {
         var scope=access.scope(c.branchId());
         if(c.source()==TicketSource.CUSTOMER)throw rule("Luồng tiếp nhận này phải ghi nguồn do Manager tiếp nhận.");
@@ -106,6 +175,9 @@ public class TicketService {
     private String fingerprint(Create c) {
         // Length-delimited canonical fields avoid separator ambiguity; hash is never accepted from the client.
         String[] fields={c.branchId().toString(),c.trackingNumber().strip().toUpperCase(Locale.ROOT),c.subject().strip(),c.content().strip(),c.category().name(),c.priority().name(),c.source().name()};
+        return hash(fields);
+    }
+    private String hash(String... fields) {
         var input=new StringBuilder();for(String field:fields)input.append(field.length()).append(':').append(field);
         try{return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(input.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));}
         catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException("SHA-256 unavailable",impossible);}

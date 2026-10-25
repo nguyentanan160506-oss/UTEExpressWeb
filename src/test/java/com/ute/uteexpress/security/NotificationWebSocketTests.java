@@ -34,11 +34,12 @@ import static org.mockito.Mockito.*;
 class NotificationWebSocketTests {
     @Configuration(proxyBeanMethods=false) @EnableAutoConfiguration
     @Import({SecurityConfig.class,SecurityErrorHandlers.class,DatabaseUserDetailsService.class,AuthenticationResponseHandlers.class,
-        AuthController.class,NotificationController.class,NotificationService.class,NotificationIdentity.class,NotificationSocketSessions.class,NotificationWebSocketConfig.class,OtpConfig.class})
+        AuthController.class,NotificationController.class,NotificationService.class,NotificationIdentity.class,NotificationDelivery.class,NotificationSocketSessions.class,NotificationWebSocketConfig.class,OtpConfig.class})
     static class App { }
     @LocalServerPort int port;
     @Autowired PasswordEncoder encoder;
     @Autowired SimpMessagingTemplate broker;
+    @Autowired NotificationDelivery delivery;
     @Autowired NotificationSocketSessions sessions;
     @Autowired org.springframework.messaging.simp.user.SimpUserRegistry registry;
     @Autowired org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler simpleBroker;
@@ -126,6 +127,25 @@ class NotificationWebSocketTests {
     @Test void reconnectCanReconcileAuthoritativeUnreadCount() throws Exception {
         Login l=login(1);Probe first=connected(l);subscribe(first);first.socket.abort();when(notices.unreadCount(1L)).thenReturn(7L);Probe second=connected(l);subscribe(second);
         var response=l.http().send(HttpRequest.newBuilder(uri("/api/notifications/unread-count")).header("Accept","application/json").GET().build(),HttpResponse.BodyHandlers.ofString());assertEquals(200,response.statusCode());assertTrue(response.body().contains("7"));
+    }
+    @Test void ticketNotificationUsesExistingPrivateDeliveryAndReconnectApiWithCustomerLink() throws Exception {
+        // Actual embedded Tomcat/STOMP/HTTP; these repository responses model a notice already committed by the worker.
+        var owner=accounts.get("socket1@example.test");var ticket=new com.ute.uteexpress.entity.SupportTicket();ticket.setId(717L);
+        var n=new com.ute.uteexpress.entity.Notification();n.setId(917L);n.setUser(owner);n.setRelatedTicket(ticket);n.setAudience("USER");
+        n.setNotificationType(com.ute.uteexpress.enums.NotificationType.SUPPORT);n.setTitle("Yêu cầu hỗ trợ đã có phản hồi");n.setMessage("Yêu cầu của bạn đã được cập nhật.");n.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
+        when(notices.lockDelivery(917L)).thenReturn(Optional.of(n));when(notices.findVisibleById(917L,1L)).thenReturn(Optional.of(n));
+        when(notices.findVisible(eq(1L),eq(false),any())).thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(n)));
+        when(notices.unreadCount(1L)).thenReturn(1L);
+        Login login=login(1);Probe first=connected(login),other=connected(login(2));subscribe(first);subscribe(other);
+        delivery.deliver(917L);String frame=first.next();assertTrue(frame.startsWith("MESSAGE"));
+        // Inspect payload, not randomized STOMP message/session header IDs which may coincidentally contain digits.
+        assertEquals("{\"type\":\"REFRESH\"}",frame.split("\\r?\\n\\r?\\n",2)[1].strip());
+        assertNull(other.frames.poll(200,TimeUnit.MILLISECONDS));assertNotNull(n.getDeliveredAt());
+        first.socket.abort();Probe reconnected=connected(login);subscribe(reconnected);
+        var response=login.http().send(HttpRequest.newBuilder(uri("/api/notifications")).header("Accept","application/json").GET().build(),HttpResponse.BodyHandlers.ofString());
+        assertEquals(200,response.statusCode());assertTrue(response.body().contains("SUPPORT"));assertTrue(response.body().contains("917"));assertFalse(response.body().contains("relatedTicket"));
+        var open=login.http().send(HttpRequest.newBuilder(uri("/notifications/917/open")).GET().build(),HttpResponse.BodyHandlers.discarding());assertEquals(302,open.statusCode());assertEquals("/account/support/717",URI.create(open.headers().firstValue("Location").orElseThrow()).getPath());
+        var denied=login(2).http().send(HttpRequest.newBuilder(uri("/notifications/917/open")).GET().build(),HttpResponse.BodyHandlers.discarding());assertEquals(404,denied.statusCode());
     }
     static class Probe implements WebSocket.Listener {
         WebSocket socket;final BlockingQueue<String> frames=new LinkedBlockingQueue<>();final CountDownLatch closed=new CountDownLatch(1);final StringBuilder buffer=new StringBuilder();

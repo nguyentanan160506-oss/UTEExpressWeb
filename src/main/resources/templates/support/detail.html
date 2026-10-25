@@ -1,0 +1,26 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Chi tiết hỗ trợ · UTEExpress')}"></head>
+<body class="bg-light"><nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5"><a th:href="@{/account/support}">← Yêu cầu hỗ trợ của tôi</a>
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center my-4"><div><p class="small text-secondary" th:text="${detail.ticket.code}"></p><h1 class="h3 text-break" th:text="${detail.ticket.subject}"></h1></div><span th:replace="~{support/fragments :: status(${detail.ticket.status})}"></span></div>
+    <p th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></p>
+    <div class="row g-4"><div class="col-lg-8">
+        <section class="card card-body mb-4"><h2 class="h5">Vấn đề cần hỗ trợ</h2><p th:text="${labels.category(detail.ticket.category)}"></p><p>Vận đơn: <span th:text="${detail.ticket.trackingNumber}" class="text-break"></span></p>
+            <p th:if="${detail.initialContent != null}" th:text="${detail.initialContent}" class="shipment-note text-break"></p><p th:if="${detail.initialContent == null}" class="text-secondary">Chi nhánh đã tiếp nhận yêu cầu của bạn qua kênh hỗ trợ. Các phản hồi dành cho bạn được hiển thị bên dưới.</p>
+            <p class="small text-secondary mb-0">Tạo: <span th:text="${#temporals.format(detail.ticket.createdAt,'dd/MM/yyyy HH:mm:ss')}"></span> UTC<br>Cập nhật: <span th:text="${#temporals.format(detail.ticket.updatedAt,'dd/MM/yyyy HH:mm:ss')}"></span> UTC</p>
+        </section>
+        <section th:if="${detail.resolution != null}" class="card card-body border-success mb-4"><h2 class="h5">Kết quả giải quyết</h2><p class="shipment-note text-break mb-1" th:text="${detail.resolution.body}"></p><p class="small text-secondary mb-0" th:text="|${#temporals.format(detail.resolution.at,'dd/MM/yyyy HH:mm:ss')} UTC|"></p></section>
+        <section class="card card-body"><h2 class="h5">Lịch sử trao đổi</h2><p class="small text-secondary">Theo thứ tự từ cũ đến mới · Giờ UTC</p><p th:if="${detail.messages.empty}" class="text-secondary">Chưa có trao đổi công khai.</p>
+            <ol class="list-unstyled mb-0"><li th:each="message : ${detail.messages}" class="border rounded p-3 mb-3" th:classappend="${message.customer ? 'bg-light' : 'border-primary'}">
+                <p class="fw-semibold mb-1" th:text="${message.customer ? 'Bạn' : 'Chi nhánh hỗ trợ'}"></p><span th:if="${message.resolution}" class="badge text-bg-success mb-2">Phản hồi giải quyết</span><span th:if="${message.reopenRequest}" class="badge text-bg-warning mb-2">Yêu cầu mở lại</span>
+                <p class="shipment-note text-break" th:text="${message.body}"></p><time class="small text-secondary" th:text="|${#temporals.format(message.at,'dd/MM/yyyy HH:mm:ss')} UTC|"></time>
+            </li></ol>
+            <nav class="d-flex flex-wrap gap-3 justify-content-between" aria-label="Phân trang trao đổi"><a th:if="${detail.messages.hasPrevious()}" th:href="@{/account/support/{id}(id=${detail.ticket.id},page=${detail.messages.number - 1})}">Trang trước</a><span th:text="|Trang ${detail.messages.number + 1} · ${detail.messages.totalElements} trao đổi|"></span><a th:if="${detail.messages.hasNext()}" th:href="@{/account/support/{id}(id=${detail.ticket.id},page=${detail.messages.number + 1})}">Trang sau</a><a th:if="${detail.messages.hasNext()}" th:href="@{/account/support/{id}(id=${detail.ticket.id},page=${detail.messages.totalPages - 1})}">Trao đổi mới nhất</a></nav>
+        </section>
+    </div><aside class="col-lg-4">
+        <form th:if="${detail.canMessage}" th:action="@{/account/support/{id}/messages(id=${detail.ticket.id})}" method="post" class="card card-body mb-3"><div th:replace="~{support/fragments :: version(${detail.version},${messageToken})}"></div><h2 class="h5">Bổ sung thông tin</h2><label for="body" class="form-label">Nội dung gửi chi nhánh</label><textarea id="body" name="body" rows="6" maxlength="2000" required class="form-control mb-3"></textarea><button class="btn btn-primary" type="submit">Gửi tin nhắn</button></form>
+        <p th:if="${detail.ticket.status.name() == 'CLOSED'}" class="alert alert-secondary">Yêu cầu đã đóng. Bạn vẫn xem được lịch sử và có thể yêu cầu xem xét mở lại.</p>
+        <p th:if="${detail.reopenPending}" class="alert alert-info" role="status">Yêu cầu mở lại đang chờ Manager xem xét. Bạn không cần gửi thêm yêu cầu.</p>
+        <form th:if="${detail.canRequestReopen}" th:action="@{/account/support/{id}/reopen(id=${detail.ticket.id})}" method="post" class="card card-body"><div th:replace="~{support/fragments :: version(${detail.version},${reopenToken})}"></div><h2 class="h5">Yêu cầu xem xét mở lại</h2><p class="small text-secondary">Nếu kết quả chưa phù hợp, hãy nêu lý do. Manager sẽ xem xét; gửi yêu cầu không tự đổi trạng thái.</p><label for="reopenBody" class="form-label">Lý do cần xem xét lại</label><textarea id="reopenBody" name="body" rows="5" maxlength="2000" required class="form-control mb-3"></textarea><button class="btn btn-outline-primary" type="submit">Gửi yêu cầu mở lại</button></form>
+    </aside></div>
+</main></body></html>
