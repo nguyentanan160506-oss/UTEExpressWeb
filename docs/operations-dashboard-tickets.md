@@ -1,5 +1,7 @@
 # Commit 16 — Operations Dashboard & Complaint Ticket Management
 
+> Commit 18: [Admin Reports & Audit](admin-reports-audit.md) cung cấp các projection reporting toàn hệ thống riêng cho ADMIN. Proof KPI dùng OperationalReportRules chung; Manager scope/công thức/lifecycle giữ nguyên. Admin không kế thừa Manager. Unified audit chỉ đọc metadata Shipment/Trip/Ticket events, không copy hoặc công khai INTERNAL content.
+
 > Tích hợp Commit 17: xem [customer-support.md](customer-support.md). Customer portal dùng `/account/support`, giữ ownership kép, content intake thủ công vẫn nội bộ. TicketService bổ sung customer create/message/reopen request; request không tự đổi status. V12 bổ sung routing DB được cấu hình rõ, idempotency message và hai TicketAction. Các mô tả “chờ Commit17”/target `/account` bên dưới là snapshot lịch sử Commit16, đã được thay bằng customer route có guard. Dashboard/Manager scope và lifecycle không đổi.
 
 Phụ trách: An. Nhánh: `feature/an-operations-dashboard-tickets`.

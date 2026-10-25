@@ -44,8 +44,7 @@ public class OperationsDashboardQueries {
             +"and i.trip.status in (TR.DEPARTED,TR.RECONCILING) and not exists (select r.id from TripReceipt r where r.item.id=i.id) and "+GATE);
         q.put("awaitReceipt","select count(distinct i.shipment.id) from TransportTripItem i where i.active=true and i.trip.destination.id=:branch and i.trip.status=TR.RECONCILING "
             +"and not exists (select r.id from TripReceipt r where r.item.id=i.id) and "+GATE);
-        String proof=" from DeliveryProof p where p.shipment.status=SS.DELIVERED and p.attempt.status=DA.SUCCESS and p.attempt.startedAt is not null "
-            +"and p.attempt.shipment.id=p.shipment.id and p.assignment.id=p.attempt.assignment.id and p.assignment.assignmentType=com.ute.uteexpress.enums.AssignmentType.DELIVERY and p.employee.id=p.attempt.employee.id and p.actor.id=p.attempt.actor.id and p.deliveredAt>=p.attempt.attemptTime and p.deliveredAt>=:from and p.deliveredAt<:to and ";
+        String proof=" from DeliveryProof p where "+OperationalReportRules.VALID_PROOF+" and p.deliveredAt>=:from and p.deliveredAt<:to and ";
         q.put("delivered","select count(distinct p.shipment.id)"+proof+"p.shipment.destinationBranch.id=:branch and "+GATE);
         q.put("originDelivered","select count(distinct p.shipment.id)"+proof+"p.shipment.originBranch.id=:branch and "+GATE);
         q.put("attempts","select cast(a.status as String),count(a),count(distinct a.shipment.id) from DeliveryAttempt a where a.shipment.destinationBranch.id=:branch "

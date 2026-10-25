@@ -30,11 +30,14 @@ public class AdminUserService {
     private final UserRepository users;
     private final RoleRepository roles;
     private final UserRoleRepository memberships;
+    private final AuditLogRepository audits;
+    private final java.time.Clock clock;
 
-    public AdminUserService(UserRepository users, RoleRepository roles, UserRoleRepository memberships) {
+    public AdminUserService(UserRepository users, RoleRepository roles, UserRoleRepository memberships, AuditLogRepository audits,java.time.Clock clock) {
         this.users = users;
         this.roles = roles;
         this.memberships = memberships;
+        this.audits=audits;this.clock=clock;
     }
 
     @Transactional(readOnly = true)
@@ -84,17 +87,19 @@ public class AdminUserService {
         protectLastAdmin(target);
         target.setStatus(UserStatus.LOCKED);
         users.save(target);
+        audit(actor,target,"USER_LOCKED","ACTIVE","LOCKED");
     }
 
     @Transactional
     public void unlock(@Positive Long id) {
-        beginMutation();
+        User actor=beginMutation();
         User target = users.findByIdForUpdate(id).orElseThrow(this::notFound);
         if (target.getStatus() != UserStatus.LOCKED) {
             throw new AdminRuleException("Chỉ có thể mở khóa tài khoản LOCKED. Tài khoản UNVERIFIED phải xác minh email.");
         }
         target.setStatus(UserStatus.ACTIVE);
         users.save(target);
+        audit(actor,target,"USER_UNLOCKED","LOCKED","ACTIVE");
     }
 
     @Transactional
@@ -134,6 +139,17 @@ public class AdminUserService {
                 memberships.save(membership);
             }
         }
+        Set<Long> effective=new HashSet<>(currentIds);effective.removeIf(roleId->allowedIds.contains(roleId)&&!selected.contains(roleId));effective.addAll(selected);
+        if(!currentIds.equals(effective))audit(actor,target,"USER_ROLES_CHANGED",roleIds(currentIds),roleIds(effective));
+    }
+
+    private String roleIds(Set<Long> ids){return "roleIds="+ids.stream().sorted().map(Object::toString).collect(Collectors.joining(","));}
+    private void audit(User actor,User target,String action,String before,String after){
+        AuditLog row=new AuditLog();row.setActor(actor);row.setAction(action);row.setResourceType(com.ute.uteexpress.enums.AuditResourceType.USER);
+        row.setResourceId(target.getId().toString());row.setOldValue(before);row.setNewValue(after);
+        var now=java.time.LocalDateTime.ofInstant(clock.instant(),java.time.ZoneOffset.UTC);row.setCreatedAt(now.withNano(now.getNano()/100*100));
+        // Same transaction as the existing mutation. Audit failure must roll back the state/role change.
+        audits.saveAndFlush(row);
     }
 
     private User beginMutation() {

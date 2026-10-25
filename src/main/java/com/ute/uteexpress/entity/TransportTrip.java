@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "transport_trips", schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_transport_trips_code", columnNames = {"code"}), @UniqueConstraint(name = "UQ_transport_trips_token", columnNames = {"request_token"})},
-    indexes = {@Index(name = "IX_transport_trips_origin", columnList = "origin_id, status, created_at DESC"), @Index(name = "IX_transport_trips_destination", columnList = "destination_id, status, created_at DESC")},
+    indexes = {@Index(name = "IX_transport_trips_reports_created", columnList = "created_at, id"), @Index(name = "IX_transport_trips_origin", columnList = "origin_id, status, created_at DESC"), @Index(name = "IX_transport_trips_destination", columnList = "destination_id, status, created_at DESC")},
     check = {
         @CheckConstraint(name = "CK_transport_trips_points", constraint = "origin_id <> destination_id"),
         @CheckConstraint(name = "CK_transport_trips_leg", constraint = "leg IN ('COLLECTION', 'LINEHAUL', 'DISTRIBUTION')"),

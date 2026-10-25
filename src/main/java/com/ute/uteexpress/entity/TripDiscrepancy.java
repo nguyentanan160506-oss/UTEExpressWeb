@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "trip_discrepancies", schema = "dbo",
     uniqueConstraints = {},
-    indexes = {@Index(name = "IX_trip_discrepancies_trip", columnList = "trip_id, status, recorded_at DESC"), @Index(name = "IX_trip_discrepancies_item", columnList = "item_id, status")},
+    indexes = {@Index(name = "IX_trip_discrepancies_reports_time", columnList = "recorded_at, id"), @Index(name = "IX_trip_discrepancies_trip", columnList = "trip_id, status, recorded_at DESC"), @Index(name = "IX_trip_discrepancies_item", columnList = "item_id, status")},
     check = {
         @CheckConstraint(name = "CK_trip_discrepancies_kind", constraint = "kind IN ('MISSING', 'DAMAGED', 'REJECTED', 'UNEXPECTED')"),
         @CheckConstraint(name = "CK_trip_discrepancies_status", constraint = "status IN ('OPEN', 'RESOLVED')"),

@@ -35,7 +35,7 @@ class AdminUserServiceTests {
         users = mock(UserRepository.class);
         roles = mock(RoleRepository.class);
         memberships = mock(UserRoleRepository.class);
-        service = new AdminUserService(users, roles, memberships);
+        service = new AdminUserService(users, roles, memberships, mock(AuditLogRepository.class),java.time.Clock.systemUTC());
         actor = user(1L, "admin-fixture@example.test", UserStatus.ACTIVE);
         target = user(2L, "target-fixture@example.test", UserStatus.ACTIVE);
         authenticate(actor.getEmail(), "ROLE_ADMIN");
