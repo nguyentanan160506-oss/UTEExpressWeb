@@ -28,7 +28,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @TestConfiguration(proxyBeanMethods=false) @EnableTransactionManagement @EnableMethodSecurity
 @EnableJpaRepositories(basePackages="com.ute.uteexpress.repository")
 @Import({LogisticsAccessService.class,OperationsAccessService.class,OperationsDashboardReadService.class,OperationsDashboardQueries.class,
-    TicketService.class,TicketReadService.class,TicketCustomerReadService.class,NotificationIdentity.class,NotificationService.class,TicketNotificationProcessor.class,NotificationDelivery.class})
+    TicketService.class,TicketReadService.class,TicketCustomerReadService.class,CustomerSupportAccess.class,NotificationIdentity.class,NotificationService.class,TicketNotificationProcessor.class,NotificationDelivery.class})
 public class OperationsJdbcConfig {
     public static LocalDateTime utcNow(){return LocalDateTime.now(ZoneOffset.UTC);}
     @Bean(destroyMethod="close") DataSource dataSource() throws Exception {
@@ -48,6 +48,8 @@ public class OperationsJdbcConfig {
     @Bean @Primary EntityManager entityManager(EntityManagerFactory emf){return SharedEntityManagerCreator.createSharedEntityManager(emf);}
     @Bean MutableClock clock(){return new MutableClock();}
     @Bean OperationsSettings settings(){return new OperationsSettings(Duration.ofHours(24),Duration.ofHours(24));}
+    // Shared JDBC fixtures reuse numeric user IDs across tests. Throttle behavior has its own isolated tests.
+    @Bean CustomerSupportThrottle customerSupportThrottle(MutableClock clock){return new CustomerSupportThrottle(clock,10000,10000);}
     @Bean static MethodValidationPostProcessor validation(){return new MethodValidationPostProcessor();}
     @Bean List<Message<?>> socketSignals(){return new CopyOnWriteArrayList<>();}
     @Bean SimpMessagingTemplate broker(List<Message<?>> socketSignals){var channel=new ExecutorSubscribableChannel();channel.subscribe(socketSignals::add);return new SimpMessagingTemplate(channel);}

@@ -279,6 +279,7 @@ class SecurityConfigTests {
         DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
         @Bean com.ute.uteexpress.repository.SupportTicketRepository supportTicketRepository() { return mock(com.ute.uteexpress.repository.SupportTicketRepository.class); }
+        @Bean com.ute.uteexpress.repository.SupportTicketRouteRepository supportTicketRouteRepository() { return mock(com.ute.uteexpress.repository.SupportTicketRouteRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketAssignmentRepository supportTicketAssignmentRepository() { return mock(com.ute.uteexpress.repository.SupportTicketAssignmentRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketMessageRepository supportTicketMessageRepository() { return mock(com.ute.uteexpress.repository.SupportTicketMessageRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketEventRepository supportTicketEventRepository() { return mock(com.ute.uteexpress.repository.SupportTicketEventRepository.class); }

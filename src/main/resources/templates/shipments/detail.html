@@ -10,6 +10,7 @@
             <p class="small text-secondary mb-0">Tạo lúc <span th:text="${#temporals.format(shipment.createdAt, 'dd/MM/yyyy HH:mm')}"></span> UTC</p></div>
         <span th:replace="~{shipments/fragments :: status(${shipment.status})}"></span>
     </div>
+    <p><a class="btn btn-outline-primary" th:href="@{/account/support/new(shipmentId=${shipment.id})}">Yêu cầu hỗ trợ vận đơn này</a></p>
     <div th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></div>
     <div class="row g-4">
         <section class="col-md-6"><div class="card shipment-card h-100"><div class="card-body p-4 shipment-contact" th:with="contact=${shipment.sender}">

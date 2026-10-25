@@ -14,4 +14,6 @@ public final class TicketStatePolicy {
         };
     }
     public static boolean resolvable(TicketStatus s) { return Set.of(TicketStatus.PROCESSING,TicketStatus.WAITING_CUSTOMER,TicketStatus.WAITING_INTERNAL).contains(s); }
+    public static boolean customerMessage(TicketStatus s) { return working(s); }
+    public static boolean customerReopenRequest(TicketStatus s) { return s==TicketStatus.RESOLVED || s==TicketStatus.CLOSED; }
 }

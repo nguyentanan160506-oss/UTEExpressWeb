@@ -1,0 +1,24 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{shipments/fragments :: head('Tạo yêu cầu hỗ trợ · UTEExpress')}"></head>
+<body class="bg-light"><nav th:replace="~{shipments/fragments :: nav}"></nav>
+<main class="container py-4 py-md-5"><a th:href="@{/account/support}">← Yêu cầu hỗ trợ của tôi</a><h1 class="h3 my-4">Tạo yêu cầu hỗ trợ</h1>
+    <p class="text-secondary">Chọn vận đơn của bạn và mô tả vấn đề. Chi nhánh phụ trách được xác định từ cấu hình phục vụ của hệ thống.</p>
+    <form th:action="@{/account/support}" method="post" th:object="${form}" class="card card-body p-3 p-md-4">
+        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-warning" role="alert">Vui lòng kiểm tra các trường bắt buộc. Tiêu đề tối đa 200 ký tự, mô tả tối đa 2.000 ký tự.</div>
+        <input type="hidden" th:field="*{token}">
+        <label for="shipmentId" class="form-label">Vận đơn cần hỗ trợ</label><select id="shipmentId" name="shipmentId" class="form-select mb-3" required>
+            <option value="">Chọn vận đơn của bạn</option><option th:if="${selectedShipment != null}" th:value="${selectedShipment.id}" selected th:text="${selectedShipment.trackingNumber}"></option>
+            <option th:each="shipment : ${shipments}" th:if="${selectedShipment == null or selectedShipment.id != shipment.id}" th:value="${shipment.id}" th:text="${shipment.trackingNumber}"></option>
+        </select>
+        <p class="text-danger small" th:if="${#fields.hasErrors('shipmentId')}" th:errors="*{shipmentId}"></p>
+        <nav class="d-flex flex-wrap gap-3 mb-3" aria-label="Chọn trang vận đơn"><a th:if="${shipments.hasPrevious()}" th:href="@{/account/support/new(shipmentPage=${shipments.number - 1})}">Vận đơn mới hơn</a><a th:if="${shipments.hasNext()}" th:href="@{/account/support/new(shipmentPage=${shipments.number + 1})}">Vận đơn cũ hơn</a></nav>
+        <p th:if="${shipments.empty and selectedShipment == null}" class="alert alert-info">Bạn chưa có vận đơn để gửi yêu cầu hỗ trợ.</p>
+        <label for="category" class="form-label">Loại vấn đề</label><select id="category" th:field="*{category}" class="form-select mb-3" required><option value="">Chọn loại vấn đề</option><option th:each="category : ${categories}" th:value="${category}" th:text="${labels.category(category)}"></option></select>
+        <p class="text-danger small" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+        <label for="subject" class="form-label">Tiêu đề</label><input id="subject" th:field="*{subject}" maxlength="200" required class="form-control mb-3">
+        <p class="text-danger small" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></p>
+        <label for="content" class="form-label">Mô tả chi tiết</label><textarea id="content" th:field="*{content}" rows="6" maxlength="2000" required class="form-control mb-3" aria-describedby="contentHint"></textarea><p id="contentHint" class="small text-secondary">Tối đa 2.000 ký tự. Nội dung được gửi dưới dạng văn bản.</p>
+        <p class="text-danger small" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+        <button class="btn btn-primary align-self-start" type="submit" th:disabled="${shipments.empty and selectedShipment == null}">Gửi yêu cầu hỗ trợ</button>
+    </form>
+</main></body></html>
