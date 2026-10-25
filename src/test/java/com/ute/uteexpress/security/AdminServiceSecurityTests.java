@@ -26,13 +26,14 @@ import static org.mockito.Mockito.*;
 class AdminServiceSecurityTests {
     @TestConfiguration
     @EnableMethodSecurity
-    @Import(AdminUserService.class)
+    @Import({AdminUserService.class,com.ute.uteexpress.config.OtpConfig.class})
     static class Config { }
 
     @Autowired private AdminUserService service;
     @MockitoBean private UserRepository users;
     @MockitoBean private RoleRepository roles;
     @MockitoBean private UserRoleRepository memberships;
+    @MockitoBean private com.ute.uteexpress.repository.AuditLogRepository audits;
 
     @Test void guestCannotInvokeServiceDirectly() {
         assertThrows(AuthenticationCredentialsNotFoundException.class, service::dashboard);

@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql", "V12__add_customer_support_portal.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql", "V12__add_customer_support_portal.sql", "V13__add_admin_reports_audit.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -74,6 +74,10 @@ class CoreDatabaseMappingTests {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_shipments_quote_nonnull ON dbo.shipments (quote_id) WHERE quote_id IS NOT NULL;"));
                     assertFalse(sql.contains("INSERT INTO"));
                     assertFalse(sql.contains("UPDATE dbo.shipments"));
+                }
+                if (migration.startsWith("V13")) {
+                    assertFalse(sql.contains("CREATE TABLE")); assertFalse(sql.contains("INSERT INTO"));
+                    assertFalse(sql.contains("UPDATE dbo.")); assertFalse(sql.contains("DELETE FROM"));
                 }
                 if (migration.startsWith("V12")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_support_ticket_messages_request ON dbo.support_ticket_messages (request_token) WHERE request_token IS NOT NULL;"));
@@ -405,6 +409,9 @@ class CoreDatabaseMappingTests {
     @Test
     void operationsHqlCompilesWithSqlServerDialectMetadata() {
         try (EntityManager em = sessionFactory.createEntityManager()) {
+            for (String hql : com.ute.uteexpress.repository.AdminReportQueries.catalog())assertDoesNotThrow(()->em.createQuery(hql),hql);
+            assertDoesNotThrow(()->em.createQuery(com.ute.uteexpress.repository.AdminAuditQueries.rowsHql()));
+            assertDoesNotThrow(()->em.createQuery(com.ute.uteexpress.repository.AdminAuditQueries.countHql()));
             for (String hql : com.ute.uteexpress.repository.OperationsDashboardQueries.catalog().values()) {
                 assertDoesNotThrow(() -> em.createQuery(hql), hql);
             }

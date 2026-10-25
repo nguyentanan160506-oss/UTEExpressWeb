@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "transport_trip_events", schema = "dbo",
     uniqueConstraints = {},
-    indexes = {@Index(name = "IX_transport_trip_events_timeline", columnList = "trip_id, occurred_at DESC")},
+    indexes = {@Index(name = "IX_transport_trip_events_audit_time", columnList = "occurred_at DESC, id DESC"), @Index(name = "IX_transport_trip_events_timeline", columnList = "trip_id, occurred_at DESC")},
     check = {
         @CheckConstraint(name = "CK_transport_trip_events_type", constraint = "event_type IN ('CREATED', 'ITEMS_ADDED', 'SEALED', 'DEPARTED', 'ARRIVED', 'ITEM_RECEIVED', 'DISCREPANCY_RECORDED', 'DISCREPANCY_RESOLVED', 'CLOSED')"),
         @CheckConstraint(name = "CK_transport_trip_events_from", constraint = "from_status IS NULL OR from_status IN ('DRAFT', 'SEALED', 'DEPARTED', 'RECONCILING', 'CLOSED')"),

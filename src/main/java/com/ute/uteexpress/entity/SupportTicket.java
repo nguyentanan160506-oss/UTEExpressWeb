@@ -35,7 +35,7 @@ import org.hibernate.type.SqlTypes;
     uniqueConstraints = {
         @UniqueConstraint(name = "UQ_support_tickets_code", columnNames = {"ticket_code"})
     },
-    indexes = {@Index(name = "IX_support_tickets_operations_period", columnList = "handling_branch_id, created_at"), @Index(name = "IX_support_tickets_operations_resolution", columnList = "handling_branch_id, resolved_at"),
+    indexes = {@Index(name = "IX_support_tickets_reports_time", columnList = "created_at, id"), @Index(name = "IX_support_tickets_operations_period", columnList = "handling_branch_id, created_at"), @Index(name = "IX_support_tickets_operations_resolution", columnList = "handling_branch_id, resolved_at"),
         @Index(name = "IX_support_tickets_customer", columnList = "user_id, created_at DESC, id DESC"),
         @Index(name = "IX_support_tickets_user", columnList = "user_id, status"),
         @Index(name = "IX_support_tickets_manager", columnList = "assigned_manager_id, status"),

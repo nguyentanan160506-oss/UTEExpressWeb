@@ -1,5 +1,7 @@
 # Commit 17 — Customer Support Portal
 
+> Commit 18: [Admin Reports & Audit](admin-reports-audit.md) đọc ticket cohorts và action/time/actor metadata cho Admin. REOPEN_REQUESTED vẫn tách khỏi REOPENED; PUBLIC/INTERNAL message body không vào báo cáo hoặc audit viewer. Không đổi customer ownership, routing, idempotency hoặc notification target.
+
 Phụ trách: Tân. Nhánh: `feature/tan-customer-support`.
 
 Đầu phiên, working tree sạch trên main `3881d16`, đã merge Commit 16 (`0306610`) và có đầy đủ lịch sử Commit 01–15, gồm bản bổ sung source Commit 11. Tạo nhánh yêu cầu từ main này. Baseline thực tế: **922 tests, 921 passed, 0 failures, 0 errors, 1 skipped**. Không stage/commit/push/merge/stash/PR. Không kết nối, chỉnh dữ liệu hoặc chạy migration trên SQL Server thật; không đổi cấu hình DB/SMTP, dependency hay Flyway V1–V11.

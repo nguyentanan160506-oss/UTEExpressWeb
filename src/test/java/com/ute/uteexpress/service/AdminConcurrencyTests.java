@@ -77,7 +77,7 @@ class AdminConcurrencyTests {
             return membership;
         });
 
-        AdminUserService target = new AdminUserService(users, roles, memberships);
+        AdminUserService target = new AdminUserService(users, roles, memberships, mock(com.ute.uteexpress.repository.AuditLogRepository.class),java.time.Clock.systemUTC());
         var transaction = new TransactionInterceptor();
         transaction.setTransactionManager(new UnlockingTransactions(mutex));
         transaction.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());

@@ -27,7 +27,7 @@ import org.hibernate.type.SqlTypes;
 @Table(
     name = "audit_logs",
     schema = "dbo",
-    indexes = {
+    indexes = {@Index(name = "IX_audit_logs_reports_time", columnList = "created_at DESC, id DESC"),
         @Index(name = "IX_audit_logs_actor_time", columnList = "actor_id, created_at DESC"),
         @Index(name = "IX_audit_logs_resource", columnList = "resource_type, resource_id")
     },
