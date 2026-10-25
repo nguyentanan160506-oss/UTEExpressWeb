@@ -32,6 +32,8 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "IX_notifications_delivery", columnList = "delivered_at, delivery_retry_at, id")
     },
     check = {
+        @CheckConstraint(name = "CK_notifications_ticket_context", constraint = "source_ticket_event_id IS NULL OR (related_ticket_id IS NOT NULL AND notification_type = 'SUPPORT' AND audience IN ('USER', 'MANAGER') AND related_shipment_id IS NULL AND assignment_id IS NULL)"),
+        @CheckConstraint(name = "CK_notifications_single_source", constraint = "source_event_id IS NULL OR source_ticket_event_id IS NULL"),
         @CheckConstraint(name = "CK_notifications_audience", constraint = "audience IS NULL OR audience IN ('USER', 'SHIPPER', 'MANAGER')"),
         @CheckConstraint(name = "CK_notifications_type", constraint = "notification_type IN ('SHIPMENT_STATUS', 'PAYMENT', 'SUPPORT', 'SYSTEM')")
     }
@@ -110,6 +112,17 @@ public class Notification {
     public void setDeliveryRetryAt(LocalDateTime v) { deliveryRetryAt = v; }
     public int getDeliveryAttempts() { return deliveryAttempts; }
     public void setDeliveryAttempts(int v) { deliveryAttempts = v; }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_ticket_event_id", foreignKey = @ForeignKey(name = "FK_notifications_ticket_event"))
+    private SupportTicketEvent sourceTicketEvent;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "related_ticket_id", foreignKey = @ForeignKey(name = "FK_notifications_ticket"))
+    private SupportTicket relatedTicket;
+    public SupportTicketEvent getSourceTicketEvent() { return sourceTicketEvent; }
+    public void setSourceTicketEvent(SupportTicketEvent v) { sourceTicketEvent = v; }
+    public SupportTicket getRelatedTicket() { return relatedTicket; }
+    public void setRelatedTicket(SupportTicket v) { relatedTicket = v; }
 
     public Notification() {
     }

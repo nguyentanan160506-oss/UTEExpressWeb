@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "return_requests", schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_return_requests_shipment", columnNames = {"shipment_id"})},
-    indexes = {@Index(name = "IX_return_requests_stage", columnList = "stage, requested_at DESC")},
+    indexes = {@Index(name = "IX_return_requests_operations_period", columnList = "requested_at, shipment_id"), @Index(name = "IX_return_requests_stage", columnList = "stage, requested_at DESC")},
     check = {
         @CheckConstraint(name = "CK_return_requests_stage", constraint = "stage IN ('REQUESTED', 'READY_FOR_TRANSPORT', 'IN_TRANSIT', 'AT_ORIGIN', 'COMPLETED')"),
         @CheckConstraint(name = "CK_return_requests_reason", constraint = "LEN(LTRIM(RTRIM(reason))) > 0"),

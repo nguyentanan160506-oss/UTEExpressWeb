@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+    @Query("select e from Employee e join fetch e.user u where e.branch.id=:branchId and e.status=com.ute.uteexpress.enums.EmployeeStatus.ACTIVE and u.status=com.ute.uteexpress.enums.UserStatus.ACTIVE "
+        + "and exists (select r.id from UserRole r where r.user.id=u.id and r.role.name='ROLE_MANAGER') and exists (select m.id from ManagerBranch m where m.manager.id=u.id and m.branch.id=:branchId)")
+    Page<Employee> findTicketCandidates(Long branchId, Pageable page);
     @EntityGraph(attributePaths = {"user", "branch"})
     Optional<Employee> findByUserId(Long userId);
     @EntityGraph(attributePaths = {"user", "branch"})

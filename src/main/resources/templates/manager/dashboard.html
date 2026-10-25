@@ -19,5 +19,6 @@
         <div class="col-sm-6 col-lg-3"><div class="card shipment-card"><div class="card-body p-4"><p>Đã phân công lấy</p><strong class="h2" th:text="${dashboard.pickupAssigned}"></strong></div></div></div>
     </div>
     <p class="mt-4">Chi nhánh nguồn đã tiếp nhận: <strong th:text="${dashboard.atOriginBranch}"></strong> vận đơn.</p>
+    <a class="btn btn-outline-primary me-2" th:href="@{/manager/operations}">KPI và công việc vận hành đầy đủ</a>
     <a class="btn btn-primary" th:href="@{/manager/shipments(branchId=${selectedBranch})}">Xem yêu cầu trong phạm vi</a>
 </main></body></html>

@@ -237,3 +237,8 @@ src/test/java/com/ute/uteexpress/security/SecurityConfigTests.java
 ```
 
 `application.properties`, V1–V9 và dữ liệu SQL Server không thay đổi. `pom.xml` chỉ thêm `spring-security-messaging`, phiên bản do Boot hiện có quản lý, cần cho authorization STOMP Spring Security 7.
+
+
+## Tích hợp Commit 16 — Ticket
+
+V11 mở rộng notification hiện hữu bằng source_ticket_event/related_ticket. TicketEvent có worker riêng bounded/retry/row lock, tạo notice và ack atomically; delivery worker Commit15 nhận cả hai source và dùng cùng private WebSocket. Predicate legacy loại trừ ticket context, manager ticket notice kiểm tra thêm Employee ACTIVE đúng branch, USER notice kiểm tra ticket owner và Shipment.sender. Payload vẫn REFRESH, không có internal note. Scheduler DB/session có3 thread, heartbeat tách riêng. Target Manager là detail ticket; User tạm về account tới Commit17. Không thay security STOMP hoặc backfill shipment notifications. Chi tiết trong [operations-dashboard-tickets.md](operations-dashboard-tickets.md).
