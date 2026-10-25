@@ -37,7 +37,7 @@ class CoreDatabaseMappingTests {
         Branch.class, ManagerBranch.class, Employee.class, ShippingService.class,
         ShippingRateRule.class, Shipment.class, ShipmentEvent.class,
         ShipmentAssignment.class, DeliveryAttempt.class, ShipmentPayment.class,
-        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class, PricingVersion.class
+        Notification.class, SupportTicket.class, AuditLog.class, BranchServiceArea.class, PickupFeeRule.class, ShipmentQuote.class, ShipmentIntake.class, PickupEvidence.class, OriginHandoff.class, TransportRoute.class, TransportTrip.class, TransportTripItem.class, TripReceipt.class, TripDiscrepancy.class, TransportTripEvent.class, DeliveryDispatch.class, DeliveryProof.class, DeliveryRecovery.class, RedeliveryDecision.class, ReturnRequest.class, ReturnReceipt.class, PricingVersion.class, SupportTicketAssignment.class, SupportTicketMessage.class, SupportTicketEvent.class
     );
 
     private static StandardServiceRegistry registry;
@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -148,10 +148,10 @@ class CoreDatabaseMappingTests {
 
     @Test
     void everyTableAndColumnMatchesMigrationsIncludingSqlTypesAndDefaults() {
-        assertEquals(37, schema.size());
+        assertEquals(40, schema.size());
         assertEquals(schema.keySet(), metadata.collectTableMappings().stream()
             .map(org.hibernate.mapping.Table::getName).collect(Collectors.toSet()));
-        assertEquals(37, metadata.getEntityBindings().size());
+        assertEquals(40, metadata.getEntityBindings().size());
         for (PersistentClass entity : metadata.getEntityBindings()) {
             var table = entity.getTable();
             SqlTable expected = schema.get(table.getName());
@@ -207,7 +207,7 @@ class CoreDatabaseMappingTests {
                 .collect(Collectors.toMap(c -> c.getName(), c -> normalize(c.getConstraint())));
             assertEquals(expected.checks, actualChecks, table.getName());
         }
-        assertEquals(134, foreignKeys);
+        assertEquals(151, foreignKeys);
         assertEquals(27, uniqueKeys);
     }
 
@@ -239,15 +239,15 @@ class CoreDatabaseMappingTests {
                 }
                 assertNull(field.getAnnotation(OneToMany.class));
                 assertNull(field.getAnnotation(ManyToMany.class));
-                if ((entity == Shipment.class || entity == TransportTrip.class || entity == ShippingService.class || entity == PricingVersion.class) && field.getName().equals("version")) {
+                if ((entity == Shipment.class || entity == TransportTrip.class || entity == ShippingService.class || entity == PricingVersion.class || entity == SupportTicket.class) && field.getName().equals("version")) {
                     assertNotNull(field.getAnnotation(Version.class));
                     assertEquals(Long.class, field.getType());
                     assertTrue(metadata.getEntityBinding(entity.getName()).isVersioned());
                 } else { assertNull(field.getAnnotation(Version.class)); }
             }
         }
-        assertEquals(134, associations);
-        assertEquals(36, identities);
+        assertEquals(151, associations);
+        assertEquals(39, identities);
     }
 
     @Test
@@ -307,7 +307,7 @@ class CoreDatabaseMappingTests {
             }
         }
         assertEquals(2, maxColumns);
-        assertEquals(47, enumColumns);
+        assertEquals(53, enumColumns);
     }
 
     @Test
@@ -396,6 +396,22 @@ class CoreDatabaseMappingTests {
         membership.setPrimary(false);
         invokeCallbacks(membership, PrePersist.class);
         assertFalse(membership.isPrimary());
+    }
+
+    @Test
+    void operationsHqlCompilesWithSqlServerDialectMetadata() {
+        try (EntityManager em = sessionFactory.createEntityManager()) {
+            for (String hql : com.ute.uteexpress.repository.OperationsDashboardQueries.catalog().values()) {
+                assertDoesNotThrow(() -> em.createQuery(hql), hql);
+            }
+            for (var group : com.ute.uteexpress.dto.operations.OperationsDashboardViews.WorkGroup.values()) {
+                String hql = "select s.id,s.trackingNumber,cast(s.status as String),s.createdAt from Shipment s where "
+                    + com.ute.uteexpress.repository.OperationsDashboardQueries.workPredicate(group) + " and "
+                    + com.ute.uteexpress.repository.OperationsDashboardQueries.GATE + " order by s.createdAt,s.id";
+                assertDoesNotThrow(() -> em.createQuery(hql), hql);
+            }
+            assertDoesNotThrow(() -> em.createQuery(com.ute.uteexpress.repository.OperationsDashboardQueries.tripWorkQuery()));
+        }
     }
 
     @Test

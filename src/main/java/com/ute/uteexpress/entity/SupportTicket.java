@@ -2,6 +2,9 @@ package com.ute.uteexpress.entity;
 
 import com.ute.uteexpress.enums.TicketPriority;
 import com.ute.uteexpress.enums.TicketStatus;
+import com.ute.uteexpress.enums.TicketCategory;
+import com.ute.uteexpress.enums.TicketSource;
+import jakarta.persistence.Version;
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,13 +35,27 @@ import org.hibernate.type.SqlTypes;
     uniqueConstraints = {
         @UniqueConstraint(name = "UQ_support_tickets_code", columnNames = {"ticket_code"})
     },
-    indexes = {
+    indexes = {@Index(name = "IX_support_tickets_operations_period", columnList = "handling_branch_id, created_at"), @Index(name = "IX_support_tickets_operations_resolution", columnList = "handling_branch_id, resolved_at"),
         @Index(name = "IX_support_tickets_user", columnList = "user_id, status"),
-        @Index(name = "IX_support_tickets_manager", columnList = "assigned_manager_id, status")
+        @Index(name = "IX_support_tickets_manager", columnList = "assigned_manager_id, status"),
+        @Index(name = "IX_support_tickets_branch", columnList = "handling_branch_id, status, priority, created_at DESC, id DESC"),
+        @Index(name = "IX_support_tickets_shipment", columnList = "shipment_id"),
+        @Index(name = "IX_support_tickets_warning", columnList = "handling_branch_id, warning_due_at, status")
     },
     check = {
+        @CheckConstraint(name = "CK_support_tickets_managed_state", constraint = "handling_branch_id IS NULL OR ((status IN ('OPEN', 'ASSIGNED', 'PROCESSING', 'WAITING_CUSTOMER', 'WAITING_INTERNAL', 'REOPENED') AND resolved_at IS NULL AND closed_at IS NULL) OR (status = 'RESOLVED' AND resolved_at IS NOT NULL AND closed_at IS NULL AND resolution_notes IS NOT NULL AND LEN(LTRIM(RTRIM(resolution_notes))) > 0) OR (status = 'CLOSED' AND resolved_at IS NOT NULL AND closed_at IS NOT NULL AND resolution_notes IS NOT NULL AND LEN(LTRIM(RTRIM(resolution_notes))) > 0))"),
+        @CheckConstraint(name = "CK_support_tickets_managed_assignee", constraint = "handling_branch_id IS NULL OR status = 'REOPENED' OR (status = 'OPEN' AND assigned_manager_id IS NULL) OR (status IN ('ASSIGNED', 'PROCESSING', 'WAITING_CUSTOMER', 'WAITING_INTERNAL', 'RESOLVED', 'CLOSED') AND assigned_manager_id IS NOT NULL)"),
+
+        @CheckConstraint(name = "CK_support_tickets_category", constraint = "category IS NULL OR category IN ('DELAY', 'NOT_RECEIVED', 'DELIVERY_FAILURE', 'LOSS_REPORTED', 'DAMAGE_REPORTED', 'WRONG_RECIPIENT', 'ADDRESS', 'SHIPPING_FEE', 'RETURN', 'STAFF_CONDUCT', 'OTHER')"),
+        @CheckConstraint(name = "CK_support_tickets_source", constraint = "source IS NULL OR source IN ('MANAGER_PHONE', 'MANAGER_EMAIL', 'MANAGER_COUNTER', 'CUSTOMER')"),
+        @CheckConstraint(name = "CK_support_tickets_version", constraint = "version >= 0"),
+        @CheckConstraint(name = "CK_support_tickets_managed", constraint = "handling_branch_id IS NULL OR (shipment_id IS NOT NULL AND created_by IS NOT NULL AND category IS NOT NULL AND source IS NOT NULL AND request_token IS NOT NULL AND request_fingerprint IS NOT NULL)"),
+        @CheckConstraint(name = "CK_support_tickets_resolved_time", constraint = "resolved_at IS NULL OR (resolved_at >= created_at AND status IN ('RESOLVED', 'CLOSED'))"),
+        @CheckConstraint(name = "CK_support_tickets_closed_time", constraint = "closed_at IS NULL OR (closed_at >= created_at AND status = 'CLOSED')"),
+        @CheckConstraint(name = "CK_support_tickets_warning_time", constraint = "warning_due_at IS NULL OR warning_due_at >= created_at"),
+
         @CheckConstraint(name = "CK_support_tickets_priority", constraint = "priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')"),
-        @CheckConstraint(name = "CK_support_tickets_status", constraint = "status IN ('OPEN', 'PROCESSING', 'RESOLVED', 'CLOSED')")
+        @CheckConstraint(name = "CK_support_tickets_status", constraint = "status IN ('OPEN', 'ASSIGNED', 'PROCESSING', 'WAITING_CUSTOMER', 'WAITING_INTERNAL', 'RESOLVED', 'CLOSED', 'REOPENED')")
     }
 )
 public class SupportTicket {
@@ -96,6 +113,49 @@ public class SupportTicket {
     @Column(name = "updated_at", nullable = false, secondPrecision = 7, columnDefinition = "datetime2(7)")
     @ColumnDefault("SYSUTCDATETIME()")
     private LocalDateTime updatedAt;
+
+
+    @Version @Column(name = "version", nullable = false) @ColumnDefault("0")
+    private Long version;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "handling_branch_id", foreignKey = @ForeignKey(name = "FK_support_tickets_branch"))
+    private Branch handlingBranch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", foreignKey = @ForeignKey(name = "FK_support_tickets_creator"))
+    private User createdBy;
+    @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR) @Column(name = "source", length = 30)
+    private TicketSource source;
+    @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR) @Column(name = "category", length = 30)
+    private TicketCategory category;
+    @Column(name = "request_token", length = 32)
+    private String requestToken;
+    @Column(name = "request_fingerprint", length = 64, updatable = false)
+    private String requestFingerprint;
+    public String getRequestFingerprint(){return requestFingerprint;}
+    public void setRequestFingerprint(String value){requestFingerprint=value;}
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "resolved_at", columnDefinition = "datetime2(7)", secondPrecision = 7)
+    private LocalDateTime resolvedAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "closed_at", columnDefinition = "datetime2(7)", secondPrecision = 7)
+    private LocalDateTime closedAt;
+    @JdbcTypeCode(SqlTypes.TIMESTAMP) @Column(name = "warning_due_at", columnDefinition = "datetime2(7)", secondPrecision = 7, updatable = false)
+    private LocalDateTime warningDueAt;
+    public Long getVersion() { return version; }
+    public Branch getHandlingBranch() { return handlingBranch; }
+    public void setHandlingBranch(Branch v) { handlingBranch = v; }
+    public User getCreatedBy() { return createdBy; }
+    public void setCreatedBy(User v) { createdBy = v; }
+    public TicketSource getSource() { return source; }
+    public void setSource(TicketSource v) { source = v; }
+    public TicketCategory getCategory() { return category; }
+    public void setCategory(TicketCategory v) { category = v; }
+    public String getRequestToken() { return requestToken; }
+    public void setRequestToken(String v) { requestToken = v; }
+    public LocalDateTime getResolvedAt() { return resolvedAt; }
+    public void setResolvedAt(LocalDateTime v) { resolvedAt = v; }
+    public LocalDateTime getClosedAt() { return closedAt; }
+    public void setClosedAt(LocalDateTime v) { closedAt = v; }
+    public LocalDateTime getWarningDueAt() { return warningDueAt; }
+    public void setWarningDueAt(LocalDateTime v) { warningDueAt = v; }
 
     public SupportTicket() {
     }

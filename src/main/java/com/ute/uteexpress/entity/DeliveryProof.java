@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "delivery_proofs", schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_delivery_proofs_shipment", columnNames = {"shipment_id"}), @UniqueConstraint(name = "UQ_delivery_proofs_attempt", columnNames = {"attempt_id"})},
-    indexes = {@Index(name = "IX_delivery_proofs_employee", columnList = "employee_id, delivered_at DESC")},
+    indexes = {@Index(name = "IX_delivery_proofs_operations_period", columnList = "delivered_at, shipment_id"), @Index(name = "IX_delivery_proofs_employee", columnList = "employee_id, delivered_at DESC")},
     check = {
         @CheckConstraint(name = "CK_delivery_proofs_recipient", constraint = "recipient_type IN ('RECIPIENT', 'FAMILY', 'AUTHORIZED_REP')"),
         @CheckConstraint(name = "CK_delivery_proofs_text", constraint = "LEN(LTRIM(RTRIM(recipient_name))) > 0 AND LEN(LTRIM(RTRIM(reference))) > 0")

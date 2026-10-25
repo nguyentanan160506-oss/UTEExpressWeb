@@ -39,6 +39,9 @@ public class NotificationService {
     public void readAll() { notices.markAllRead(identity.current().getId(), now()); }
     public String target(Long id) {
         Notification n = visible(id, identity.current().getId());
+        if (n.getRelatedTicket() != null) {
+            return "MANAGER".equals(n.getAudience()) ? "/manager/tickets/" + n.getRelatedTicket().getId() : "/account";
+        }
         Shipment s = n.getRelatedShipment();
         if ("USER".equals(n.getAudience()) && s != null) { return "/user/shipments/" + s.getId(); }
         if ("MANAGER".equals(n.getAudience())) { return "/manager"; }

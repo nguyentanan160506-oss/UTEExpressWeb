@@ -26,7 +26,7 @@ public class NotificationWebSocketConfig implements WebSocketMessageBrokerConfig
         var scheduler = new ThreadPoolTaskScheduler(); scheduler.setPoolSize(1); scheduler.setThreadNamePrefix("notification-heartbeat-"); return scheduler;
     }
     @Bean ThreadPoolTaskScheduler taskScheduler() {
-        var scheduler = new ThreadPoolTaskScheduler(); scheduler.setPoolSize(2); scheduler.setThreadNamePrefix("notification-worker-"); return scheduler;
+        var scheduler = new ThreadPoolTaskScheduler(); scheduler.setPoolSize(3); scheduler.setThreadNamePrefix("notification-worker-"); return scheduler;
     }
     @Override public void registerStompEndpoints(StompEndpointRegistry endpoints) {
         // Empty allowed origins means same origin only. No SockJS, wildcard origins, or CSRF exceptions.

@@ -157,3 +157,8 @@ Không tạo tài khoản/chi nhánh/nhân viên hoặc dữ liệu giả trong 
 
 Chưa có UI quản trị liên kết Employee–User/ManagerBranch, phục hồi phân công dữ liệu cũ không nhất quán,
 đổi Shipper khi nhiệm vụ đã bắt đầu, hủy sau phân công, hoàn tiền hoặc thông báo realtime.
+
+
+## Tích hợp Commit 16
+
+`/manager` tiếp tục là màn hình tiếp nhận chi nhánh nguồn. Navigation nối `/manager/operations` (KPI đọc theo từng phạm vi/mốc) và `/manager/tickets` (xử lý ticket theo handling branch). Không thay lifecycle intake/pickup. Xem [operations-dashboard-tickets.md](operations-dashboard-tickets.md) về quyền Employee/ManagerBranch, công thức KPI và giới hạn SQL Server.

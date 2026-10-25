@@ -11,7 +11,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "return_receipts", schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_return_receipts_request", columnNames = {"return_request_id"})},
-    indexes = {@Index(name = "IX_return_receipts_branch", columnList = "branch_id, received_at DESC")},
+    indexes = {@Index(name = "IX_return_receipts_operations_period", columnList = "branch_id, received_at"), @Index(name = "IX_return_receipts_branch", columnList = "branch_id, received_at DESC")},
     check = {
         @CheckConstraint(name = "CK_return_receipts_recipient", constraint = "recipient_type IN ('SENDER', 'AUTHORIZED_REP')"),
         @CheckConstraint(name = "CK_return_receipts_text", constraint = "LEN(LTRIM(RTRIM(recipient_name))) > 0 AND LEN(LTRIM(RTRIM(reference))) > 0")

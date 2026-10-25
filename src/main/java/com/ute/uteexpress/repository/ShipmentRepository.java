@@ -21,6 +21,9 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long>, JpaSp
     @EntityGraph(attributePaths = {"originBranch", "destinationBranch", "currentBranch", "service"})
     Optional<Shipment> findByIdAndSenderId(Long id, Long senderId);
 
+    @Query("select s from Shipment s where s.trackingNumber=:tracking and (s.originBranch.id=:branchId or s.destinationBranch.id=:branchId or s.currentBranch.id=:branchId)")
+    Optional<Shipment> findForTicket(String tracking,Long branchId);
+
     // All operational writers share this parent lock, then verify the submitted @Version.
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"originBranch"})

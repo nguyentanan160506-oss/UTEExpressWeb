@@ -278,12 +278,17 @@ class SecurityConfigTests {
     @Import({SecurityConfig.class, SecurityErrorHandlers.class,
         DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
+        @Bean com.ute.uteexpress.repository.SupportTicketRepository supportTicketRepository() { return mock(com.ute.uteexpress.repository.SupportTicketRepository.class); }
+        @Bean com.ute.uteexpress.repository.SupportTicketAssignmentRepository supportTicketAssignmentRepository() { return mock(com.ute.uteexpress.repository.SupportTicketAssignmentRepository.class); }
+        @Bean com.ute.uteexpress.repository.SupportTicketMessageRepository supportTicketMessageRepository() { return mock(com.ute.uteexpress.repository.SupportTicketMessageRepository.class); }
+        @Bean com.ute.uteexpress.repository.SupportTicketEventRepository supportTicketEventRepository() { return mock(com.ute.uteexpress.repository.SupportTicketEventRepository.class); }
         // MVC fixtures mock persistence. Disable autonomous polling so it cannot race assertions
         // about read-only shipment/quote requests; notification worker behavior is tested separately.
         @Bean static org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor notificationWorkerIsolation() {
             return new org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor() {
                 @Override public void postProcessBeanDefinitionRegistry(org.springframework.beans.factory.support.BeanDefinitionRegistry registry) {
                     if (registry.containsBeanDefinition("notificationWorker")) { registry.removeBeanDefinition("notificationWorker"); }
+                    if (registry.containsBeanDefinition("ticketNotificationWorker")) { registry.removeBeanDefinition("ticketNotificationWorker"); }
                 }
                 @Override public void postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) { }
             };

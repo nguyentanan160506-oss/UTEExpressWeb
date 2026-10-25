@@ -31,7 +31,7 @@ import org.hibernate.type.SqlTypes;
     uniqueConstraints = {
         @UniqueConstraint(name = "UQ_delivery_attempts", columnNames = {"shipment_id", "attempt_number"})
     },
-    indexes = {
+    indexes = {@Index(name = "IX_delivery_attempts_operations_period", columnList = "attempt_time, shipment_id, status"),
         @Index(name = "IX_delivery_attempts_assignment", columnList = "assignment_id, attempt_time DESC"),
         @Index(name = "IX_delivery_attempts_employee", columnList = "employee_id")
     },
