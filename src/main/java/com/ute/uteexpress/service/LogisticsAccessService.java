@@ -14,7 +14,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Service
 @Validated
-@Transactional(readOnly = true)
+// Callers may probe origin/destination or physical-staff capabilities and catch a denial.
+// These read-only checks must not poison the caller's transaction; uncaught denial still
+// rolls back the transactional business service that owns the write.
+@Transactional(readOnly = true, noRollbackFor = AccessDeniedException.class)
 public class LogisticsAccessService {
     public static final Set<AssignmentStatus> ACTIVE_ASSIGNMENTS = Set.of(AssignmentStatus.ASSIGNED, AssignmentStatus.IN_PROGRESS);
     private final UserRepository users;

@@ -7,8 +7,11 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 
 public interface TransportTripItemRepository extends JpaRepository<TransportTripItem, Long> {
+    // The trip's configured route also supplies the mapped VARCHAR type for :leg.
+    // Bare parameter-to-enum-literal comparisons alone have no JDBC mapping in Hibernate 7.
     String RETURN_CANDIDATES = """
-         s.status = com.ute.uteexpress.enums.ShipmentStatus.RETURNING and s.currentBranch.id = :originId
+         exists (select route.id from TransportRoute route where route.origin.id = :originId and route.destination.id = :destinationId and route.leg = :leg)
+         and s.status = com.ute.uteexpress.enums.ShipmentStatus.RETURNING and s.currentBranch.id = :originId
          and exists (select r.id from ReturnRequest r where r.shipment.id = s.id and r.stage = com.ute.uteexpress.enums.ReturnStage.READY_FOR_TRANSPORT)
          and s.originBranch.parentHub.id = s.originHub.id and s.destinationBranch.parentHub.id = s.destinationHub.id
          and s.originBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE and s.destinationBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE
@@ -22,7 +25,8 @@ public interface TransportTripItemRepository extends JpaRepository<TransportTrip
     @Query(value = "select s from Shipment s where " + RETURN_CANDIDATES, countQuery = "select count(s) from Shipment s where " + RETURN_CANDIDATES)
     Page<com.ute.uteexpress.entity.Shipment> findReturnCandidates(Long originId, Long destinationId, com.ute.uteexpress.enums.TransportLeg leg, Pageable pageable);
     String CANDIDATES = """
-         s.currentBranch.id = :originId and s.shipmentMethod is not null and s.originBranch.id <> s.destinationBranch.id
+         exists (select route.id from TransportRoute route where route.origin.id = :originId and route.destination.id = :destinationId and route.leg = :leg)
+         and s.currentBranch.id = :originId and s.shipmentMethod is not null and s.originBranch.id <> s.destinationBranch.id
          and s.originBranch.parentHub.id = s.originHub.id and s.destinationBranch.parentHub.id = s.destinationHub.id
          and s.originBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE
          and s.destinationBranch.status = com.ute.uteexpress.enums.BranchStatus.ACTIVE
