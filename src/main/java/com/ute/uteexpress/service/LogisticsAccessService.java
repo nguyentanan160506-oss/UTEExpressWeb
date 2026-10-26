@@ -4,6 +4,7 @@ import com.ute.uteexpress.entity.*;
 import com.ute.uteexpress.enums.*;
 import com.ute.uteexpress.repository.*;
 import jakarta.validation.constraints.*;
+import jakarta.persistence.EntityManager;
 import java.util.Set;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,11 +27,13 @@ public class LogisticsAccessService {
     private final ManagerBranchRepository managerBranches;
     private final BranchRepository branches;
     private final ShipmentAssignmentRepository assignments;
+    private final EntityManager entityManager;
 
     public LogisticsAccessService(UserRepository users, UserRoleRepository roles, EmployeeRepository employees,
-            ManagerBranchRepository managerBranches, BranchRepository branches, ShipmentAssignmentRepository assignments) {
+            ManagerBranchRepository managerBranches, BranchRepository branches, ShipmentAssignmentRepository assignments, EntityManager entityManager) {
         this.users = users; this.roles = roles; this.employees = employees;
         this.managerBranches = managerBranches; this.branches = branches; this.assignments = assignments;
+        this.entityManager = entityManager;
     }
 
     @PreAuthorize("hasRole('MANAGER')")
@@ -51,6 +54,7 @@ public class LogisticsAccessService {
         requireManagerForBranch(branchId);
         Employee employee = employees.findByIdAndBranchId(employeeId, branchId)
             .orElseThrow(() -> new LogisticsRuleException("Nhân viên không đủ điều kiện nhận nhiệm vụ lấy hàng."));
+        refreshEmployee(employee);
         if (employee.getStatus() != EmployeeStatus.ACTIVE || employee.getPosition() != EmployeePosition.COURIER_DRIVER
                 || employee.getBranch() == null || !branchId.equals(employee.getBranch().getId())
                 || employee.getBranch().getStatus() != BranchStatus.ACTIVE || employee.getUser() == null
@@ -65,6 +69,7 @@ public class LogisticsAccessService {
     public Employee requireIntakeEmployee(@NotNull @Positive Long branchId) {
         User actor = requireManagerForBranch(branchId);
         Employee employee = employees.findByUserId(actor.getId()).orElseThrow(this::forbidden);
+        refreshEmployee(employee);
         if (employee.getUser() == null || !actor.getId().equals(employee.getUser().getId())
                 || employee.getStatus() != EmployeeStatus.ACTIVE || employee.getBranch() == null
                 || !branchId.equals(employee.getBranch().getId()) || employee.getBranch().getStatus() != BranchStatus.ACTIVE
@@ -78,6 +83,7 @@ public class LogisticsAccessService {
     public ShipperProfile requireShipper() {
         User actor = requireActor("ROLE_SHIPPER");
         Employee employee = employees.findByUserId(actor.getId()).orElseThrow(this::forbidden);
+        refreshEmployee(employee);
         if (employee.getUser() == null || !actor.getId().equals(employee.getUser().getId())
                 || employee.getStatus() != EmployeeStatus.ACTIVE || employee.getPosition() != EmployeePosition.COURIER_DRIVER
                 || employee.getBranch() == null || employee.getBranch().getStatus() != BranchStatus.ACTIVE) {
@@ -120,9 +126,18 @@ public class LogisticsAccessService {
         if (authentication == null || !authentication.isAuthenticated() || authentication.getAuthorities().stream()
                 .noneMatch(authority -> requiredRole.equals(authority.getAuthority()))) { throw forbidden(); }
         User actor = users.findByEmail(authentication.getName()).orElseThrow(this::forbidden);
+        // Identity may have been loaded before waiting for the Shipment lock.
+        // Another entity query alone would reuse stale first-level-cache state.
+        entityManager.refresh(actor);
         if (actor.getStatus() != UserStatus.ACTIVE
                 || !roles.findRoleNamesByUserId(actor.getId()).contains(requiredRole)) { throw forbidden(); }
         return actor;
+    }
+
+    private void refreshEmployee(Employee employee) {
+        entityManager.refresh(employee);
+        if (employee.getUser() != null) { entityManager.refresh(employee.getUser()); }
+        if (employee.getBranch() != null) { entityManager.refresh(employee.getBranch()); }
     }
 
     private AccessDeniedException forbidden() { return new AccessDeniedException("Forbidden"); }

@@ -24,7 +24,7 @@ class LogisticsAccessServiceTests {
     private final ManagerBranchRepository managers = mock(ManagerBranchRepository.class);
     private final BranchRepository branches = mock(BranchRepository.class);
     private final ShipmentAssignmentRepository assignments = mock(ShipmentAssignmentRepository.class);
-    private final LogisticsAccessService service = new LogisticsAccessService(users, roles, employees, managers, branches, assignments);
+    private final LogisticsAccessService service = new LogisticsAccessService(users, roles, employees, managers, branches, assignments, mock(jakarta.persistence.EntityManager.class));
     private User actor;
     private Employee employee;
     private Shipment shipment;
