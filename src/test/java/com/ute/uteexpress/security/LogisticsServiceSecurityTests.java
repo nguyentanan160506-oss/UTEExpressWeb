@@ -26,6 +26,7 @@ class LogisticsServiceSecurityTests {
         TransportTripService.class, TransportTripReadService.class, DeliveryCustodyService.class, LastMileService.class, DeliveryReadService.class})
     static class Config { @Bean Clock clock() { return Clock.systemUTC(); } }
     @Autowired LogisticsAccessService access;
+    @MockitoBean jakarta.persistence.EntityManager entityManager;
     @Autowired ShipmentLifecycleService lifecycle;
     @Autowired BranchNetworkService network;
     @Autowired ManagerLogisticsService manager;

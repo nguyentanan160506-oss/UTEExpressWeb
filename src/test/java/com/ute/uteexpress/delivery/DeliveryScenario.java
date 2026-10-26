@@ -149,7 +149,7 @@ public final class DeliveryScenario {
         when(routes.findById(anyLong())).thenAnswer(c -> Optional.ofNullable(routeRows.get(c.getArgument(0))));
         when(dispatches.findManagedShipment(eq(31L), anyLong())).thenAnswer(c -> canView(c.getArgument(1)) ? Optional.of(s) : Optional.empty());
         when(dispatches.findManaged(anyLong(), any(), any(), any())).thenAnswer(c -> canView(c.getArgument(0)) && (c.getArgument(1) == null || s.getStatus() == c.getArgument(1)) ? new PageImpl<>(List.of(s)) : Page.empty());
-        access = new LogisticsAccessService(users, roles, employees, memberships, branches, assignments);
+        access = new LogisticsAccessService(users, roles, employees, memberships, branches, assignments, mock(jakarta.persistence.EntityManager.class));
         custody = new DeliveryCustodyService(tripReceipts, intakes, dispatches, recoveries, tripItems, events);
         service = new LastMileService(shipments, assignments, events, attempts, dispatches, proofs, recoveries, decisions, returns, returnReceipts, tripItems, tripReceipts, access, custody, clock);
         read = new DeliveryReadService(access, dispatches, assignments, employees, attempts, recoveries, decisions, returns, returnReceipts, proofs, events, custody);
