@@ -160,8 +160,10 @@ class SecurityConfigTests {
     }
 
     @Test
-    void productionChainDeniesEveryUndeclaredRouteForGuest() throws Exception {
-        for (String path : List.of("/", "/unmapped", "/manager", "/api/unmapped")) {
+    void productionChainAllowsExplicitPublicRootAndDeniesUndeclaredRoutes() throws Exception {
+        mvc.perform(get("/")).andExpect(redirectedUrl("/tracking"));
+        mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
+        for (String path : List.of("/unmapped", "/manager", "/api/unmapped")) {
             mvc.perform(get(path).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
         }

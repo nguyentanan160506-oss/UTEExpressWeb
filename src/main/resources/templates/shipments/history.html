@@ -19,7 +19,7 @@
                 <label for="status" class="form-label">Trạng thái</label>
                 <select id="status" name="status" class="form-select">
                     <option value="">Tất cả trạng thái</option>
-                    <option th:each="state : ${statuses}" th:value="${state}" th:text="${statusLabels[state]}" th:selected="${state == selectedStatus}"></option>
+                    <option th:each="state : ${statuses}" th:value="${state}" th:text="${statusLabels.get(state)}" th:selected="${state == selectedStatus}"></option>
                 </select>
             </div>
             <div class="col-md-2">

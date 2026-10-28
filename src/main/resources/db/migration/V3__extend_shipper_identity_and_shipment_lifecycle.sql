@@ -12,11 +12,13 @@ SELECT 'ROLE_SHIPPER'
 WHERE NOT EXISTS (SELECT 1 FROM dbo.roles WHERE name = 'ROLE_SHIPPER');
 
 ALTER TABLE dbo.employees ADD user_id BIGINT NULL;
+GO
 ALTER TABLE dbo.employees ADD CONSTRAINT FK_employees_user FOREIGN KEY (user_id) REFERENCES dbo.users (id) ON DELETE NO ACTION;
 -- Optional links must permit multiple NULLs while preventing two employees sharing one login.
 CREATE UNIQUE INDEX UX_employees_user_nonnull ON dbo.employees (user_id) WHERE user_id IS NOT NULL;
 
 ALTER TABLE dbo.branches ADD parent_hub_id BIGINT NULL;
+GO
 ALTER TABLE dbo.branches ADD CONSTRAINT FK_branches_parent_hub FOREIGN KEY (parent_hub_id) REFERENCES dbo.branches (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.branches ADD CONSTRAINT CK_branches_parent_hub CHECK (parent_hub_id IS NULL OR (branch_type = 'LOCAL_BRANCH' AND parent_hub_id <> id));
 CREATE INDEX IX_branches_parent_hub ON dbo.branches (parent_hub_id);
@@ -46,6 +48,7 @@ ALTER TABLE dbo.shipments ADD origin_hub_id BIGINT NULL;
 ALTER TABLE dbo.shipments ADD destination_hub_id BIGINT NULL;
 -- SQL Server initializes existing rows to 0. Hibernate owns subsequent version increments.
 ALTER TABLE dbo.shipments ADD version BIGINT NOT NULL CONSTRAINT DF_shipments_version DEFAULT (0);
+GO
 ALTER TABLE dbo.shipments ADD CONSTRAINT FK_shipments_origin_hub FOREIGN KEY (origin_hub_id) REFERENCES dbo.branches (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipments ADD CONSTRAINT FK_shipments_destination_hub FOREIGN KEY (destination_hub_id) REFERENCES dbo.branches (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipments ADD CONSTRAINT CK_shipments_method CHECK (shipment_method IS NULL OR shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF'));

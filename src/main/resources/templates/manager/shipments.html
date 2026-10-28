@@ -9,7 +9,7 @@
             <option value="">Tất cả chi nhánh được phân quyền</option><option th:each="b : ${branches}" th:value="${b.id}" th:text="${b.name}" th:selected="${b.id == selectedBranch}"></option>
         </select></div>
         <div class="col-md-4"><label for="status" class="form-label">Trạng thái</label><select id="status" name="status" class="form-select">
-            <option value="">Tất cả</option><option th:each="s : ${statuses}" th:value="${s}" th:text="${statusLabels[s]}" th:selected="${s == selectedStatus}"></option>
+            <option value="">Tất cả</option><option th:each="s : ${statuses}" th:value="${s}" th:text="${statusLabels.get(s)}" th:selected="${s == selectedStatus}"></option>
         </select></div>
         <div class="col-md-4"><label for="method" class="form-label">Phương thức gửi</label><select id="method" name="method" class="form-select">
             <option value="">Tất cả (gồm đơn cũ chưa xác định)</option><option value="HOME_PICKUP" th:selected="${selectedMethod != null and selectedMethod.name() == 'HOME_PICKUP'}">Lấy hàng tận nhà</option>

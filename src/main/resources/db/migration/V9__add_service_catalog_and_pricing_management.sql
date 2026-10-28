@@ -6,6 +6,7 @@ ALTER TABLE dbo.shipping_services ADD max_weight_kg DECIMAL(10,2) NULL;
 ALTER TABLE dbo.shipping_services ADD max_length_cm DECIMAL(10,2) NULL;
 ALTER TABLE dbo.shipping_services ADD max_width_cm DECIMAL(10,2) NULL;
 ALTER TABLE dbo.shipping_services ADD max_height_cm DECIMAL(10,2) NULL;
+GO
 ALTER TABLE dbo.shipping_services ADD CONSTRAINT FK_services_created_by FOREIGN KEY (created_by) REFERENCES dbo.users (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipping_services ADD CONSTRAINT FK_services_updated_by FOREIGN KEY (updated_by) REFERENCES dbo.users (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipping_services ADD CONSTRAINT CK_services_limits CHECK ((max_weight_kg IS NULL OR max_weight_kg > 0) AND (max_length_cm IS NULL OR max_length_cm > 0) AND (max_width_cm IS NULL OR max_width_cm > 0) AND (max_height_cm IS NULL OR max_height_cm > 0));
@@ -43,12 +44,14 @@ CREATE INDEX IX_pricing_versions_lookup ON dbo.pricing_versions (service_id, sta
 
 ALTER TABLE dbo.shipping_rate_rules ADD pricing_version_id BIGINT NULL;
 ALTER TABLE dbo.shipping_rate_rules ADD retired_from DATETIME2(7) NULL;
+GO
 ALTER TABLE dbo.shipping_rate_rules ADD CONSTRAINT FK_rate_rules_pricing_version FOREIGN KEY (pricing_version_id) REFERENCES dbo.pricing_versions (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipping_rate_rules ADD CONSTRAINT CK_rate_rules_retirement CHECK (retired_from IS NULL OR (pricing_version_id IS NULL AND retired_from > effective_from AND (effective_to IS NULL OR retired_from < effective_to)));
 CREATE INDEX IX_rate_rules_version ON dbo.shipping_rate_rules (pricing_version_id, scope_type);
 
 ALTER TABLE dbo.pickup_fee_rules ADD pricing_version_id BIGINT NULL;
 ALTER TABLE dbo.pickup_fee_rules ADD retired_from DATETIME2(7) NULL;
+GO
 ALTER TABLE dbo.pickup_fee_rules ADD CONSTRAINT FK_pickup_rules_pricing_version FOREIGN KEY (pricing_version_id) REFERENCES dbo.pricing_versions (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.pickup_fee_rules ADD CONSTRAINT CK_pickup_rules_retirement CHECK (retired_from IS NULL OR (pricing_version_id IS NULL AND retired_from > effective_from AND (effective_to IS NULL OR retired_from < effective_to)));
 CREATE INDEX IX_pickup_rules_version ON dbo.pickup_fee_rules (pricing_version_id, branch_id);
