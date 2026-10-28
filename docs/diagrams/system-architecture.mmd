@@ -1,0 +1,14 @@
+flowchart LR
+    C[Chrome / localhost] --> SEC[Spring Security: session, CSRF, RBAC]
+    SEC --> MVC[Spring MVC + Thymeleaf + Bootstrap]
+    MVC --> S[Auth / Quote / Logistics / Support / Admin services]
+    S --> J[JPA + transactions + ownership checks]
+    J --> SQL[(SQL Server: UTEExpress_Demo)]
+    F[Explicit operator Flyway V1-V13] --> SQL
+    SQL --> W[Notification workers]
+    W --> WS[Private STOMP signal]
+    WS --> C
+    C -->|authorized refresh| MVC
+    S --> MAIL[OTP SMTP sender]
+    MAIL --> SMTP[Test-only loopback SMTP + ADMIN inbox]
+    NOTE[SMTP, seed and demo launcher outside production JAR] -.-> SMTP

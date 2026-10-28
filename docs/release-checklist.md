@@ -1,3 +1,13 @@
+# Cập nhật Commit 23 — sản phẩm SQL Server demo
+
+Phạm vi mới yêu cầu dữ liệu bền vững trên **UTEExpress_Demo**. Kết luận DEMO-READY bên dưới thuộc H2/Commit 22, không chứng nhận mục tiêu SQL demo mới. **Commit 23 chưa đủ điều kiện đóng** khi chưa cấp phép và chưa chạy migration/seed/startup/persistence sau restart trên DB demo riêng. Không thực hiện thao tác SQL Server trong giai đoạn chuẩn bị này.
+
+Kết quả chuẩn bị: Maven clean verify **1.492 passed / 1 skipped**, Chrome H2 **365 PASS / 0 FAIL / 0 BLOCKED**, JavaScript **12/12**, WebSocket backend **17/17**, production JAR không có tooling/SMTP/H2/test secrets. Đây không phải persistence SQL demo PASS.
+
+Xem [QA Commit 23](final-website-qa.md), [audit](final-product-audit.md), [hướng dẫn SQL demo và các bước cần duyệt](sql-demo-setup.md).
+
+---
+
 # Commit 22 — Release checklist cho đồ án một laptop
 
 Cập nhật28/10/2026,21:05 UTC+7. Branch feature/team-final-qa-demo-release, HEAD4e71056.

@@ -81,6 +81,28 @@ class LocalDemoQaTests {
         assertEquals(302,post(client,"/logout","_csrf="+enc(token)).statusCode());assertEquals(401,get(client,"/user/shipments").statusCode());
         assertEquals(403,post(client(),"/login","email=invalid&password=invalid").statusCode());
     }
+    @Test void profileAndAddressCrudAreOwnerScopedValidatedAndCsrfProtected()throws Exception {
+        assertEquals(401,get(client(),"/account/profile").statusCode());
+        assertEquals(403,get(login("admin"),"/account/profile").statusCode());
+        var owner=login("owner");var other=login("other");
+        String page=get(owner,"/account/profile").body();assertTrue(page.contains("Hồ sơ và địa chỉ"));
+        assertEquals(403,post(owner,"/account/profile","fullName=Changed&phoneNumber=0987654321").statusCode());
+        String body="_csrf="+enc(csrf(page))+"&contactName="+enc("Liên hệ QA")+"&contactPhone=0982309999&province="+enc("Đà Nẵng")
+            +"&district="+enc("Khu vực demo")+"&ward="+enc("Phường demo")+"&detailAddress="+enc("Địa chỉ mô phỏng QA")+"&defaultAddress=true";
+        assertEquals(302,post(owner,"/account/profile/addresses",body).statusCode());
+        Long address=query(()->em.createQuery("select a.id from UserAddress a where a.contactPhone='0982309999'",Long.class).getSingleResult());
+        assertEquals(302,post(owner,"/account/profile/addresses/"+address,body.replace("&defaultAddress=true","")).statusCode());
+        assertFalse(query(()->em.find(UserAddress.class,address).isDefault()));
+        assertFalse(get(other,"/account/profile").body().contains("0982309999"));
+        String otherCsrf=csrf(get(other,"/account/profile").body());
+        assertEquals(404,post(other,"/account/profile/addresses/"+address+"/delete","_csrf="+enc(otherCsrf)).statusCode());
+        assertEquals(404,post(other,"/account/profile/addresses/"+address,body.replace(enc(csrf(page)),enc(otherCsrf))).statusCode());
+        assertEquals(302,post(owner,"/account/profile/addresses/"+address,body.replace("Li%C3%AAn+h%E1%BB%87+QA",enc("Đã cập nhật QA"))).statusCode());
+        assertTrue(get(owner,"/account/profile").body().contains("Đã cập nhật QA"));
+        assertEquals(200,post(owner,"/account/profile","_csrf="+enc(csrf(page))+"&fullName=&phoneNumber=short").statusCode());
+        assertEquals(302,post(owner,"/account/profile/addresses/"+address+"/delete","_csrf="+enc(csrf(page))).statusCode());
+        assertEquals(0,query(()->em.createQuery("select count(a) from UserAddress a where a.id=:id",Long.class).setParameter("id",address).getSingleResult()));
+    }
     @Test void ownerOtherCustomerGuestAndManagerReceiveOnlyTheirPermittedContent() throws Exception {
         Long id=manifest.get("SUPPORT");var owner=login("owner");var other=login("other");
         assertEquals(200,get(owner,"/user/shipments/"+id).statusCode());assertEquals(404,get(other,"/user/shipments/"+id).statusCode());

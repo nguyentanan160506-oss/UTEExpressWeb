@@ -1,4 +1,15 @@
+# Cập nhật Commit 23 — Chrome headless / H2
+
+Kết quả mới nhất: **365 PASS / 0 FAIL / 0 BLOCKED**, 2026-10-28T16:02:51Z. Maven clean verify: **1.492 passed, 1 skipped, 0 failure/error**. Có User mới register/OTP → hồ sơ/địa chỉ → tạo vận đơn; 2 logistics journeys; WebSocket hai phiên và reconnect. Lỗi checkbox unchecked đã được browser phát hiện, tái hiện regression FAIL trước patch và sửa; chi tiết [QA Commit 23](final-website-qa.md). Không SQL Server hoặc Computer Use trong lượt này. SQL demo bền vững/persistence vẫn BLOCKED chờ cấp phép, không suy ra PASS từ H2. Nội dung bên dưới là lịch sử QA Commit 22/dropdown trước đó.
+
+---
+
 # Commit 22 — Nghiệm thu demo một laptop Windows
+
+## Cập nhật dropdown sau nghiệm thu Commit22
+
+28/10/2026, main/017a4af: đã xử lý phản hồi rỗng và bổ sung regression từ tài khoản mới đăng ký đến lookup/quote/create, dùng cả input Núi Thành do người dùng cung cấp. **Browser mới358PASS/0FAIL/0BLOCKED**, verify1.472tests/1.471passed/1skip/0failure/error. Xem [phân tích nguyên nhân, vùng phục vụ và file sửa](branch-dropdown-qa.md). JSON liên kết bên dưới nay là lượt358case; các số350, ID và Git manifest trong phần báo cáo cũ dưới đây là mốc lịch sử trước bản sửa này.
+
 
 Branch feature/team-final-qa-demo-release, HEAD 4e71056. Phạm vi đã chốt: Google Chrome trên một laptop, H2 memory riêng, loopback; không cloud/hosting/tên miền hoặc truy cập máy khác.
 

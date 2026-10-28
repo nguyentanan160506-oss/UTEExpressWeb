@@ -337,6 +337,25 @@ class UserShipmentControllerTests {
         verify(quotes, atLeastOnce()).branchChoices(any()); verify(quotes, never()).quote(any()); verify(quotes, never()).confirm(any());
     }
 
+    @Test @WithMockUser(roles = "USER")
+    void emptyDestinationCoverageExplainsWhyDropdownHasNoOptions() throws Exception {
+        when(quotes.branchChoices(any())).thenReturn(new QuoteService.BranchChoices(options().branches(),List.of()));
+        mvc.perform(post("/user/shipments/branches").with(csrf()).params(params()))
+            .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("shipmentForm","destinationBranchId"))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Không có chi nhánh nhận đang hoạt động")));
+        verify(quotes,never()).quote(any());verify(quotes,never()).confirm(any());
+    }
+
+    @Test @WithMockUser(roles = "USER")
+    void emptyOriginCoverageDoesNotHideValidDestinationOptions() throws Exception {
+        when(quotes.branchChoices(any())).thenReturn(new QuoteService.BranchChoices(List.of(),options().branches()));
+        mvc.perform(post("/user/shipments/branches").with(csrf()).params(params()))
+            .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("shipmentForm","originBranchId"))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Không có chi nhánh gửi đang hoạt động")))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Chi nhánh thử nghiệm")));
+        verify(quotes,never()).quote(any());verify(quotes,never()).confirm(any());
+    }
+
     private MultiValueMap<String, String> params() {
         var result = new LinkedMultiValueMap<String, String>(); var form = new BeanWrapperImpl(form());
         for (var property : form.getPropertyDescriptors()) {
