@@ -30,6 +30,52 @@ final class BrowserOtpJourney {
             check("Correct received OTP activates account",browser.location().equals("/login"),"Normal verification endpoint, no DB/service mutation from runner");
             browser.login("browserqa-registration");
             browser.page("New verified USER can enter shipments","/user/shipments",200,null);
+            browser.page("New USER profile and empty address book","/account/profile",200,"Bạn chưa lưu địa chỉ nào");
+            browser.submit("/account/profile",Map.of("fullName","Khách hàng Browser QA"));
+            check("New USER updates own profile",browser.text().contains("Đã lưu thay đổi")
+                &&browser.js("document.querySelector('#fullName').value==='Khách hàng Browser QA'").asBoolean(),"Name persists through redirect; login identity and roles unchanged");
+            browser.submit("/account/profile/addresses",Map.of("contactName","Liên hệ Browser QA","contactPhone","0982399999",
+                "province","Đà Nẵng","district","Khu vực demo","ward","Phường demo","detailAddress","Địa điểm mô phỏng QA"));
+            check("New USER saves own address",browser.text().contains("Liên hệ Browser QA")
+                ||browser.js("Array.from(document.querySelectorAll('input[name=contactName]')).some(e=>e.value==='Liên hệ Browser QA')").asBoolean(),"Actual form, CSRF and owner-scoped persistence");
+            String deleteAddress=browser.js("document.querySelector('form[action$=\"/delete\"]').getAttribute('action')").asText();
+            try(var unrelated=browser.isolatedSession()){
+                unrelated.login("other");unrelated.page("Other USER profile hides new account address","/account/profile",200,null);
+                check("Address is private to new USER",!unrelated.text().contains("Liên hệ Browser QA"),"No shared address book");
+                browser.merge(unrelated);
+            }
+            browser.submit(deleteAddress,Map.of());
+            check("New USER deletes own address",browser.text().contains("Bạn chưa lưu địa chỉ nào"),"POST mutation retains CSRF protection");
+            browser.nav("/user/shipments/create");
+            check("New USER sees coverage instructions before lookup",
+                browser.text().contains("Địa chỉ được phục vụ trong bản demo")&&browser.text().contains("Danh sách được tải sau khi")
+                    &&browser.js("document.querySelector('#destinationBranchId').options.length===1").asBoolean(),
+                "Fresh account sees why options are initially empty; no employee or shipment history prerequisite");
+            browser.fill(Map.of("shipmentMethod","HOME_PICKUP","senderProvince","tp đà nẵng","senderDistrict","huyện núi thành","senderWard","xã núi thành",
+                "receiverProvince","Hồ Chí Minh","receiverDistrict","Khu vực demo","receiverWard","Phường demo"));
+            double reportedOriginPage=browser.js("performance.timeOrigin").asDouble();
+            browser.js("document.querySelector('#destinationBranchId').closest('div').querySelector('button[formaction]').click();true");
+            browser.waitNavigation(reportedOriginPage);
+            check("Reported pickup area does not hide a valid destination",browser.text().contains("Không có chi nhánh gửi đang hoạt động")
+                &&browser.js("Array.from(document.querySelector('#destinationBranchId').options).some(o=>o.value&&o.text.includes('Chi nhánh TP.HCM demo'))").asBoolean(),
+                "Reported tp da nang/Nui Thanh strings have no demo origin coverage; receiver lookup remains independent");
+            browser.fill(Map.of("senderProvince","Đà Nẵng","senderDistrict","Khu vực demo","senderWard","Phường demo",
+                "receiverProvince","tp đà nẵng","receiverDistrict","huyện núi thành","receiverWard","xã núi thành"));
+            double unsupportedPage=browser.js("performance.timeOrigin").asDouble();
+            browser.js("document.querySelector('#destinationBranchId').closest('div').querySelector('button[formaction]').click();true");
+            browser.waitNavigation(unsupportedPage);
+            check("New USER sees explicit unsupported destination error",browser.text().contains("Không có chi nhánh nhận đang hoạt động")
+                &&browser.js("document.querySelector('#destinationBranchId').options.length===1").asBoolean(),"No unfiltered fallback or fabricated branch");
+            browser.fill(Map.of("receiverProvince","Hồ Chí Minh","receiverDistrict","Khu vực demo","receiverWard","Phường demo"));
+            double beforeLookup=browser.js("performance.timeOrigin").asDouble();
+            browser.js("document.querySelector('#destinationBranchId').closest('div').querySelector('button[formaction]').click();true");
+            browser.waitNavigation(beforeLookup);
+            check("New USER can load destination using nearby lookup button",
+                browser.js("Array.from(document.querySelector('#destinationBranchId').options).some(o=>o.value&&o.text.includes('Chi nhánh TP.HCM demo'))").asBoolean(),
+                "Valid active receiver branch comes from DB after explicit lookup");
+            String newUserShipment=browser.create("HOME_PICKUP");
+            check("Fresh registered USER completes quote and shipment creation",newUserShipment!=null,
+                "Regression covers register -> OTP -> login -> branch lookup -> quote -> create with the same new account");
             browser.page("New USER cannot read SMTP inbox","/admin/demo-mailbox",403,null);
             browser.nav("/verify-email");browser.fill(Map.of("email",email,"otp",code));browser.submit("/verify-email",Map.of());
             check("Used OTP cannot be replayed",browser.location().equals("/verify-email")&&browser.text().contains("Mã không hợp lệ"),"Single-use code enforced");

@@ -1,0 +1,21 @@
+flowchart TD
+    Q[DB quote / owner / expiry / snapshot] --> C[CREATED]
+    C --> F[CONFIRMED]
+    C --> CANCEL[CANCELLED]
+    F --> CANCEL
+    F -->|HOME_PICKUP| A[PICKUP_ASSIGNED]
+    A -->|courier proof| P[PICKED_UP]
+    A --> CANCEL
+    P -->|independent branch handoff receipt| O[AT_ORIGIN_BRANCH]
+    F -->|BRANCH_DROPOFF / physical intake| O
+    O -->|COLLECTION / IN_TRANSIT / receipt| H1[AT_ORIGIN_HUB]
+    H1 -->|LINEHAUL / IN_TRANSIT / receipt| H2[AT_DESTINATION_HUB]
+    H2 -->|DISTRIBUTION / IN_TRANSIT / receipt| D[AT_DESTINATION_BRANCH]
+    D -->|assign / prepare / accept / start| OUT[OUT_FOR_DELIVERY]
+    OUT -->|proof| OK[DELIVERED]
+    OUT -->|attempt + reason| FAIL[DELIVERY_FAILED]
+    FAIL -->|redelivery decision + custody guards| OUT
+    FAIL --> R[RETURNING]
+    R --> REC[Courier recovery + independent branch receipt]
+    REC --> REV[Destination branch → destination hub → origin hub → origin branch]
+    REV -->|sender receipt| END[RETURNED]

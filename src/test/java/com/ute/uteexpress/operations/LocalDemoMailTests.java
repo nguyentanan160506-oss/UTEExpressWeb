@@ -74,6 +74,7 @@ class LocalDemoMailTests {
         var verified=post(client,"/verify-email",Map.of("_csrf",csrf(wrongReply.body()),"email",email,"otp",mail.code));
         assertEquals(302,verified.statusCode());assertEquals(UserStatus.ACTIVE,users.findByEmail(email).orElseThrow().getStatus());
         var authenticated=login(email);assertEquals(200,get(authenticated,"/user/shipments").statusCode());
+        assertNewRegisteredUserCanFindDestinationBranches(authenticated,user.getId());
         assertEquals(403,get(authenticated,"/admin/demo-mailbox").statusCode());
         assertEquals(401,get(client(),"/admin/demo-mailbox").statusCode());
         var inbox=get(login("admin@example.test"),"/admin/demo-mailbox");assertEquals(200,inbox.statusCode());
@@ -81,6 +82,47 @@ class LocalDemoMailTests {
         assertTrue(inbox.headers().firstValue("cache-control").orElse("").contains("no-store"));
         var replay=post(client,"/verify-email",Map.of("_csrf",csrf(get(client,"/verify-email").body()),"email",email,"otp",mail.code));
         assertEquals(200,replay.statusCode());assertTrue(replay.body().contains("Mã không hợp lệ"));
+    }
+    private String destinationSelect(String html){
+        var match=Pattern.compile("(?s)<select[^>]*id=\"destinationBranchId\"[^>]*>.*?</select>").matcher(html);
+        assertTrue(match.find(),"Destination select rendered");return match.group();
+    }
+    private void assertNewRegisteredUserCanFindDestinationBranches(HttpClient authenticated,Long userId)throws Exception{
+        assertTrue(app.getBean(EmployeeRepository.class).findByUserId(userId).isEmpty(),"New USER has no employee/branch membership");
+        var branches=app.getBean(BranchRepository.class).findAll();
+        assertEquals(5,branches.size());
+        assertTrue(branches.stream().allMatch(b->b.getStatus()==com.ute.uteexpress.enums.BranchStatus.ACTIVE));
+        var areas=app.getBean(BranchServiceAreaRepository.class).findAll();
+        assertEquals(4,areas.size());assertTrue(areas.stream().allMatch(a->a.isActive()&&a.isSupportsDelivery()));
+        var page=get(authenticated,"/user/shipments/create");assertEquals(200,page.statusCode());
+        assertFalse(destinationSelect(page.body()).contains("Chi nhánh TP.HCM demo"),"Fresh form has not loaded address-dependent options");
+        assertTrue(page.body().contains("Danh sách được tải sau khi"));
+        assertTrue(page.body().contains("Hồ Chí Minh / Khu vực demo / Phường demo"),"Examples come from actual H2 service areas");
+        long quotes=app.getBean(ShipmentQuoteRepository.class).count(),shipments=app.getBean(ShipmentRepository.class).count();
+        var lookup=new HashMap<String,String>();
+        lookup.put("_csrf",csrf(page.body()));lookup.put("shipmentMethod","HOME_PICKUP");
+        lookup.put("senderProvince","Đà Nẵng");lookup.put("senderDistrict","Khu vực demo");lookup.put("senderWard","Phường demo");
+        lookup.put("receiverProvince","Hồ Chí Minh");lookup.put("receiverDistrict","Khu vực demo");lookup.put("receiverWard","Phường demo");
+        for(String method:List.of("HOME_PICKUP","BRANCH_DROPOFF")){
+            lookup.put("shipmentMethod",method);lookup.put("receiverDistrict","Khu vực demo");
+            var found=post(authenticated,"/user/shipments/branches",lookup);
+            assertEquals(200,found.statusCode());assertTrue(destinationSelect(found.body()).contains("Chi nhánh TP.HCM demo"));
+        }
+        lookup.put("receiverDistrict","Quận chưa cấu hình");
+        var outside=post(authenticated,"/user/shipments/branches",lookup);
+        assertFalse(destinationSelect(outside.body()).contains("Chi nhánh TP.HCM demo"));
+        assertTrue(outside.body().contains("Không có chi nhánh nhận đang hoạt động phục vụ địa chỉ đã nhập"));
+        lookup.put("shipmentMethod","HOME_PICKUP");lookup.put("receiverDistrict","Khu vực demo");
+        lookup.put("senderProvince","tp đà nẵng");lookup.put("senderDistrict","huyện núi thành");lookup.put("senderWard","xã núi thành");
+        var reportedOrigin=post(authenticated,"/user/shipments/branches",lookup);
+        assertTrue(reportedOrigin.body().contains("Không có chi nhánh gửi đang hoạt động"));
+        assertTrue(destinationSelect(reportedOrigin.body()).contains("Chi nhánh TP.HCM demo"),"Origin coverage must not suppress valid receiver choices");
+        lookup.put("receiverProvince","tp đà nẵng");lookup.put("receiverDistrict","huyện núi thành");lookup.put("receiverWard","xã núi thành");
+        var reportedReceiver=post(authenticated,"/user/shipments/branches",lookup);
+        assertTrue(reportedReceiver.body().contains("Không có chi nhánh nhận đang hoạt động"));
+        assertFalse(destinationSelect(reportedReceiver.body()).contains("Chi nhánh TP.HCM demo"));
+        assertEquals(quotes,app.getBean(ShipmentQuoteRepository.class).count(),"Lookup must not create a quote");
+        assertEquals(shipments,app.getBean(ShipmentRepository.class).count(),"Lookup must not create a shipment");
     }
     @Test void externalMailRecipientIsRejectedAndAccountOtpAndRoleRollBack()throws Exception{
         var users=app.getBean(UserRepository.class);var roles=app.getBean(UserRoleRepository.class);var otps=app.getBean(EmailOtpRepository.class);

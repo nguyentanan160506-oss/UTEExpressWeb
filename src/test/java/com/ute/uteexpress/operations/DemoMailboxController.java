@@ -10,7 +10,7 @@ import org.springframework.web.util.HtmlUtils;
 
 /** Presenter inbox: enabled only explicitly on disposable H2; normal ADMIN session and main security chain. */
 @Controller
-@Profile("demo-local")
+@Profile({"demo-local","demo-sql"})
 @ConditionalOnProperty(name="uteexpress.demo.test-mail.enabled",havingValue="true")
 public class DemoMailboxController {
     private final DemoSmtpServer smtp;
@@ -22,9 +22,9 @@ public class DemoMailboxController {
         StringBuilder html=new StringBuilder("""
             <!doctype html><html lang="vi"><head><meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-            <title>Hộp thư H2 demo</title><link rel="stylesheet" href="/css/vendor/bootstrap.min.css"></head>
-            <body><main class="container py-4"><h1>Hộp thư SMTP giả lập — H2 demo</h1>
-            <p>Chỉ ADMIN demo trên laptop này. Không gửi email ra Internet. Thư và mã tự hết hạn sau 5 phút, mất khi dừng H2.</p>
+            <title>Hộp thư demo</title><link rel="stylesheet" href="/css/vendor/bootstrap.min.css"></head>
+            <body><main class="container py-4"><h1>Hộp thư SMTP giả lập — demo cục bộ</h1>
+            <p>Chỉ ADMIN demo trên laptop này. Không gửi email ra Internet. Thư và mã tự hết hạn sau 5 phút, mất khi dừng ứng dụng.</p>
             <p><a href="/admin/demo-mailbox">Làm mới hộp thư</a> · <a href="/admin/users">Quản trị</a></p>
             <table class="table"><thead><tr><th>Email test</th><th>Nhận lúc UTC</th><th>Mã xác minh</th></tr></thead><tbody>
             """);

@@ -280,6 +280,7 @@ class SecurityConfigTests {
     @Import({SecurityConfig.class, SecurityErrorHandlers.class,
         DatabaseUserDetailsService.class, AuthenticationResponseHandlers.class, FixtureConfiguration.class})
     static class TestApplication {
+        @Bean com.ute.uteexpress.repository.UserAddressRepository userAddressRepository() { return mock(com.ute.uteexpress.repository.UserAddressRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketRepository supportTicketRepository() { return mock(com.ute.uteexpress.repository.SupportTicketRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketRouteRepository supportTicketRouteRepository() { return mock(com.ute.uteexpress.repository.SupportTicketRouteRepository.class); }
         @Bean com.ute.uteexpress.repository.SupportTicketAssignmentRepository supportTicketAssignmentRepository() { return mock(com.ute.uteexpress.repository.SupportTicketAssignmentRepository.class); }

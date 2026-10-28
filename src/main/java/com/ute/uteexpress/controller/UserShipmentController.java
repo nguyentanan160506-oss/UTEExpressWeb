@@ -67,7 +67,18 @@ public class UserShipmentController {
     public String branchChoices(@ModelAttribute("shipmentForm") ShipmentCreateForm form, BindingResult errors, Model model) {
         if (errors.getSuppressedFields().length > 0) { errors.reject("shipment.fields", "Yêu cầu chứa trường không được phép."); }
         if (!errors.hasErrors()) {
-            try { model.addAttribute("branchChoices", quotes.branchChoices(form)); }
+            try {
+                var choices = quotes.branchChoices(form);
+                model.addAttribute("branchChoices", choices);
+                if (choices.origins().isEmpty()) {
+                    errors.rejectValue("originBranchId", "shipment.coverage",
+                        "Không có chi nhánh gửi đang hoạt động phục vụ địa chỉ đã nhập với phương thức này. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã.");
+                }
+                if (choices.destinations().isEmpty()) {
+                    errors.rejectValue("destinationBranchId", "shipment.coverage",
+                        "Không có chi nhánh nhận đang hoạt động phục vụ địa chỉ đã nhập. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã.");
+                }
+            }
             catch (ShipmentCreationException failure) { errors.rejectValue(failure.getField(), "shipment.coverage", failure.getMessage()); }
         }
         return formPage(model);

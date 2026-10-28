@@ -15,6 +15,12 @@
         <div th:if="${options.services.empty}" class="alert alert-warning">
             Chưa có dịch vụ hoạt động để báo giá. Vui lòng liên hệ hỗ trợ.
         </div>
+        <aside th:if="${demoCoverageExamples != null}" class="alert alert-info" aria-label="Địa chỉ được phục vụ trong demo">
+            <p class="fw-semibold mb-1">Địa chỉ được phục vụ trong bản demo</p>
+            <p class="mb-1">Nhập đúng tỉnh/thành, quận/huyện và phường/xã theo một trong các địa bàn sau cho mỗi đầu gửi/nhận:</p>
+            <ul class="mb-1"><li th:each="example : ${demoCoverageExamples}" th:text="${example}"></li></ul>
+            <p class="mb-0">Sau khi nhập địa chỉ của cả hai đầu và chọn phương thức gửi, bấm “Tìm chi nhánh phục vụ”. Danh sách không tự cập nhật khi gõ.</p>
+        </aside>
         <section class="card shipment-card mb-4"><div class="card-body p-4">
             <h2 class="h5 fw-bold">Phương thức gửi hàng</h2>
             <label for="shipmentMethod" class="form-label">Chọn phương thức</label>
@@ -118,11 +124,17 @@
                     </div>
                     <div class="col-12">
                         <label for="destinationBranchId" class="form-label">Chi nhánh nhận <span class="text-danger" aria-hidden="true">*</span></label>
-                        <select id="destinationBranchId" th:field="*{destinationBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="destinationBranchId-error">
+                        <select id="destinationBranchId" th:field="*{destinationBranchId}" class="form-select" th:errorclass="is-invalid" required aria-describedby="destinationBranchId-help destinationBranchId-error">
                             <option value="">Chọn chi nhánh nhận</option>
                             <option th:each="option : ${branchChoices.destinations}" th:value="${option.id}" th:text="${option.name + ' · ' + option.province}"></option>
                         </select>
                         <div id="destinationBranchId-error" th:errors="*{destinationBranchId}" class="invalid-feedback"></div>
+                        <p id="destinationBranchId-help" class="form-text">
+                            Danh sách được tải sau khi chọn phương thức gửi, nhập đủ tỉnh/quận/phường của cả hai đầu và bấm “Tìm chi nhánh phục vụ”.
+                            Nếu đổi địa chỉ, hãy tìm lại chi nhánh trước khi xem báo giá.
+                        </p>
+                        <button type="submit" th:formaction="@{/user/shipments/branches}" formnovalidate
+                                class="btn btn-outline-primary mt-2">Tìm chi nhánh phục vụ</button>
                     </div>
                     <p class="small text-secondary mb-0">Chọn chi nhánh đang hoạt động thuộc tỉnh/thành đã nhập.</p>
                 </div></div></div></section>

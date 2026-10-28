@@ -26,6 +26,7 @@
             </span>
         </div>
         <form th:action="@{/logout}" method="post">
+            <a th:if="${#lists.contains(roles, 'ROLE_USER')}" th:href="@{/account/profile}" class="btn btn-outline-primary me-2">Hồ sơ và địa chỉ</a>
             <a th:if="${#lists.contains(roles, 'ROLE_USER')}" th:href="@{/account/support}" class="btn btn-outline-primary me-2">Hỗ trợ của tôi</a>
             <a th:if="${#lists.contains(roles, 'ROLE_USER')}" th:href="@{/user/shipments}" class="btn btn-primary me-2">Vận đơn của tôi</a>
             <a th:if="${#lists.contains(roles, 'ROLE_ADMIN')}" th:href="@{/admin}" class="btn btn-primary me-2">Quản trị tài khoản</a>

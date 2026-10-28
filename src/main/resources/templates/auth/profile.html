@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Hồ sơ và địa chỉ · UTEExpress</title><link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}"></head>
+<body><main class="container py-4">
+<a th:href="@{/account}">← Tài khoản</a> · <a th:href="@{/user/shipments/create}">Tạo vận đơn</a>
+<h1 class="h3 mt-3">Hồ sơ và địa chỉ</h1>
+<p th:if="${param.saved!=null}" class="alert alert-success" role="status">Đã lưu thay đổi.</p>
+<form th:action="@{/account/profile}" method="post" th:object="${profile}" class="card card-body mb-4">
+<h2 class="h5">Thông tin cá nhân</h2><p>Email đăng nhập: <span th:text="${account.email}"></span></p>
+<div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">Kiểm tra họ tên (tối đa 100 ký tự) và số điện thoại (8–20 ký tự).</div>
+<label for="fullName">Họ tên *</label><input class="form-control mb-2" id="fullName" th:field="*{fullName}" required maxlength="100">
+<label for="phoneNumber">Số điện thoại *</label><input class="form-control mb-2" id="phoneNumber" th:field="*{phoneNumber}" required minlength="8" maxlength="20">
+<p class="text-danger" th:errors="*{phoneNumber}"></p><button class="btn btn-primary align-self-start">Lưu hồ sơ</button></form>
+<h2 class="h5">Sổ địa chỉ</h2><p class="text-secondary">Địa chỉ đã lưu không tự thay đổi vận đơn hoặc báo giá đã xác nhận. Phạm vi phục vụ vẫn được kiểm tra khi tạo đơn.</p>
+<p th:if="${#lists.isEmpty(account.addresses)}">Bạn chưa lưu địa chỉ nào.</p>
+<article th:each="a:${account.addresses}" class="card card-body mb-3">
+<form th:action="@{/account/profile/addresses/{id}(id=${a.id})}" method="post" class="row g-2">
+<div class="col-md-6"><label th:for="${'name-'+a.id}">Người liên hệ *</label><input th:id="${'name-'+a.id}" class="form-control" name="contactName" th:value="${a.contactName}" required maxlength="100"></div>
+<div class="col-md-6"><label th:for="${'phone-'+a.id}">Điện thoại *</label><input th:id="${'phone-'+a.id}" class="form-control" name="contactPhone" th:value="${a.contactPhone}" required maxlength="20"></div>
+<div class="col-md-4"><label th:for="${'province-'+a.id}">Tỉnh/thành *</label><input th:id="${'province-'+a.id}" class="form-control" name="province" th:value="${a.province}" required maxlength="100"></div>
+<div class="col-md-4"><label th:for="${'district-'+a.id}">Quận/huyện *</label><input th:id="${'district-'+a.id}" class="form-control" name="district" th:value="${a.district}" required maxlength="100"></div>
+<div class="col-md-4"><label th:for="${'ward-'+a.id}">Phường/xã *</label><input th:id="${'ward-'+a.id}" class="form-control" name="ward" th:value="${a.ward}" required maxlength="100"></div>
+<div class="col-12"><label th:for="${'detail-'+a.id}">Địa chỉ chi tiết *</label><input th:id="${'detail-'+a.id}" class="form-control" name="detailAddress" th:value="${a.detailAddress}" required maxlength="255"></div>
+<div class="col-12"><label><input type="checkbox" name="defaultAddress" value="true" th:checked="${a.defaultAddress}"> Địa chỉ mặc định</label></div>
+<div class="col-12"><button class="btn btn-outline-primary">Cập nhật địa chỉ</button></div></form>
+<form th:action="@{/account/profile/addresses/{id}/delete(id=${a.id})}" method="post" class="mt-2"><button class="btn btn-outline-danger">Xóa địa chỉ</button></form></article>
+<section class="card card-body"><h2 class="h5">Thêm địa chỉ</h2>
+<p th:if="${addressError!=null}" th:text="${addressError}" class="alert alert-danger" role="alert"></p>
+<p th:if="${editAddressId!=null}" class="text-danger">Bản chỉnh sửa chưa được lưu; vui lòng sửa lại trong thẻ địa chỉ phía trên.</p>
+<form th:action="@{/account/profile/addresses}" method="post" class="row g-2">
+<div class="col-md-6"><label for="new-contact">Người liên hệ *</label><input id="new-contact" class="form-control" name="contactName" th:value="${address?.contactName}" required maxlength="100"></div>
+<div class="col-md-6"><label for="new-phone">Điện thoại *</label><input id="new-phone" class="form-control" name="contactPhone" th:value="${address?.contactPhone}" required maxlength="20"></div>
+<div class="col-md-4"><label for="new-province">Tỉnh/thành *</label><input id="new-province" class="form-control" name="province" th:value="${address?.province}" required maxlength="100"></div>
+<div class="col-md-4"><label for="new-district">Quận/huyện *</label><input id="new-district" class="form-control" name="district" th:value="${address?.district}" required maxlength="100"></div>
+<div class="col-md-4"><label for="new-ward">Phường/xã *</label><input id="new-ward" class="form-control" name="ward" th:value="${address?.ward}" required maxlength="100"></div>
+<div class="col-12"><label for="new-detail">Địa chỉ chi tiết *</label><input id="new-detail" class="form-control" name="detailAddress" th:value="${address?.detailAddress}" required maxlength="255"></div>
+<div class="col-12"><label><input type="checkbox" name="defaultAddress" value="true"> Địa chỉ mặc định</label></div>
+<div class="col-12"><button class="btn btn-primary">Thêm địa chỉ</button></div></form></section>
+</main></body></html>

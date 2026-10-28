@@ -1,117 +1,65 @@
 # UTEExpressWeb
 
-Ứng dụng logistics của nhóm An (Logistics), Thuận (Core/Admin/Security/Pricing/Notifications/Reports), Tân (User/Guest/Support).
-Java 21, Spring Boot 4.0.8, Security 7, Thymeleaf/Bootstrap, JPA/Hibernate 7, SQL Server Express, Flyway, WebSocket/STOMP.
+Website logistics phục vụ đồ án trên một laptop Windows: Guest, USER (shop và khách lẻ), MANAGER, SHIPPER, ADMIN. Spring Boot 4.0.8, Java 21, Thymeleaf/Bootstrap, Spring Security, JPA/Hibernate 7, SQL Server/Flyway và WebSocket.
 
-## Trạng thái Commit22
+Mục tiêu sản phẩm cuối: **SQL Server demo riêng có dữ liệu bền vững**, thao tác Chrome localhost. Không cần cloud, hosting hoặc tên miền. H2 memory là môi trường QA độc lập, không giữ tài khoản/vận đơn qua restart.
 
-**DEMO-READY cho một laptop Windows/Google Chrome/H2 localhost.** Browser headless thật350PASS/0FAIL/0BLOCKED,
-gồm hai vận đơn đi trọn logistics/giao thành công hoặc hoàn trả, SMTP OTP test-only và WebSocket UI nhiều phiên/reconnect.
-Full clean test/verify đều1.470tests/1.469passed/0failure/error/1skipped; JavaScript12/12, WebSocket regression17/17.
-Kịch bản cửa sổ Chrome và phạm vi: [demo script](docs/demo-script.md), [QA](docs/browser-qa.md), [release checklist](docs/release-checklist.md).
+**Commit 23 đang nghiệm thu:** tooling SQL demo đã chuẩn bị; chưa được cấp phép ghi/chưa kiểm thử persistence trên UTEExpress_Demo. Không suy ra SQL demo DEMO-READY từ Chrome/H2 PASS. Xem [audit sản phẩm](docs/final-product-audit.md) và [QA Commit 23](docs/final-website-qa.md).
 
-SQL V1–V13/Flyway/Hibernate/business smoke/JAR+HTTP đã PASS từ lượt trước; không dùng SQL Server trong nghiệm thu H2 cuối.
-Không cần SQL demo seed hoặc cloud/hosting/tên miền. **Production-ready chưa đạt** (SQL upgrade có dữ liệu/backup/TLS/load/real SMTP là scope riêng).
+## Chức năng
 
-## Nghiệp vụ và quyền
+- Guest đăng ký → OTP → đăng nhập; tracking công khai và báo giá không lộ dữ liệu riêng tư.
+- User quản lý hồ sơ/sổ địa chỉ; tạo HOME_PICKUP hoặc BRANCH_DROPOFF, xem báo giá trước xác nhận, lịch sử, timeline, support, notifications.
+- Manager xác nhận/phân công/nhận hàng, gom nhiều kiện, chuyến qua hub, biên nhận từng kiện, xử lý giao thất bại và hoàn.
+- Shipper lấy hàng, bàn giao độc lập cho chi nhánh, giao hàng, proof/failure/recovery.
+- Admin quản lý người dùng/quyền, catalog/bảng giá có version, reports/CSV/audit.
+- DB quyết định phí; quote có hạn/chủ sở hữu, snapshot và chống tạo lặp. Shop không có ROLE_VENDOR; Admin không tự kế thừa quyền vận hành.
 
-Shop và khách lẻ cùng `ROLE_USER`. USER báo giá và tạo vận đơn bằng HOME_PICKUP hoặc BRANCH_DROPOFF,
-xem lịch sử và gửi support ticket. Guest dùng `/tracking`, `/quote` và không được xem dữ liệu cá nhân vận đơn.
-MANAGER chỉ xử lý trong ManagerBranch; SHIPPER chỉ thao tác nhiệm vụ hợp lệ. ADMIN quản trị tài khoản,
-bảng giá, reports, CSV và audit, không tự có quyền MANAGER/SHIPPER/USER.
+## Cài đặt và khởi động Windows
 
-Mạng vận chuyển: chi nhánh nguồn → hub nguồn → hub đích → chi nhánh đích → giao người nhận.
-Pickup, tiếp nhận vật lý, manifest/receipt, giao thất bại, giao lại, hoàn và bàn giao người gửi có state machine/lịch sử.
-Giá lấy từ database, có phụ phí HOME_PICKUP, báo giá hết hạn và snapshot; không tính lại phí vận đơn cũ.
-Support tách PUBLIC/INTERNAL; notifications theo ownership và WebSocket chỉ gửi tín hiệu refresh.
+Cài JDK 21, SQL Server Express và SSMS; JAVA_HOME trỏ JDK 21. Maven Wrapper có sẵn; lần build đầu cần tải dependencies.
 
-## Yêu cầu và build
+Làm theo [SQL demo setup](docs/sql-demo-setup.md): chủ sở hữu tạo **UTEExpress_Demo**, login **uteexpress_demo** chỉ cho DB này; credential DPAPI ngoài Git. Sau khi được cho phép, chạy Inspect → Migrate V1–V13 trên DB trống → Seed mô phỏng một lần.
 
-Cài JDK 21, cấu hình JAVA_HOME đúng JDK; Maven Wrapper đã có. SQL Server Express cần database riêng được cấp phép.
-Node dùng cho ba JS suites; không cần npm install. Maven lần đầu cần tải dependency.
+Mỗi lần trình diễn chạy một script, chờ READY và mở Chrome:
 
 ```powershell
-java -version
-.\mvnw.cmd -version
-.\mvnw.cmd clean test
-.\mvnw.cmd verify
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\sql-demo.ps1 -Mode Run -ApprovedDatabase UTEExpress_Demo -Port 8081
+```
+
+Chỉ chạy sau khi được cho phép. Startup kiểm tra identity/checksum, Hibernate validate; không tự seed/migrate hoặc đổi target. Ctrl+C dừng ứng dụng; SQL data còn nguyên. Danh sách account và cách cấp mật khẩu ở [SQL demo setup](docs/sql-demo-setup.md). Đăng ký email mới @example.test, nhận OTP ở inbox ADMIN; SMTP giả lập chỉ loopback/test classpath, ngoài production JAR.
+
+Không chạy cấu hình dev để demo: application.properties hiện trỏ UTEExpressDB. Không dùng UTEExpressDB hoặc UTEExpress_Test làm demo. Script không dừng H2 đang chiếm cổng; có thể chọn 8083 nếu cần giữ phiên H2.
+
+## Build và QA riêng biệt
+
+```powershell
+.\mvnw.cmd clean test -Duteexpress.sqlserver.validate=false
+.\mvnw.cmd verify -Duteexpress.sqlserver.validate=false
 .\mvnw.cmd -DskipTests compile
 git diff --check
 node src/test/js/notifications.test.mjs
 node src/test/js/operations.test.mjs
 node src/test/js/reports.test.mjs
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\browser-qa.ps1
 ```
 
-`verify` chạy Surefire và đóng gói `target/uteexpress-0.0.1-SNAPSHOT.jar`; không ngầm kiểm thử SQL Server.
-Test schema-validation SQL Server cũ là opt-in, dùng Windows integrated authentication, không phù hợp SQL Authentication
-của môi trường này. Không bật tùy tiện; dùng quy trình SQL QA riêng bên dưới.
+Browser runner dùng Chrome headless và H2 mới ở 18082, dừng tiến trình riêng, không dùng SQL credentials. Không cần Playwright/Selenium/npm. Nếu không có Node CLI, có thể chạy JS suites bằng Node runtime giữ nguyên assertions; ghi rõ trong báo cáo. Opt-in SQL test cũ tắt trong unit/regression để tránh cấu hình dev.
 
-## Cấu hình SQL Server và chạy JAR
-
-Xem [quy trình SQL Server](docs/sql-server-validation.md) trước. Cấu hình dev hiện trỏ tới UTEExpressDB;
-**không dùng database này làm test/demo**. Không commit `.env`, mật khẩu, backup hoặc runtime logs.
-
-Chỉ sau khi xác nhận database test/demo và phạm vi migration, dùng profile `release` với biến môi trường:
-
-| Biến | Ý nghĩa |
-|---|---|
-| DB_URL | JDBC URL đầy đủ, database được cấp phép; không chứa username/password/token |
-| DB_USERNAME, DB_PASSWORD | SQL Authentication, nhận từ môi trường/secret store ngoài Git |
-| SPRING_PROFILES_ACTIVE | `release` khi chạy JAR bằng cấu hình triển khai |
-| SESSION_COOKIE_SECURE | Mặc định `true`; chỉ đặt `false` cho HTTP localhost cô lập |
-| SERVER_PORT | Tùy chọn, mặc định 8080 |
-| MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM | Cấu hình email/OTP thật ngoài Git |
-| MAIL_SMTP_AUTH, MAIL_STARTTLS, MAIL_SSL | Theo nhà cung cấp SMTP; không tắt TLS tùy tiện |
-
-Không đặt giá trị credential trong command arguments hoặc tài liệu. Có thể cấp password trong PowerShell bằng
-`Read-Host -AsSecureString`, chuyển vào biến môi trường của tiến trình rồi xóa biến khi xong; không ghi file.
+H2 để QA nhanh (mất dữ liệu khi tắt):
 
 ```powershell
-# Chỉ chạy sau khi target/migration được cho phép; DB_URL/credentials đã được cấp ngoài Git.
-$env:SPRING_PROFILES_ACTIVE = 'release'
-java -jar target/uteexpress-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1 --debug=false
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\release-tools.ps1 -Mode Demo -Port 8083 -TestMail
 ```
 
-Profile release giữ Flyway enabled/checksum validation, cấm clean và baseline tự động; Hibernate `validate`,
-không update/create schema. Tắt SQL/bind logging, stack trace client và H2 console; cookie HttpOnly/SameSite=Lax.
-JAR khởi động sẽ áp dụng migration chưa chạy: phải xác nhận quyền migration trước lệnh trên.
-Public deployment cần HTTPS thật và cookie Secure; không coi HTTP localhost là cấu hình production.
+H2, seeder, fake SMTP và demo launcher không nằm trong target/uteexpress-0.0.1-SNAPSHOT.jar. JAR production dùng cấu hình release/SMTP thật được cấp riêng; HTTP localhost không phải cấu hình production Internet.
 
-Mở `/`: ứng dụng chuyển đến `/tracking` công khai. Các trang `/login`, `/register`, `/quote` cũng dành cho Guest; route nghiệp vụ vẫn yêu cầu đúng quyền.
-Không có Admin mặc định khi startup; cấp tài khoản quản trị theo quy trình quản trị đã được phê duyệt.
+## Tài liệu
 
-## Demo cục bộ, không cần SQL Server
+- [Audit và chức năng → class/method](docs/final-product-audit.md).
+- [Windows, SQL demo, credential, seed, persistence checklist](docs/sql-demo-setup.md).
+- [Kịch bản trình diễn](docs/demo-script.md), [sơ đồ tái sử dụng trong Word](docs/product-diagrams.md).
+- [QA Commit 23](docs/final-website-qa.md), [Browser QA](docs/browser-qa.md), [release checklist](docs/release-checklist.md).
+- [SQL Server validation Commit 22](docs/sql-server-validation.md), [điều tra dropdown](docs/branch-dropdown-qa.md).
 
-[Demo setup](docs/demo-setup.md) có tài khoản giả và 18 scenario. Chạy tường minh:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\release-tools.ps1 -Mode Demo -Port 8081 -TestMail
-```
-
-Bypass chỉ cho tiến trình chạy script repo đã review, không đổi ExecutionPolicy toàn máy. Nếu chính sách tổ chức cấm,
-không thay đổi chính sách; dùng các lệnh Maven/Java trực tiếp trong demo setup hoặc nhờ quản trị viên.
-Script hỏi password riêng bằng secure prompt nếu chưa có UTE_DEMO_PASSWORD. Không in/lưu password.
-Đây là **H2 memory demo** qua test classpath, chỉ bind 127.0.0.1; không chạy Flyway hoặc chứng minh tương thích SQL Server.
-Seeder chỉ chạy từ test entry point được chọn rõ ràng; H2, seeder và credential demo không nằm trong JAR release.
-Tắt tiến trình rồi chạy lại tạo một memory database mới; không cần xóa/reset database hiện hữu.
-
-## Tài liệu và giới hạn
-
-- [QA cuối](docs/final-qa-report.md), [release gates](docs/release-checklist.md), [Browser QA/runner](docs/browser-qa.md):350 PASS/0 FAIL/0 BLOCKED trên Chrome headless/H2.
-- [SQL Server validation](docs/sql-server-validation.md), [demo setup](docs/demo-setup.md), [kịch bản trình diễn/UI QA](docs/demo-script.md).
-- [Security integration](docs/security-system-integration-testing.md), [logistics integration](docs/logistics-integration-testing.md).
-
-SQL Server fresh/upgrade, mapping/concurrency và startup JAR với SQL Server phải có bằng chứng riêng.
-HTTP integration không phải browser E2E; WebSocket regression cũ có network thật nhưng persistence mock.
-H2 demo không gửi email ra ngoài, vì vậy register/OTP gửi SMTP không nằm trong demo đã nghiệm thu.
-Owner shipment timeline content policy, thu hồi mọi session/in-flight ngay lập tức, report snapshot dưới writer và
-TLS/broker/phân tán vẫn cần review trước public production.
-
-Lỗi thường gặp: JAVA_HOME và java trên PATH khác JDK; Maven metadata Flyway HTTP 401; cổng bận;
-thiếu DB/SMTP env; SQL login không được map vào đúng database; thiếu bảng giá/phạm vi phục vụ;
-cookie Secure trên HTTP localhost không được trình duyệt gửi. Không chữa bằng tắt CSRF, validate hoặc reset DB.
-
-## Phạm vi đồ án đã nghiệm thu
-
-DEMO-READY cho một laptop Windows/Google Chrome/H2 localhost: hai hành trình logistics nhất quán, SMTP/OTP test-only và WebSocket UI đã chạy browser thật. Production-ready là phạm vi riêng, không cần cloud/hosting/tên miền để đóng Commit22. Xem [release checklist](docs/release-checklist.md).
--TestMail bật SMTP loopback dành H2, inbox chỉAdmin tại /admin/demo-mailbox; register dùng email mới @example.test, không SMTP cá nhân và không bỏ OTP. Tooling này không vào release JAR.
+Không có bản đồ/danh mục địa danh toàn quốc, thanh toán online hoặc bảo hiểm thương mại. Backup/restore, TLS, SMTP thật, tải lớn, giám sát và upgrade checksum cũ cần đánh giá riêng trước production. Không tự repair migration hoặc reset DB để vượt lỗi.
