@@ -12,6 +12,7 @@ ALTER TABLE dbo.support_tickets ADD handling_branch_id BIGINT NULL,
     closed_at DATETIME2(7) NULL,
     warning_due_at DATETIME2(7) NULL,
     version BIGINT NOT NULL CONSTRAINT DF_support_tickets_version DEFAULT (0);
+GO
 
 ALTER TABLE dbo.support_tickets ADD CONSTRAINT FK_support_tickets_branch FOREIGN KEY (handling_branch_id) REFERENCES dbo.branches (id) ON DELETE NO ACTION;
 
@@ -116,6 +117,7 @@ CREATE INDEX IX_support_ticket_events_work ON dbo.support_ticket_events (process
 CREATE UNIQUE INDEX UX_support_ticket_assignments_current ON dbo.support_ticket_assignments (ticket_id) WHERE ended_at IS NULL;
 
 ALTER TABLE dbo.notifications ADD source_ticket_event_id BIGINT NULL, related_ticket_id BIGINT NULL;
+GO
 
 ALTER TABLE dbo.notifications ADD CONSTRAINT FK_notifications_ticket_event FOREIGN KEY (source_ticket_event_id) REFERENCES dbo.support_ticket_events (id) ON DELETE NO ACTION;
 

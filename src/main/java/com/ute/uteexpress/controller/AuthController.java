@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AuthController {
 
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/tracking";
+    }
+
     @GetMapping("/login")
     public String login(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()

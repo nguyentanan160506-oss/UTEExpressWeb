@@ -168,17 +168,20 @@ CREATE UNIQUE INDEX UX_delivery_recoveries_received ON dbo.delivery_recoveries (
 
 ALTER TABLE dbo.shipments ADD delivered_at DATETIME2(7) NULL;
 ALTER TABLE dbo.shipments ADD returned_at DATETIME2(7) NULL;
+GO
 ALTER TABLE dbo.shipments ADD CONSTRAINT CK_shipments_delivered_time CHECK (delivered_at IS NULL OR status = 'DELIVERED');
 ALTER TABLE dbo.shipments ADD CONSTRAINT CK_shipments_returned_time CHECK (returned_at IS NULL OR status = 'RETURNED');
 ALTER TABLE dbo.delivery_attempts ADD assignment_id BIGINT NULL;
 ALTER TABLE dbo.delivery_attempts ADD actor_id BIGINT NULL;
 ALTER TABLE dbo.delivery_attempts ADD failure_code VARCHAR(30) NULL;
 ALTER TABLE dbo.delivery_attempts ADD started_at DATETIME2(7) NULL;
+GO
 ALTER TABLE dbo.delivery_attempts ADD CONSTRAINT FK_delivery_attempts_assignment FOREIGN KEY (assignment_id) REFERENCES dbo.shipment_assignments (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.delivery_attempts ADD CONSTRAINT FK_delivery_attempts_actor FOREIGN KEY (actor_id) REFERENCES dbo.users (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.delivery_attempts ADD CONSTRAINT CK_delivery_attempts_code CHECK (failure_code IS NULL OR failure_code IN ('UNREACHABLE', 'ABSENT', 'REFUSED', 'INVALID_ADDRESS', 'OPERATIONAL', 'DAMAGED'));
 ALTER TABLE dbo.delivery_attempts ADD CONSTRAINT CK_delivery_attempts_context CHECK ((assignment_id IS NULL AND actor_id IS NULL AND failure_code IS NULL AND started_at IS NULL) OR (assignment_id IS NOT NULL AND actor_id IS NOT NULL AND started_at IS NOT NULL AND ((status = 'SUCCESS' AND failure_code IS NULL) OR (status = 'FAILED' AND failure_code IS NOT NULL AND failure_reason IS NOT NULL))));
 CREATE INDEX IX_delivery_attempts_assignment ON dbo.delivery_attempts (assignment_id, attempt_time DESC);
 ALTER TABLE dbo.transport_trip_items ADD return_request_id BIGINT NULL;
+GO
 ALTER TABLE dbo.transport_trip_items ADD CONSTRAINT FK_trip_items_return_request FOREIGN KEY (return_request_id) REFERENCES dbo.return_requests (id) ON DELETE NO ACTION;
 CREATE INDEX IX_trip_items_return_request ON dbo.transport_trip_items (return_request_id);

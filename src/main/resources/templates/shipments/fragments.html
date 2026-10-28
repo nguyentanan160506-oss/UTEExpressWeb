@@ -26,6 +26,6 @@
     </div>
 </nav>
 <span th:fragment="status(value)" class="badge rounded-pill shipment-status"
-      th:classappend="${'status-' + value.name().toLowerCase()}" th:text="${statusLabels[value]}"></span>
+      th:classappend="${'status-' + value.name().toLowerCase()}" th:text="${statusLabels.get(value)}"></span>
 </body>
 </html>

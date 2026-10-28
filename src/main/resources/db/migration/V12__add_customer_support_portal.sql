@@ -19,6 +19,7 @@ CREATE TABLE dbo.support_ticket_routes (
 );
 
 ALTER TABLE dbo.support_ticket_messages ADD request_token VARCHAR(32) NULL, request_fingerprint VARCHAR(64) NULL;
+GO
 
 ALTER TABLE dbo.support_ticket_messages ADD CONSTRAINT CK_support_ticket_messages_request CHECK ((request_token IS NULL AND request_fingerprint IS NULL) OR (request_token IS NOT NULL AND LEN(request_token) = 32 AND request_fingerprint IS NOT NULL AND LEN(request_fingerprint) = 64 AND kind = 'PUBLIC'));
 

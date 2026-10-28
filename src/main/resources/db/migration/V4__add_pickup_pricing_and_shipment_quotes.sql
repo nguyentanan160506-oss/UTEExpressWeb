@@ -96,6 +96,7 @@ CREATE INDEX IX_shipment_quotes_expiry ON dbo.shipment_quotes (expires_at, consu
 -- NULL preserves legacy fees/methods without inventing a zero pickup snapshot.
 ALTER TABLE dbo.shipments ADD pickup_fee DECIMAL(18,2) NULL;
 ALTER TABLE dbo.shipments ADD quote_id BIGINT NULL;
+GO
 ALTER TABLE dbo.shipments ADD CONSTRAINT FK_shipments_quote FOREIGN KEY (quote_id) REFERENCES dbo.shipment_quotes (id) ON DELETE NO ACTION;
 CREATE UNIQUE INDEX UX_shipments_quote_nonnull ON dbo.shipments (quote_id) WHERE quote_id IS NOT NULL;
 ALTER TABLE dbo.shipments ADD CONSTRAINT CK_shipments_pickup_fee CHECK (pickup_fee IS NULL OR pickup_fee >= 0);

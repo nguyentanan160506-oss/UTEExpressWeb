@@ -78,7 +78,7 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(readOnlyStaticResources).permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/", "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/tracking").permitAll()
                 .requestMatchers(HttpMethod.GET, "/quote").permitAll()
                 .requestMatchers(HttpMethod.POST, "/quote", "/quote/branches").permitAll()

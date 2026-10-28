@@ -83,6 +83,18 @@ class UserShipmentControllerTests {
         verify(shipments, never()).options();
     }
 
+    @Test @WithMockUser(roles = "USER")
+    void browserTransportHeadersDoNotBecomeSuppressedFormFieldsOrSupplyBusinessInputs() throws Exception {
+        when(quotes.quote(any())).thenReturn(TOKEN);
+        mvc.perform(post("/user/shipments/quotes").with(csrf()).params(params())
+                .header("Sec-Fetch-Site", "same-origin").header("Sec-Fetch-Mode", "navigate")
+                .header("Sec-CH-UA", "Browser QA").header("Origin", "http://127.0.0.1:18082")
+                .header("ServiceId", "999").header("TotalFee", "0"))
+            .andExpect(redirectedUrl("/user/shipments/quotes/" + TOKEN));
+        var captured=org.mockito.ArgumentCaptor.forClass(ShipmentCreateForm.class);
+        verify(quotes).quote(captured.capture());assertEquals(21L,captured.getValue().getServiceId());
+    }
+
     @Test @WithMockUser(roles = {"ADMIN", "USER"})
     void explicitUserRoleAllowsMultiRoleAccount() throws Exception {
         mvc.perform(get("/user/shipments/create")).andExpect(status().isOk());

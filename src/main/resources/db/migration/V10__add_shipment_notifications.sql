@@ -8,6 +8,7 @@ ALTER TABLE dbo.shipment_events ADD notification_enabled BIT NOT NULL CONSTRAINT
     notification_assignee_user_id BIGINT NULL,
     notification_previous_user_id BIGINT NULL,
     notification_assignment_status VARCHAR(30) NULL;
+GO
 ALTER TABLE dbo.shipment_events ADD CONSTRAINT CK_shipment_events_notification_assignment_status CHECK (notification_assignment_status IS NULL OR notification_assignment_status IN ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED'));
 ALTER TABLE dbo.shipment_events ADD CONSTRAINT FK_shipment_events_notification_assignment FOREIGN KEY (notification_assignment_id) REFERENCES dbo.shipment_assignments (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.shipment_events ADD CONSTRAINT FK_shipment_events_notification_previous_assignment FOREIGN KEY (notification_previous_assignment_id) REFERENCES dbo.shipment_assignments (id) ON DELETE NO ACTION;
@@ -23,6 +24,7 @@ ALTER TABLE dbo.notifications ADD source_event_id BIGINT NULL,
     delivered_at DATETIME2(7) NULL,
     delivery_retry_at DATETIME2(7) NULL,
     delivery_attempts INT NOT NULL CONSTRAINT DF_notifications_delivery_attempts DEFAULT (0);
+GO
 ALTER TABLE dbo.notifications ADD CONSTRAINT FK_notifications_source_event FOREIGN KEY (source_event_id) REFERENCES dbo.shipment_events (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.notifications ADD CONSTRAINT FK_notifications_scope_branch FOREIGN KEY (scope_branch_id) REFERENCES dbo.branches (id) ON DELETE NO ACTION;
 ALTER TABLE dbo.notifications ADD CONSTRAINT FK_notifications_assignment FOREIGN KEY (assignment_id) REFERENCES dbo.shipment_assignments (id) ON DELETE NO ACTION;
