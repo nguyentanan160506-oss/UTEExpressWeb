@@ -3,12 +3,13 @@
 <head th:replace="~{shipments/fragments :: head('Tạo vận đơn · UTEExpress')}"></head>
 <body>
 <nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container shipment-shell py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container shipment-shell py-4 py-md-5">
     <a th:href="@{/user/shipments}" class="small text-decoration-none">← Lịch sử vận đơn</a>
     <p class="shipment-eyebrow mt-4 mb-2">GỬI HÀNG CÙNG UTEEXPRESS</p>
     <h1 class="h2 fw-bold mb-2">Tạo vận đơn</h1>
     <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Xem báo giá trước khi xác nhận tạo vận đơn.</p>
     <p><a th:href="@{/quote}">Ước tính giá toàn quốc theo tỉnh/thành và trọng lượng</a>. Tạo đơn tại đây vẫn cần chi nhánh và vùng phục vụ hợp lệ.</p>
+    <ol class="step-strip" aria-label="Các bước gửi hàng"><li aria-current="step">Nhập thông tin &amp; tìm chi nhánh</li><li>Xem báo giá</li><li>Xác nhận vận đơn</li></ol>
     <form th:action="@{/user/shipments/quotes}" th:object="${shipmentForm}" method="post">
         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
             <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="mb-0"></p>

@@ -1,6 +1,6 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
 <span th:fragment="bell" data-notification-widget th:data-base="@{/}" class="d-inline-flex align-items-center gap-1">
-    <a th:href="@{/notifications}" class="btn btn-sm btn-light" aria-label="Thông báo">&#128276; Thông báo
+    <a th:href="@{/notifications}" class="btn btn-sm btn-light" aria-label="Thông báo"><svg th:replace="~{layout/fragments :: icon('bell')}"></svg> Thông báo
         <span data-notification-count class="badge text-bg-danger" aria-live="polite" aria-atomic="true" hidden>0</span></a>
     <span data-notification-connection class="small visually-hidden" role="status"></span>
     <script th:src="@{/js/notifications.js}" defer></script>

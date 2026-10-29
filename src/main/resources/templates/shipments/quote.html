@@ -3,12 +3,13 @@
 <head th:replace="~{shipments/fragments :: head('Xác nhận báo giá · UTEExpress')}"></head>
 <body>
 <nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container shipment-shell py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container shipment-shell py-4 py-md-5">
     <a th:href="@{/user/shipments/create}" class="small">← Nhập lại thông tin và lấy báo giá mới</a>
     <p class="shipment-eyebrow mt-4 mb-2">KIỂM TRA TRƯỚC KHI GỬI HÀNG</p>
     <h1 class="h2 fw-bold">Báo giá vận chuyển</h1>
     <div th:if="${error != null}" class="alert alert-danger" role="alert" th:text="${error}"></div>
     <p class="text-secondary">Thông tin và chi phí dưới đây được lưu tại server. Xác nhận sẽ tạo một vận đơn với báo giá này.</p>
+    <ol class="step-strip" aria-label="Các bước gửi hàng"><li>Nhập thông tin &amp; tìm chi nhánh</li><li aria-current="step">Xem báo giá</li><li>Xác nhận vận đơn</li></ol>
     <div class="row g-4">
         <section class="col-lg-7"><div class="card shipment-card"><div class="card-body p-4">
             <h2 class="h5 fw-bold" th:text="${quote.shipmentMethod.name() == 'HOME_PICKUP' ? 'Lấy hàng tận nhà' : 'Mang hàng đến chi nhánh'}"></h2>
@@ -32,7 +33,7 @@
             </dl>
             <p th:if="${quote.note != null}" class="shipment-note mt-3" th:text="${quote.note}"></p>
         </div></div></section>
-        <section class="col-lg-5"><div class="card shipment-card"><div class="card-body p-4">
+        <section class="col-lg-5"><div class="card shipment-card price-summary"><div class="card-body p-4">
             <h2 class="h5 fw-bold">Chi tiết báo giá</h2>
             <dl class="row mt-4">
                 <th:block th:if="${quote.breakdown != null}">

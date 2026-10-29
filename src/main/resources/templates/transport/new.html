@@ -1,10 +1,10 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Tạo chuyến vận chuyển')}"></head><body>
-<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<head th:replace="~{shipments/fragments :: head('Tạo chuyến vận chuyển')}"></head><body class="workspace-page">
+<nav th:replace="~{manager/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4">
 <div th:replace="~{transport/fragments :: nav}"></div><div th:replace="~{shipper/fragments :: messages}"></div>
 <h1 class="h3">Tạo chuyến theo tuyến đã cấu hình</h1>
 <p>Chọn tuyến đang hoạt động có điểm xuất phát thuộc phạm vi quản lý. Thêm kiện và niêm phong sau khi tạo chuyến.</p>
-<p th:if="${routes.empty}" class="alert alert-warning">Chưa có tuyến hoạt động phù hợp. Cần cấu hình tuyến và liên kết hub hợp lệ trước khi tạo chuyến.</p>
+<p th:if="${routes.empty}" class="empty-state alert alert-warning">Chưa có tuyến hoạt động phù hợp. Cần cấu hình tuyến và liên kết hub hợp lệ trước khi tạo chuyến.</p>
 <form th:unless="${routes.empty}" th:action="@{/manager/trips}" method="post" class="card p-3">
     <input type="hidden" name="requestToken" th:value="${requestToken}">
     <label for="routeId" class="form-label">Tuyến vận chuyển</label><select id="routeId" name="routeId" required class="form-select mb-3">

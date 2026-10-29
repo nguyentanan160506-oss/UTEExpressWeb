@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
-<title>Hồ sơ và địa chỉ · UTEExpress</title><link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}"></head>
-<body><main class="container py-4">
+<title>Hồ sơ và địa chỉ · UTEExpress</title><link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
+</head>
+<body>
+<nav th:replace="~{shipments/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4">
 <a th:href="@{/account}">← Tài khoản</a> · <a th:href="@{/user/shipments/create}">Tạo vận đơn</a>
 <h1 class="h3 mt-3">Hồ sơ và địa chỉ</h1>
 <p th:if="${param.saved!=null}" class="alert alert-success" role="status">Đã lưu thay đổi.</p>

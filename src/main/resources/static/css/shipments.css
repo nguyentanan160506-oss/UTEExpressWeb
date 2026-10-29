@@ -1,21 +1,6 @@
-body { min-height: 100vh; background: #f2f5fb; color: #17243d; }
-.shipment-nav { background: #14306b; }
+/* Shipment content; navigation, status and timeline components are shared in ui.css. */
 .shipment-shell { max-width: 1160px; }
-.shipment-eyebrow { color: #1746a2; font-size: .75rem; font-weight: 700; letter-spacing: .1em; }
-.shipment-card { border: 1px solid #e0e7f3; border-radius: 1rem; box-shadow: 0 8px 24px rgb(24 46 87 / 4%); }
-.shipment-table th, .shipment-table td { padding: 1rem; }
-.shipment-status { background: #e5edff; color: #16418c; padding: .5rem .75rem; white-space: normal; }
-.status-delivered { background: #d8f3e7; color: #105939; }
-.status-cancelled, .status-delivery_failed, .status-returned { background: #fbe2e4; color: #852b37; }
-.status-returning, .status-out_for_delivery { background: #fff0cf; color: #775300; }
-.shipment-timeline { list-style: none; padding-left: 1.4rem; margin-left: .3rem; border-left: 2px solid #d4e1fa; }
-.shipment-timeline li { position: relative; padding: 0 0 1.75rem .5rem; }
-.shipment-timeline li::before { content: ""; position: absolute; left: -1.8rem; top: .35rem; width: .7rem; height: .7rem; border-radius: 50%; background: #1746a2; box-shadow: 0 0 0 4px #edf2fd; }
 .shipment-contact { line-height: 1.8; overflow-wrap: anywhere; }
 .shipment-note { white-space: pre-wrap; overflow-wrap: anywhere; }
 .shipment-card dd { overflow-wrap: anywhere; }
-@media (max-width: 575.98px) {
-    .shipment-nav .brand-name { font-size: 1.35rem; }
-    .shipment-nav a, .shipment-nav button { font-size: .85rem; }
-    .shipment-table th, .shipment-table td { padding: .75rem; }
-}
+.shipment-table td:first-child { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; }

@@ -161,7 +161,8 @@ class SecurityConfigTests {
 
     @Test
     void productionChainAllowsExplicitPublicRootAndDeniesUndeclaredRoutes() throws Exception {
-        mvc.perform(get("/")).andExpect(redirectedUrl("/tracking"));
+        mvc.perform(get("/")).andExpect(status().isOk()).andExpect(view().name("home/index"))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("name=\"trackingNumber\"")));
         mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
         for (String path : List.of("/unmapped", "/manager", "/api/unmapped")) {
             mvc.perform(get(path).accept(MediaType.APPLICATION_JSON))

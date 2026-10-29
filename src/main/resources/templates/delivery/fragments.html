@@ -5,7 +5,7 @@
     <strong th:text="${dispatchLabels[value.status]}"></strong><p>Chuẩn bị: <span th:text="${value.preparedBy}"></span> · <span th:text="${value.preparedAt}"></span> UTC</p>
     <p>Tham chiếu: <span th:text="${value.reference}"></span></p><p>Thực nhận: <span th:text="${value.acceptedBy}"></span> · <span th:text="${value.acceptedAt}"></span> UTC</p>
     <p>Bắt đầu lần giao: <span th:text="${value.startedAt}"></span> UTC</p></section>
-<section th:fragment="attempts(values)" class="mb-4"><h2 class="h5">Lịch sử các lần thử giao · UTC</h2><p th:if="${values.empty}">Chưa ghi nhận kết quả lần giao.</p>
+<section th:fragment="attempts(values)" class="mb-4"><h2 class="h5">Lịch sử các lần thử giao · UTC</h2><p th:if="${values.empty}" class="empty-state">Chưa ghi nhận kết quả lần giao.</p>
     <article th:each="a : ${values}" class="card p-3 mb-2"><h3 class="h6" th:text="|Lần ${a.number} · ${a.status.name() == 'SUCCESS' ? 'Thành công' : 'Thất bại'}|"></h3>
         <p th:if="${a.code != null}" th:text="${failureLabels[a.code]}"></p><p th:text="${a.reason}"></p><p th:text="${a.notes}"></p>
         <p>Bắt đầu: <span th:text="${a.startedAt}"></span> · Kết quả: <span th:text="${a.attemptedAt}"></span></p></article></section>

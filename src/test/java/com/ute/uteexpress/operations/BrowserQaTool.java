@@ -99,6 +99,12 @@ public final class BrowserQaTool implements AutoCloseable {
     void nav(String path)throws Exception {if(!path.startsWith("/")||path.startsWith("//"))throw new IllegalArgumentException("Local path only");call("Page.navigate",Map.of("url",BASE+path));waitPage();}
     String text()throws Exception{return js("document.body.innerText").asText();}
     String location()throws Exception{return js("location.pathname").asText();}
+    JsonNode failureDiagnostic()throws Exception {
+        // Never serialize form values, cookies, headers, HTML or WebSocket frames.
+        var diagnostic=js("(()=>{const path=p=>p.replace(/\\/quotes\\/[^/?]+/g,'/quotes/[redacted]');return {path:path(location.pathname),http:performance.getEntriesByType('navigation')[0]?.responseStatus,invalidFields:[...document.querySelectorAll('input:invalid,select:invalid,textarea:invalid')].map(e=>e.name),forms:[...document.querySelectorAll('form')].map(f=>({path:path(new URL(f.action).pathname),method:f.method,fields:[...f.elements].map(e=>e.name).filter(Boolean)})),alerts:[...document.querySelectorAll('.alert-danger,.invalid-feedback')].map(e=>e.innerText.trim()).filter(Boolean).map(t=>t.slice(0,300))};})()");
+        requireRedactedReport(JSON.writeValueAsString(diagnostic),runtimeSecrets);
+        return diagnostic;
+    }
     void result(String name,boolean ok,String detail){cases.add(Map.of("name",name,"status",ok?"PASS":"FAIL","detail",detail));System.out.println((ok?"PASS ":"FAIL ")+name);}
     void blocked(String name,String reason){cases.add(Map.of("name",name,"status","BLOCKED","detail",reason));}
     void page(String name,String path,int status,String contains)throws Exception {
@@ -241,7 +247,7 @@ public final class BrowserQaTool implements AutoCloseable {
             var screenshot=call("Page.captureScreenshot",Map.of("format","png"));Path dir=Path.of(System.getenv().getOrDefault("UTE_BROWSER_EVIDENCE_DIR",System.getProperty("java.io.tmpdir")));Files.createDirectories(dir);Files.write(dir.resolve("uteexpress-tracking-"+width+".png"),Base64.getDecoder().decode(screenshot.path("data").asText()));
         }
     }
-    void run()throws Exception {guest();new BrowserNationwidePricingJourney(this).guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();new BrowserNationwidePricingJourney(this).admin();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
+    void run()throws Exception {guest();new BrowserNationwidePricingJourney(this).guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();new BrowserNationwidePricingJourney(this).admin();if("YES".equals(System.getenv("UTE_UI_POLISH_QA")))new BrowserUiPolishJourney(this).run();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
     public void close(){
         if(!ownedContexts.isEmpty()){
             try{
@@ -254,13 +260,15 @@ public final class BrowserQaTool implements AutoCloseable {
     }
     public static void main(String[] args)throws Exception {
         if(args.length!=0||!"YES".equals(System.getenv("UTE_BROWSER_H2_CONFIRMED")))throw new IllegalArgumentException("Explicit local H2 operator confirmation required");
-        var qa=new BrowserQaTool(System.getenv("UTE_DEMO_PASSWORD"));String aborted=null;
-        try{qa.run();}catch(Exception failure){aborted=failure.getClass().getSimpleName()+": "+failure.getMessage();qa.blocked("Automation completed all planned steps","Interrupted: "+aborted);System.out.println("AUTOMATION BLOCKED "+aborted);}
+        var qa=new BrowserQaTool(System.getenv("UTE_DEMO_PASSWORD"));String aborted=null;JsonNode diagnostic=null;
+        try{qa.run();}catch(Exception failure){aborted=failure.getClass().getSimpleName()+": "+failure.getMessage();qa.blocked("Automation completed all planned steps","Interrupted: "+aborted);System.out.println("AUTOMATION BLOCKED "+aborted);try{diagnostic=qa.failureDiagnostic();}catch(Exception ignored){/* Diagnostics are optional and must never weaken secret redaction. */}}
         finally{qa.close();}
         Map<String,Object> report=new LinkedHashMap<>();report.put("executedAt",Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString());report.put("target",BASE);report.put("browser","Chrome headless via native Java 21 CDP WebSocket; isolated TEMP profile");report.put("database","Disposable H2 demo; no JDBC/SQL Server calls in this runner");report.put("cases",qa.cases);report.put("javascriptErrorCount",qa.javascriptErrors.size());report.put("serverErrors",qa.serverErrors);report.put("aborted",aborted);
+        if(diagnostic!=null)report.put("interruptionDiagnostic",diagnostic);
         requireRedactedReport(JSON.writeValueAsString(report),qa.runtimeSecrets);
         report.put("runtimeSecretCheck","PASS");qa.runtimeSecrets.clear();
-        Files.writeString(Path.of("docs/browser-qa-results.json"),JSON.writerWithDefaultPrettyPrinter().writeValueAsString(report)+"\n");
+        Path reportFile=Path.of("YES".equals(System.getenv("UTE_UI_POLISH_QA"))?"docs/commit26-browser-results.json":"docs/browser-qa-results.json");
+        Files.writeString(reportFile,JSON.writerWithDefaultPrettyPrinter().writeValueAsString(report)+"\n");
         for(String state:List.of("PASS","FAIL","BLOCKED"))System.out.println(state+"="+qa.cases.stream().filter(c->state.equals(c.get("status"))).count());
         if(aborted!=null||qa.cases.stream().anyMatch(c->"FAIL".equals(c.get("status"))))System.exit(2);
     }

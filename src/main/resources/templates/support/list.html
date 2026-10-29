@@ -1,13 +1,13 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{shipments/fragments :: head('Hỗ trợ của tôi · UTEExpress')}"></head>
 <body class="bg-light"><nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container py-4 py-md-5">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><p class="shipment-eyebrow">CHĂM SÓC KHÁCH HÀNG</p><h1 class="h3">Yêu cầu hỗ trợ của tôi</h1></div><a class="btn btn-primary" th:href="@{/account/support/new}">Tạo yêu cầu mới</a></div>
     <p class="text-secondary">Theo dõi và trao đổi với chi nhánh về vận đơn của bạn. Thời gian hiển thị theo UTC.</p>
     <form method="get" th:action="@{/account/support}" class="d-flex flex-wrap align-items-end gap-2 mb-4">
         <div><label for="filter" class="form-label">Trạng thái xử lý</label><select name="filter" id="filter" class="form-select"><option th:each="item : ${filters}" th:value="${item}" th:selected="${item == filter}" th:text="${labels.filter(item)}"></option></select></div><button class="btn btn-outline-primary" type="submit">Lọc yêu cầu</button>
     </form>
-    <p th:if="${tickets.empty}" class="alert alert-info">Chưa có yêu cầu hỗ trợ trong mục này. Bạn có thể tạo yêu cầu mới cho vận đơn của mình.</p>
+    <p th:if="${tickets.empty}" class="empty-state alert alert-info">Chưa có yêu cầu hỗ trợ trong mục này. Bạn có thể tạo yêu cầu mới cho vận đơn của mình.</p>
     <div class="row g-3"><article th:each="ticket : ${tickets}" class="col-12 col-lg-6"><div class="card card-body h-100">
         <div class="d-flex flex-wrap gap-2 justify-content-between mb-2"><span class="small text-secondary" th:text="${ticket.code}"></span><span th:replace="~{support/fragments :: status(${ticket.status})}"></span></div>
         <h2 class="h5 text-break"><a th:href="@{/account/support/{id}(id=${ticket.id})}" th:text="${ticket.subject}"></a></h2>

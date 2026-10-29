@@ -1,12 +1,12 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Điều hành giao hàng và hoàn')}"></head><body>
-<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4" th:with="d=${detail},s=${detail.shipment}">
+<head th:replace="~{shipments/fragments :: head('Điều hành giao hàng và hoàn')}"></head><body class="workspace-page">
+<nav th:replace="~{manager/fragments :: nav}"></nav><main data-ui-sections id="main-content" tabindex="-1" class="container py-4" th:with="d=${detail},s=${detail.shipment}">
 <div th:replace="~{shipper/fragments :: messages}"></div><p><a th:href="@{/manager/deliveries}">Danh sách giao cuối</a> · <a th:href="@{/manager/trips/shipments/{id}/history(id=${s.id})}">Lịch sử chặng đi/hoàn trong phạm vi</a></p>
 <h1 class="h3" th:text="${s.trackingNumber}"></h1><span th:replace="~{shipments/fragments :: status(${s.status})}"></span>
 <p><span th:text="${s.origin}"></span> → <span th:text="${s.destination}"></span> · <span th:text="${s.currentPoint}"></span></p><p th:text="|Số lần thử thực tế: ${s.attempts}/${s.maxAttempts}|"></p>
 <section class="card p-3 mb-3"><h2 class="h5">Người nhận theo vận đơn</h2><strong th:text="${d.recipient.name}"></strong><span th:text="${d.recipient.phone}"></span><p th:text="${d.recipient.address}"></p></section>
 <section th:if="${d.canAssign or d.canReassign}" class="card p-3 mb-3"><h2 class="h5" th:text="${d.canReassign ? 'Phân công lại nhiệm vụ chưa nhận kiện' : 'Phân công DELIVERY'}"></h2>
-    <p th:if="${d.candidates.empty}" class="alert alert-info">Chưa có Shipper hợp lệ trong trang hiện tại.</p>
+    <p th:if="${d.candidates.empty}" class="empty-state alert alert-info">Chưa có Shipper hợp lệ trong trang hiện tại.</p>
     <form th:unless="${d.candidates.empty}" method="post" th:action="@{/manager/deliveries/{id}/assign(id=${s.id})}">
         <input type="hidden" name="expectedVersion" th:value="${d.version}"><input th:if="${d.canReassign}" type="hidden" name="replacesAssignmentId" th:value="${d.activeAssignmentId}">
         <label for="employeeId" class="form-label">Shipper thuộc chi nhánh đích</label><select id="employeeId" name="employeeId" required class="form-select mb-2">
@@ -43,7 +43,7 @@
         <button class="btn btn-primary">Lưu biên nhận và hoàn tất RETURNED</button></form></section>
 <section th:if="${d.proof != null}" class="card p-3 mb-3"><h2 class="h5">Xác nhận giao đã lưu</h2><p>Người thực nhận: <strong th:text="${d.proof.recipient}"></strong></p>
     <p th:text="${d.proof.reference}"></p><p th:text="${d.proof.notes}"></p><time th:text="${d.proof.deliveredAt}"></time></section>
-<section><h2 class="h5">Bàn giao trả lại chi nhánh</h2><p th:if="${d.recoveries.empty}">Chưa có yêu cầu.</p><div th:each="r : ${d.recoveries}"><article th:replace="~{delivery/fragments :: recovery(${r}, ${d.version}, ${s.id})}"></article></div></section>
+<section><h2 class="h5">Bàn giao trả lại chi nhánh</h2><p th:if="${d.recoveries.empty}" class="empty-state">Chưa có yêu cầu.</p><div th:each="r : ${d.recoveries}"><article th:replace="~{delivery/fragments :: recovery(${r}, ${d.version}, ${s.id})}"></article></div></section>
 <section th:replace="~{delivery/fragments :: attempts(${d.attempts})}"></section>
 <section class="mb-3"><h2 class="h5">Quyết định giao lại</h2><article th:each="decision : ${d.decisions}" class="card p-3 mb-2">
     <p th:text="|Sau lần ${decision.afterAttempt} · ${decision.mode.name() == 'SAME_COURIER' ? 'Cùng Shipper đang giữ' : 'Nhiệm vụ mới sau nhận lại tại chi nhánh'}|"></p><p th:text="${decision.reason}"></p><span th:text="${decision.actor}"></span> · <time th:text="${decision.decidedAt}"></time></article></section>

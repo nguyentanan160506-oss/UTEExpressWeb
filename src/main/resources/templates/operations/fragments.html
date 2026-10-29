@@ -1,12 +1,12 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
 <section th:fragment="chart(title, bars)" class="card h-100"><div class="card-body">
     <h2 class="h5" th:text="${title}"></h2>
-    <p th:if="${bars.isEmpty()}" class="text-secondary">Chưa có dữ liệu trong kỳ.</p>
+    <p th:if="${bars.isEmpty()}" class="empty-state text-secondary">Chưa có dữ liệu trong kỳ.</p>
     <div th:if="${!bars.isEmpty()}" role="img" th:aria-label="${title}" class="d-grid gap-2 mb-3 overflow-auto" style="max-height:24rem">
         <div th:each="bar : ${bars}"><div class="d-flex justify-content-between gap-2 small"><span class="text-break" th:text="${bar.label}"></span><strong th:text="${bar.value}"></strong></div>
             <div class="progress" style="height:10px"><div class="progress-bar" th:style="|width: ${bar.percent}%|"></div></div></div>
     </div>
-    <details><summary>Số liệu dạng bảng (đơn vị: số lượng)</summary><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nhóm/ngày UTC</th><th>Số lượng</th></tr></thead>
+    <details><summary>Số liệu dạng bảng (đơn vị: số lượng)</summary><div class="table-responsive"><table class="table table-sm"><caption class="visually-hidden">Bảng dữ liệu và các thao tác tương ứng</caption><thead><tr><th scope="col">Nhóm/ngày UTC</th><th scope="col">Số lượng</th></tr></thead>
         <tbody><tr th:each="bar : ${bars}"><td th:text="${bar.label}"></td><td th:text="${bar.value}"></td></tr></tbody></table></div></details>
 </div></section>
 <div th:fragment="version(value)"><input type="hidden" name="version" th:value="${value}"></div>

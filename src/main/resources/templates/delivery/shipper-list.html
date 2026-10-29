@@ -1,8 +1,8 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Nhiệm vụ giao hàng')}"></head><body>
-<nav th:replace="~{shipper/fragments :: nav}"></nav><main class="container py-4"><h1 class="h3">Nhiệm vụ giao hàng, giao lại và trả kiện</h1>
+<head th:replace="~{shipments/fragments :: head('Nhiệm vụ giao hàng')}"></head><body class="workspace-page">
+<nav th:replace="~{shipper/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4"><h1 class="h3">Nhiệm vụ giao hàng, giao lại và trả kiện</h1>
 <p>Chỉ nhiệm vụ được phân công cho bạn. Nhiệm vụ đã đóng chỉ xem lịch sử; thông tin liên hệ chỉ mở cho nhiệm vụ hiện còn hợp lệ.</p>
-<p th:if="${tasks.empty}" class="alert alert-info">Chưa có nhiệm vụ DELIVERY.</p>
+<p th:if="${tasks.empty}" class="empty-state alert alert-info">Chưa có nhiệm vụ DELIVERY.</p>
 <div class="row g-3"><article th:each="a : ${tasks}" class="col-12 col-md-6"><div class="card p-3 h-100"><h2 class="h5"><a th:href="@{/shipper/deliveries/{id}(id=${a.id})}" th:text="${a.trackingNumber}"></a></h2>
     <span th:replace="~{delivery/fragments :: taskStatus(${a.status})}"></span><time th:text="${a.assignedAt}"></time></div></article></div>
 <div th:replace="~{shipper/fragments :: pagination(${tasks}, '/shipper/deliveries')}"></div></main></body></html>

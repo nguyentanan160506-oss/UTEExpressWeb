@@ -1,12 +1,13 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{shipments/fragments :: head('Thông báo · UTEExpress')}"></head>
 <body class="bg-light">
-<nav class="shipment-nav py-3"><div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
-    <a th:href="@{/account}" class="text-white text-decoration-none fw-bold">UTEExpress · Tài khoản</a>
+<a th:replace="~{layout/fragments :: skip}"></a>
+<nav class="customer-nav" aria-label="Tài khoản và thông báo"><div class="container nav-inner flex-wrap">
+    <a th:replace="~{layout/fragments :: brand(@{/account})}"></a>
     <span th:replace="~{notifications/fragments :: bell}"></span>
     <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-light">Đăng xuất</button></form>
 </div></nav>
-<main class="container py-4" data-notification-center th:data-page="${inbox.page}" th:data-unread="${unread}">
+<main id="main-content" tabindex="-1" class="container py-4" data-notification-center th:data-page="${inbox.page}" th:data-unread="${unread}">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
         <h1 class="h3 mb-0">Thông báo của tôi</h1>
         <form th:action="@{/notifications/read-all}" method="post" data-notification-read>
@@ -19,7 +20,7 @@
     </div>
     <p data-notification-status class="text-secondary small" role="status">Thời gian hiển thị theo UTC. Nội dung cập nhật từ dữ liệu đã lưu.</p>
     <div data-notification-items class="list-group mb-3">
-        <p th:if="${inbox.items.isEmpty()}" class="alert alert-info">Chưa có thông báo trong mục này.</p>
+        <p th:if="${inbox.items.isEmpty()}" class="empty-state alert alert-info">Chưa có thông báo trong mục này.</p>
         <article th:each="item : ${inbox.items}" class="list-group-item p-3" th:classappend="${!item.read ? 'border-start border-primary border-4' : ''}" th:data-id="${item.id}">
             <h2 class="h6 text-break" th:text="${item.title}"></h2>
             <p class="text-break mb-2" th:text="${item.message}"></p>

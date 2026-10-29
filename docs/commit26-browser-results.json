@@ -1,0 +1,2547 @@
+{
+  "executedAt" : "2026-10-29T08:55:55Z",
+  "target" : "http://127.0.0.1:18082",
+  "browser" : "Chrome headless via native Java 21 CDP WebSocket; isolated TEMP profile",
+  "database" : "Disposable H2 demo; no JDBC/SQL Server calls in this runner",
+  "cases" : [ {
+    "detail" : "/ HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Guest /"
+  }, {
+    "detail" : "/tracking HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Guest /tracking"
+  }, {
+    "detail" : "/quote HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Guest /quote"
+  }, {
+    "detail" : "/login HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Guest /login"
+  }, {
+    "detail" : "/register HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Guest /register"
+  }, {
+    "detail" : "/user/shipments/1 HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "Guest cannot open private shipment ID"
+  }, {
+    "detail" : "/api/notifications HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "Guest API 401"
+  }, {
+    "detail" : "Empty required fields block submit",
+    "status" : "PASS",
+    "name" : "Register HTML validation"
+  }, {
+    "detail" : "POST without token rejected",
+    "status" : "PASS",
+    "name" : "Register CSRF enforced"
+  }, {
+    "detail" : "Actual RegistrationService and production SMTP sender, local sink only",
+    "status" : "PASS",
+    "name" : "OTP registration sends mail and opens verify form"
+  }, {
+    "detail" : "/admin/demo-mailbox HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "Guest cannot read demo inbox"
+  }, {
+    "detail" : "Code held in memory only; value never logged or written",
+    "status" : "PASS",
+    "name" : "OTP received through real local SMTP"
+  }, {
+    "detail" : "No automatic activation",
+    "status" : "PASS",
+    "name" : "UNVERIFIED account cannot log in"
+  }, {
+    "detail" : "Verification remains mandatory",
+    "status" : "PASS",
+    "name" : "Wrong OTP rejected in browser"
+  }, {
+    "detail" : "Normal verification endpoint, no DB/service mutation from runner",
+    "status" : "PASS",
+    "name" : "Correct received OTP activates account"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "browserqa-registration login"
+  }, {
+    "detail" : "/user/shipments HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "New verified USER can enter shipments"
+  }, {
+    "detail" : "/account/profile HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "New USER profile and empty address book"
+  }, {
+    "detail" : "Name persists through redirect; login identity and roles unchanged",
+    "status" : "PASS",
+    "name" : "New USER updates own profile"
+  }, {
+    "detail" : "Actual form, CSRF and owner-scoped persistence",
+    "status" : "PASS",
+    "name" : "New USER saves own address"
+  }, {
+    "detail" : "No shared address book",
+    "status" : "PASS",
+    "name" : "Address is private to new USER"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "other login"
+  }, {
+    "detail" : "/account/profile HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Other USER profile hides new account address"
+  }, {
+    "detail" : "POST mutation retains CSRF protection",
+    "status" : "PASS",
+    "name" : "New USER deletes own address"
+  }, {
+    "detail" : "Fresh account sees why options are initially empty; no employee or shipment history prerequisite",
+    "status" : "PASS",
+    "name" : "New USER sees coverage instructions before lookup"
+  }, {
+    "detail" : "Canonical province selected; reported Nui Thanh district/ward still has no demo coverage; receiver lookup remains independent",
+    "status" : "PASS",
+    "name" : "Reported pickup area does not hide a valid destination"
+  }, {
+    "detail" : "No unfiltered fallback or fabricated branch",
+    "status" : "PASS",
+    "name" : "New USER sees explicit unsupported destination error"
+  }, {
+    "detail" : "Valid active receiver branch comes from DB after explicit lookup",
+    "status" : "PASS",
+    "name" : "New USER can load destination using nearby lookup button"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP quote"
+  }, {
+    "detail" : "/user/shipments/19",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Regression covers register -> OTP -> login -> branch lookup -> quote -> create with the same new account",
+    "status" : "PASS",
+    "name" : "Fresh registered USER completes quote and shipment creation"
+  }, {
+    "detail" : "/admin/demo-mailbox HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "New USER cannot read SMTP inbox"
+  }, {
+    "detail" : "Single-use code enforced",
+    "status" : "PASS",
+    "name" : "Used OTP cannot be replayed"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "admin login"
+  }, {
+    "detail" : "/admin/demo-mailbox HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Admin H2 test SMTP inbox"
+  }, {
+    "detail" : "register -> SMTP -> ADMIN test inbox -> reject wrong code -> verify -> login USER -> reject reuse",
+    "status" : "PASS",
+    "name" : "Registration SMTP OTP browser journey complete"
+  }, {
+    "detail" : "Invalid code gives validation, not private data",
+    "status" : "PASS",
+    "name" : "Tracking invalid format"
+  }, {
+    "detail" : "Unknown tracking number",
+    "status" : "PASS",
+    "name" : "Tracking unknown"
+  }, {
+    "detail" : "Missing token gives 403",
+    "status" : "PASS",
+    "name" : "Login CSRF enforced"
+  }, {
+    "detail" : "Unknown account -> /login?error",
+    "status" : "PASS",
+    "name" : "Invalid login generic error"
+  }, {
+    "detail" : "Official catalog + one placeholder",
+    "status" : "PASS",
+    "name" : "National quote has exactly 34 origin and destination choices"
+  }, {
+    "detail" : "Non-binding national pricing mode",
+    "status" : "PASS",
+    "name" : "National estimate does not require invented branches"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=25000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hà Nội BRANCH_DROPOFF"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=35000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hà Nội HOME_PICKUP"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=35000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hải Phòng BRANCH_DROPOFF"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=45000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hải Phòng HOME_PICKUP"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=45000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Đà Nẵng BRANCH_DROPOFF"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=55000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Đà Nẵng HOME_PICKUP"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=50000.00",
+    "status" : "PASS",
+    "name" : "National price Đà Nẵng → Hồ Chí Minh BRANCH_DROPOFF"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=60000.00",
+    "status" : "PASS",
+    "name" : "National price Đà Nẵng → Hồ Chí Minh HOME_PICKUP"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=65000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hồ Chí Minh BRANCH_DROPOFF"
+  }, {
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=75000.00",
+    "status" : "PASS",
+    "name" : "National price Hà Nội → Hồ Chí Minh HOME_PICKUP"
+  }, {
+    "detail" : "Included first kilogram",
+    "status" : "PASS",
+    "name" : "National weight below 1 kg has no extra charge"
+  }, {
+    "detail" : "Allowlist rejects price fields HTTP=400",
+    "status" : "PASS",
+    "name" : "National client-supplied amount rejected"
+  }, {
+    "detail" : "No public POST CSRF exemption",
+    "status" : "PASS",
+    "name" : "National quote CSRF enforced"
+  }, {
+    "detail" : "No guessed region or zero tariff",
+    "status" : "PASS",
+    "name" : "National invalid province rejected by backend"
+  }, {
+    "detail" : "Actual creation still requires explicit coverage",
+    "status" : "PASS",
+    "name" : "Coverage-aware quote remains available"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "/user/shipments HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "USER list"
+  }, {
+    "detail" : "No empty status badge",
+    "status" : "PASS",
+    "name" : "USER visible status labels"
+  }, {
+    "detail" : "/user/shipments/17 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "USER detail/timeline"
+  }, {
+    "detail" : "/account/support HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "USER support list"
+  }, {
+    "detail" : "/account/support/1 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "USER support conversation"
+  }, {
+    "detail" : "POST conversation form",
+    "status" : "PASS",
+    "name" : "USER sends support message"
+  }, {
+    "detail" : "Public conversation only",
+    "status" : "PASS",
+    "name" : "Support internal note hidden"
+  }, {
+    "detail" : "/notifications HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "USER notifications"
+  }, {
+    "detail" : "/admin/users HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "USER denied ADMIN"
+  }, {
+    "detail" : "/manager/trips HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "USER denied Manager"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF quote"
+  }, {
+    "detail" : "/user/shipments/20",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP quote"
+  }, {
+    "detail" : "/user/shipments/21",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Session retained after rejected logout",
+    "status" : "PASS",
+    "name" : "Logout CSRF enforced"
+  }, {
+    "detail" : "Logout clears authentication",
+    "status" : "PASS",
+    "name" : "Logout redirect"
+  }, {
+    "detail" : "/user/shipments HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "Logout revokes private route"
+  }, {
+    "detail" : "Only public tracking data",
+    "status" : "PASS",
+    "name" : "Public tracking valid and private fields absent"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "other login"
+  }, {
+    "detail" : "/user/shipments/17 HTTP=404 expected=404",
+    "status" : "PASS",
+    "name" : "Other USER shipment ownership"
+  }, {
+    "detail" : "/account/support/1 HTTP=404 expected=404",
+    "status" : "PASS",
+    "name" : "Other USER support ownership"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "/manager HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager"
+  }, {
+    "detail" : "/manager/operations HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/operations"
+  }, {
+    "detail" : "/manager/shipments HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/shipments"
+  }, {
+    "detail" : "/manager/handoffs HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/handoffs"
+  }, {
+    "detail" : "/manager/trips HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/trips"
+  }, {
+    "detail" : "/manager/trips/new HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/trips/new"
+  }, {
+    "detail" : "/manager/deliveries HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/deliveries"
+  }, {
+    "detail" : "/manager/tickets HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Manager /manager/tickets"
+  }, {
+    "detail" : "/admin/users HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "Manager denied ADMIN"
+  }, {
+    "detail" : "Physical receipt is separate",
+    "status" : "PASS",
+    "name" : "Manager confirms Browser dropoff"
+  }, {
+    "detail" : "Receipt and timeline rendered",
+    "status" : "PASS",
+    "name" : "Manager physical branch intake"
+  }, {
+    "detail" : "Only source-branch eligible courier",
+    "status" : "PASS",
+    "name" : "Manager assigns pickup"
+  }, {
+    "detail" : "/manager/trips/29",
+    "status" : "PASS",
+    "name" : "Manager creates collection trip"
+  }, {
+    "detail" : "Selected newly created/physically received parcel",
+    "status" : "PASS",
+    "name" : "Manager adds received shipment to manifest"
+  }, {
+    "detail" : "Source branch -> configured hub",
+    "status" : "PASS",
+    "name" : "Manager seals and departs collection trip"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-origin-manager login"
+  }, {
+    "detail" : "Receipt controls parcel custody; distinct branch actor",
+    "status" : "PASS",
+    "name" : "Hub Manager arrives receives and closes trip"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "/manager/tickets/1 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Destination Manager ticket conversation"
+  }, {
+    "detail" : "Physical handoff remains subject to courier acceptance",
+    "status" : "PASS",
+    "name" : "Manager prepares delivery 9"
+  }, {
+    "detail" : "Physical handoff remains subject to courier acceptance",
+    "status" : "PASS",
+    "name" : "Manager prepares delivery 10"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "pickup-courier login"
+  }, {
+    "detail" : "/shipper HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Pickup courier dashboard"
+  }, {
+    "detail" : "/shipper/pickups HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Pickup courier tasks"
+  }, {
+    "detail" : "/shipper/pickups/9 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Pickup task evidence/handoff forms"
+  }, {
+    "detail" : "Actual collection form",
+    "status" : "PASS",
+    "name" : "Shipper pickup evidence"
+  }, {
+    "detail" : "Does not self-accept branch custody",
+    "status" : "PASS",
+    "name" : "Shipper requests source handoff"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Follow linked source receipt and verify persisted reference",
+    "status" : "PASS",
+    "name" : "Independent Manager accepts source handoff"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "shipper login"
+  }, {
+    "detail" : "/shipper HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Delivery courier dashboard"
+  }, {
+    "detail" : "/shipper/deliveries HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Delivery task list"
+  }, {
+    "detail" : "/shipper/deliveries/10 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Delivery task proof/failure forms"
+  }, {
+    "detail" : "Correct assigned courier and CSRF form",
+    "status" : "PASS",
+    "name" : "Courier accepts and starts delivery 0"
+  }, {
+    "detail" : "Task completed; proof reference checked separately in Manager view",
+    "status" : "PASS",
+    "name" : "Courier successful delivery proof"
+  }, {
+    "detail" : "Correct assigned courier and CSRF form",
+    "status" : "PASS",
+    "name" : "Courier accepts and starts delivery 1"
+  }, {
+    "detail" : "Failure reason and attempt displayed",
+    "status" : "PASS",
+    "name" : "Courier failed attempt"
+  }, {
+    "detail" : "/manager/trips HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "Shipper denied Manager"
+  }, {
+    "detail" : "/user/shipments/17 HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "Shipper denied customer data"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Proof checked at its actual detail URL",
+    "status" : "PASS",
+    "name" : "Manager sees persisted delivery proof"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP quote"
+  }, {
+    "detail" : "/user/shipments/22",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Never substitute seeded shipment",
+    "status" : "PASS",
+    "name" : "E2E new HOME_PICKUP parcel"
+  }, {
+    "detail" : "Public tracking format",
+    "status" : "PASS",
+    "name" : "E2E tracking identifier"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP quote"
+  }, {
+    "detail" : "/user/shipments/23",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Never substitute seeded shipment",
+    "status" : "PASS",
+    "name" : "E2E new HOME_PICKUP parcel"
+  }, {
+    "detail" : "Public tracking format",
+    "status" : "PASS",
+    "name" : "E2E tracking identifier"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/shipments/22/confirm"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/shipments/22/confirm"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/shipments/22/pickup-assignments"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/shipments/22/pickup-assignments"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "pickup-courier login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 22",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /shipper/pickups/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/pickups/11/collect"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/pickups/11/collect"
+  }, {
+    "detail" : "Evidence visible after save",
+    "status" : "PASS",
+    "name" : "E2E pickup evidence 22"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/pickups/11/handoffs"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/pickups/11/handoffs"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 22",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /manager/handoffs/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/handoffs/2/accept"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/handoffs/2/accept"
+  }, {
+    "detail" : "Source custody only after physical acceptance",
+    "status" : "PASS",
+    "name" : "E2E independent source receipt 22"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/shipments/23/confirm"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/shipments/23/confirm"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/shipments/23/pickup-assignments"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/shipments/23/pickup-assignments"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "pickup-courier login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 23",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /shipper/pickups/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/pickups/12/collect"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/pickups/12/collect"
+  }, {
+    "detail" : "Evidence visible after save",
+    "status" : "PASS",
+    "name" : "E2E pickup evidence 23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/pickups/12/handoffs"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/pickups/12/handoffs"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 23",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /manager/handoffs/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/handoffs/3/accept"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/handoffs/3/accept"
+  }, {
+    "detail" : "Source custody only after physical acceptance",
+    "status" : "PASS",
+    "name" : "E2E independent source receipt 23"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Destination=Hub miền Trung demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route FWD-COLLECTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip FWD-COLLECTION"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest FWD-COLLECTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/30/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/30/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/30/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/30/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-origin-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/30/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/30/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-COLLECTION/22"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-COLLECTION/22"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-COLLECTION/22"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-COLLECTION/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-COLLECTION/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-COLLECTION/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/30/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/30/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip FWD-COLLECTION"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-origin-manager login"
+  }, {
+    "detail" : "Destination=Hub phía Nam demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route FWD-LINEHAUL"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip FWD-LINEHAUL"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest FWD-LINEHAUL"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/31/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/31/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/31/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/31/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-dest-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/31/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/31/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-LINEHAUL/22"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-LINEHAUL/22"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-LINEHAUL/22"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-LINEHAUL/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-LINEHAUL/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-LINEHAUL/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/31/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/31/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip FWD-LINEHAUL"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-dest-manager login"
+  }, {
+    "detail" : "Destination=Chi nhánh TP.HCM demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route FWD-DISTRIBUTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip FWD-DISTRIBUTION"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest FWD-DISTRIBUTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/32/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/32/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/32/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/32/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/32/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/32/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-DISTRIBUTION/22"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-DISTRIBUTION/22"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-DISTRIBUTION/22"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item FWD-DISTRIBUTION/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt FWD-DISTRIBUTION/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt FWD-DISTRIBUTION/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/32/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/32/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip FWD-DISTRIBUTION"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/22/assign"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/22/assign"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/22/handoff"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/22/handoff"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "shipper login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 22",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /shipper/deliveries/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/13/accept"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/accept"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/13/start"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/start"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/13/complete"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/complete"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Same parcel from user quote through all three forward legs",
+    "status" : "PASS",
+    "name" : "E2E delivered with proof"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/23/assign"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/23/assign"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/23/handoff"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/23/handoff"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "shipper login"
+  }, {
+    "detail" : "Matches tracking of newly created shipment 23",
+    "status" : "PASS",
+    "name" : "E2E exact parcel link /shipper/deliveries/"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/14/accept"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/accept"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/14/start"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/start"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/14/fail"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/fail"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/23/return"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/23/return"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "shipper login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /shipper/deliveries/14/return-to-branch"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/return-to-branch"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/23/recoveries/accept"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/23/recoveries/accept"
+  }, {
+    "detail" : "Return decision does not invent custody",
+    "status" : "PASS",
+    "name" : "E2E failed parcel physically recovered"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "Destination=Hub phía Nam demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route REV-COLLECTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip REV-COLLECTION"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest REV-COLLECTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/33/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/33/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/33/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/33/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-dest-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/33/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/33/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item REV-COLLECTION/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt REV-COLLECTION/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt REV-COLLECTION/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/33/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/33/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip REV-COLLECTION"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-dest-manager login"
+  }, {
+    "detail" : "Destination=Hub miền Trung demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route REV-LINEHAUL"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip REV-LINEHAUL"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest REV-LINEHAUL"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/34/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/34/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/34/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/34/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-origin-manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/34/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/34/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item REV-LINEHAUL/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt REV-LINEHAUL/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt REV-LINEHAUL/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/34/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/34/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip REV-LINEHAUL"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "hub-origin-manager login"
+  }, {
+    "detail" : "Destination=Chi nhánh Đà Nẵng demo; no guessed route ID",
+    "status" : "PASS",
+    "name" : "E2E configured route REV-DISTRIBUTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips"
+  }, {
+    "detail" : "Trip created via UI",
+    "status" : "PASS",
+    "name" : "E2E draft trip REV-DISTRIBUTION"
+  }, {
+    "detail" : "Only the new parcels selected; correct forward/reverse form",
+    "status" : "PASS",
+    "name" : "E2E manifest REV-DISTRIBUTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/35/seal"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/35/seal"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/35/depart"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/35/depart"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/35/arrive"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/35/arrive"
+  }, {
+    "detail" : "Receipt targets exact tracking, not first row",
+    "status" : "PASS",
+    "name" : "E2E manifested item REV-DISTRIBUTION/23"
+  }, {
+    "detail" : "Receiving manager supplies physical receipt",
+    "status" : "PASS",
+    "name" : "E2E physical receipt REV-DISTRIBUTION/23"
+  }, {
+    "detail" : "Receipt reference visible",
+    "status" : "PASS",
+    "name" : "E2E persisted receipt REV-DISTRIBUTION/23"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/trips/35/close"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/trips/35/close"
+  }, {
+    "detail" : "No unresolved parcel/discrepancy before close",
+    "status" : "PASS",
+    "name" : "E2E closed trip REV-DISTRIBUTION"
+  }, {
+    "detail" : "Rendered CSRF/version form submitted",
+    "status" : "PASS",
+    "name" : "E2E form /manager/deliveries/23/return-to-sender"
+  }, {
+    "detail" : "No business validation/error flash after submit",
+    "status" : "PASS",
+    "name" : "E2E no rejected mutation /manager/deliveries/23/return-to-sender"
+  }, {
+    "detail" : "All three reverse legs received before sender handover",
+    "status" : "PASS",
+    "name" : "E2E RETURNED requires sender receipt"
+  }, {
+    "detail" : "/manager/trips/shipments/23/history HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "E2E complete return trip history"
+  }, {
+    "detail" : "Physical receipt references survive the full chain",
+    "status" : "PASS",
+    "name" : "E2E trip history includes forward and reverse"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "/user/shipments/22 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "E2E owner final detail 22"
+  }, {
+    "detail" : "No repricing on delivery/return",
+    "status" : "PASS",
+    "name" : "E2E original fee snapshot retained 22"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "other login"
+  }, {
+    "detail" : "/user/shipments/22 HTTP=404 expected=404",
+    "status" : "PASS",
+    "name" : "E2E other customer denied 22"
+  }, {
+    "detail" : "/user/shipments/22 HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "E2E Guest numeric ID denied 22"
+  }, {
+    "detail" : "/tracking?trackingNumber=UTE5CB29A11D53B4B8C8F7696302129A669 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "E2E public final timeline 22"
+  }, {
+    "detail" : "Only public milestone timeline, no internal proof/contact details",
+    "status" : "PASS",
+    "name" : "E2E final tracking privacy 22"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "/user/shipments/23 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "E2E owner final detail 23"
+  }, {
+    "detail" : "No repricing on delivery/return",
+    "status" : "PASS",
+    "name" : "E2E original fee snapshot retained 23"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "other login"
+  }, {
+    "detail" : "/user/shipments/23 HTTP=404 expected=404",
+    "status" : "PASS",
+    "name" : "E2E other customer denied 23"
+  }, {
+    "detail" : "/user/shipments/23 HTTP=401 expected=401",
+    "status" : "PASS",
+    "name" : "E2E Guest numeric ID denied 23"
+  }, {
+    "detail" : "/tracking?trackingNumber=UTE680DF080CCE340428AF947F50F24B5E9 HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "E2E public final timeline 23"
+  }, {
+    "detail" : "Only public milestone timeline, no internal proof/contact details",
+    "status" : "PASS",
+    "name" : "E2E final tracking privacy 23"
+  }, {
+    "detail" : "New HOME_PICKUP shipments 22 DELIVERED and 23 RETURNED; 3 forward and 3 reverse legs, no seeded-parcel substitution",
+    "status" : "PASS",
+    "name" : "Coherent logistics browser journeys complete"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF quote"
+  }, {
+    "detail" : "/user/shipments/24",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF confirmation creates shipment"
+  }, {
+    "detail" : "Same quote confirmation is idempotent",
+    "status" : "PASS",
+    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment"
+  }, {
+    "detail" : "Fresh UI-created parcel for independent status changes",
+    "status" : "PASS",
+    "name" : "WS test uses new owned shipment"
+  }, {
+    "detail" : "Private BrowserContexts, real CONNECTED frames; no cookies/tokens in report",
+    "status" : "PASS",
+    "name" : "Two independent USER sessions connect STOMP"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "Separate manager browser session",
+    "status" : "PASS",
+    "name" : "Manager confirms while customer inbox stays open"
+  }, {
+    "detail" : "Received MESSAGE and rendered matching new notification before 60-second fallback",
+    "status" : "PASS",
+    "name" : "WebSocket updates customer UI without reload"
+  }, {
+    "detail" : "Unrelated session inbox excludes tracking",
+    "status" : "PASS",
+    "name" : "Other customer does not receive owned parcel content"
+  }, {
+    "detail" : "Rendered server notification",
+    "status" : "PASS",
+    "name" : "Authoritative notification has private ID"
+  }, {
+    "detail" : "Direct numeric notification lookup remains ownership-checked",
+    "status" : "PASS",
+    "name" : "Other customer cannot open specific owner notification"
+  }, {
+    "detail" : "Client outage does not lose persisted event",
+    "status" : "PASS",
+    "name" : "Manager changes state during client disconnect"
+  }, {
+    "detail" : "Production reconnect/backoff and DB refresh recover latest notification; no manual refresh",
+    "status" : "PASS",
+    "name" : "Reconnect reconciles missed status without page reload"
+  }, {
+    "detail" : "No cross-user delivery",
+    "status" : "PASS",
+    "name" : "Other session still isolated after reconnect"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "other login"
+  }, {
+    "detail" : "Manager transition -> owner inbox MESSAGE/DOM update; other excluded; offline/reconnect recovers cancelled event",
+    "status" : "PASS",
+    "name" : "WebSocket UI two-session journey complete"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "admin login"
+  }, {
+    "detail" : "/admin/users HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Admin /admin/users"
+  }, {
+    "detail" : "/admin/reports HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Admin /admin/reports"
+  }, {
+    "detail" : "/admin/audit HTTP=200 expected=200",
+    "status" : "PASS",
+    "name" : "Admin /admin/audit"
+  }, {
+    "detail" : "Only disposable other customer; exact role gates retained",
+    "status" : "PASS",
+    "name" : "Admin lock and unlock customer"
+  }, {
+    "detail" : "HTTP=200 content-type=text/csv;charset=UTF-8 bytes=2809",
+    "status" : "PASS",
+    "name" : "Admin CSV via browser download request"
+  }, {
+    "detail" : "/manager/trips HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "Admin no implicit Manager role"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "admin login"
+  }, {
+    "detail" : "Regresses managed save result issue",
+    "status" : "PASS",
+    "name" : "Admin creates real JPA service with ID and audit"
+  }, {
+    "detail" : "New pricing version listed",
+    "status" : "PASS",
+    "name" : "Admin creates real JPA draft with ID and audit"
+  }, {
+    "detail" : "Existing versioned pricing UI",
+    "status" : "PASS",
+    "name" : "Admin configures INTRA_PROVINCE"
+  }, {
+    "detail" : "Existing versioned pricing UI",
+    "status" : "PASS",
+    "name" : "Admin configures SAME_REGION"
+  }, {
+    "detail" : "Existing versioned pricing UI",
+    "status" : "PASS",
+    "name" : "Admin configures NORTH_CENTRAL"
+  }, {
+    "detail" : "Existing versioned pricing UI",
+    "status" : "PASS",
+    "name" : "Admin configures CENTRAL_SOUTH"
+  }, {
+    "detail" : "Existing versioned pricing UI",
+    "status" : "PASS",
+    "name" : "Admin configures NORTH_SOUTH"
+  }, {
+    "detail" : "Published versions remain immutable",
+    "status" : "PASS",
+    "name" : "Admin edits base and extra-kilogram tariff in draft"
+  }, {
+    "detail" : "No fake branch",
+    "status" : "PASS",
+    "name" : "Admin configures nationwide pickup default"
+  }, {
+    "detail" : "No overlapping price period",
+    "status" : "PASS",
+    "name" : "Admin five-group version validation"
+  }, {
+    "detail" : "Scheduled future; running demo tariffs unchanged",
+    "status" : "PASS",
+    "name" : "Admin publishes five-group book"
+  }, {
+    "detail" : "Immutable published book",
+    "status" : "PASS",
+    "name" : "Published price forms disappear"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "/admin/pricing/2 HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "USER cannot open nationwide pricing admin"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "pickup-courier login"
+  }, {
+    "detail" : "/admin/pricing/2 HTTP=403 expected=403",
+    "status" : "PASS",
+    "name" : "SHIPPER cannot open nationwide pricing admin"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest / @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest / @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest / @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest / @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /tracking @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /tracking @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /tracking @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /tracking"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /tracking @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /quote @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /quote @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /quote @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /quote"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /quote @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /login @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /login @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /login @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /login @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /register @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /register @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /register @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /register"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /register @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /verify-email @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /verify-email @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /verify-email @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard guest /verify-email"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":0,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI guest /verify-email @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "owner login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /account"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/profile @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/profile @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/profile @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /account/profile"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/profile @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /user/shipments"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments/create @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments/create @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments/create @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /user/shipments/create"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /user/shipments/create @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /account/support"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support/new @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support/new @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support/new @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user /account/support/new"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /account/support/new @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /notifications @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /notifications @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /notifications @390"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user /notifications @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-detail /user/shipments/20 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-detail /user/shipments/20 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-detail /user/shipments/20 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user-detail /user/shipments/20"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-detail /user/shipments/20 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-support /account/support/1 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-support /account/support/1 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-support /account/support/1 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard user-support /account/support/1"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI user-support /account/support/1 @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "manager login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/operations @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/operations @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/operations @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/operations"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/operations @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/shipments @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/shipments @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/shipments @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/shipments"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/shipments @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/handoffs @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/handoffs @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/handoffs @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/handoffs"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/handoffs @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/trips"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/new @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/new @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/new @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/trips/new"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/new @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/local-ready @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/local-ready @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/local-ready @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/trips/local-ready"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/trips/local-ready @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/deliveries @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/deliveries @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/deliveries @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/deliveries"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/deliveries @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/tickets"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets/new @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets/new @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets/new @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager /manager/tickets/new"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager /manager/tickets/new @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager-detail /manager/shipments/24 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager-detail /manager/shipments/24 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager-detail /manager/shipments/24 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard manager-detail /manager/shipments/24"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI manager-detail /manager/shipments/24 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI transport-detail /manager/trips/35 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI transport-detail /manager/trips/35 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI transport-detail /manager/trips/35 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard transport-detail /manager/trips/35"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI transport-detail /manager/trips/35 @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "destination-manager login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI ticket-detail /manager/tickets/1 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI ticket-detail /manager/tickets/1 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI ticket-detail /manager/tickets/1 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard ticket-detail /manager/tickets/1"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI ticket-detail /manager/tickets/1 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-manager-detail /manager/deliveries/23 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-manager-detail /manager/deliveries/23 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-manager-detail /manager/deliveries/23 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard delivery-manager-detail /manager/deliveries/23"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-manager-detail /manager/deliveries/23 @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "pickup-courier login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard shipper /shipper"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/pickups @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/pickups @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/pickups @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard shipper /shipper/pickups"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/pickups @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/deliveries @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/deliveries @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/deliveries @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard shipper /shipper/deliveries"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI shipper /shipper/deliveries @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI pickup-detail /shipper/pickups/12 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI pickup-detail /shipper/pickups/12 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI pickup-detail /shipper/pickups/12 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard pickup-detail /shipper/pickups/12"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI pickup-detail /shipper/pickups/12 @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "shipper login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-shipper-detail /shipper/deliveries/14 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-shipper-detail /shipper/deliveries/14 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-shipper-detail /shipper/deliveries/14 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard delivery-shipper-detail /shipper/deliveries/14"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI delivery-shipper-detail /shipper/deliveries/14 @320"
+  }, {
+    "detail" : "POST /login -> /account",
+    "status" : "PASS",
+    "name" : "admin login"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/users @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/users @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/users @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/users"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/users @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/services"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services/new @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services/new @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services/new @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/services/new"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/services/new @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/pricing"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/new?serviceId=1 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/new?serviceId=1 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/new?serviceId=1 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/pricing/new?serviceId=1"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/new?serviceId=1 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/preview @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/preview @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/preview @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/pricing/preview"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/pricing/preview @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/reports @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/reports @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/reports @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/reports"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/reports @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/audit @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/audit @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/audit @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin /admin/audit"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin /admin/audit @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-user-detail /admin/users/12 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-user-detail /admin/users/12 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-user-detail /admin/users/12 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin-user-detail /admin/users/12"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-user-detail /admin/users/12 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-service-detail /admin/services/2 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-service-detail /admin/services/2 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-service-detail /admin/services/2 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin-service-detail /admin/services/2"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-service-detail /admin/services/2 @320"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-price-detail /admin/pricing/2 @1440"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-price-detail /admin/pricing/2 @768"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-price-detail /admin/pricing/2 @390"
+  }, {
+    "detail" : "Expand, Escape, focus return; no route mutation",
+    "status" : "PASS",
+    "name" : "Mobile menu keyboard admin-price-detail /admin/pricing/2"
+  }, {
+    "detail" : "{\"http\":200,\"overflow\":false,\"main\":true,\"unique\":true,\"css\":\"#142b49\",\"csrf\":true,\"widgets\":1,\"unlabelled\":[],\"sectionIndex\":true}",
+    "status" : "PASS",
+    "name" : "UI admin-price-detail /admin/pricing/2 @320"
+  }, {
+    "detail" : "No page-level horizontal overflow",
+    "status" : "PASS",
+    "name" : "Tracking viewport 1366"
+  }, {
+    "detail" : "No page-level horizontal overflow",
+    "status" : "PASS",
+    "name" : "Tracking viewport 390"
+  }, {
+    "detail" : "Observed=0",
+    "status" : "PASS",
+    "name" : "No uncaught JavaScript or console.error"
+  }, {
+    "detail" : "[]",
+    "status" : "PASS",
+    "name" : "No HTTP 5xx/Thymeleaf render failure"
+  } ],
+  "javascriptErrorCount" : 0,
+  "serverErrors" : [ ],
+  "aborted" : null,
+  "runtimeSecretCheck" : "PASS"
+}

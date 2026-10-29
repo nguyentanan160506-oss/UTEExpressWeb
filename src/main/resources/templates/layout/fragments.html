@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<th:block th:fragment="assets">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/ui.css}">
+    <script th:src="@{/js/ui.js}" defer></script>
+</th:block>
+</head>
+<body>
+<svg th:fragment="icon(name)" class="ute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" th:switch="${name}">
+    <path th:case="'box'" d="m12 3 9 5v8l-9 5-9-5V8l9-5Zm0 10v8M3 8l9 5 9-5M7.5 5.5l9 5v4"></path>
+    <path th:case="'home'" d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7"></path>
+    <path th:case="'chart'" d="M4 3v18h17M8 16v-5m5 5V7m5 9V4"></path>
+    <path th:case="'truck'" d="M3 5h12v12H3V5Zm12 5h4l3 4v3h-7M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm12 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
+    <path th:case="'route'" d="M6 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm12 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 7v7a4 4 0 0 0 4 4h5M10 4h5a3 3 0 0 1 0 6h-2"></path>
+    <path th:case="'users'" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.9M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm4-3.9a4 4 0 0 1 0 7.8"></path>
+    <path th:case="'support'" d="M21 11a8 8 0 0 1-8 8H5l-3 3V11a9 9 0 0 1 18 0ZM7 10h10M7 14h6"></path>
+    <path th:case="'check'" d="m5 12 4 4L19 6M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+    <path th:case="'search'" d="m21 21-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"></path>
+    <path th:case="'receipt'" d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6m-6 4h6"></path>
+    <path th:case="'menu'" d="M4 6h16M4 12h16M4 18h16"></path>
+    <path th:case="'bell'" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"></path>
+    <path th:case="'arrow'" d="M4 12h16m-6-6 6 6-6 6"></path>
+    <path th:case="*" d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Zm-4 9 3 3 5-6"></path>
+</svg>
+<a th:fragment="brand(url)" th:href="${url}" class="brand-lockup" aria-label="UTEExpress — Trang chính">
+    <span class="brand-mark"><svg th:replace="~{layout/fragments :: icon('box')}"></svg></span>
+    <span>UTE<span>Express</span></span>
+</a>
+<a th:fragment="skip" href="#main-content" class="skip-link">Đến nội dung chính</a>
+<nav th:fragment="publicNav" class="public-nav" aria-label="Điều hướng công khai">
+    <a th:replace="~{layout/fragments :: skip}"></a>
+    <div class="container nav-inner">
+        <a th:replace="~{layout/fragments :: brand(@{/})}"></a>
+        <button class="btn menu-toggle" type="button" data-ui-menu aria-controls="public-menu" aria-expanded="true" hidden><svg th:replace="~{layout/fragments :: icon('menu')}"></svg> Menu</button>
+        <div class="nav-links" id="public-menu" data-ui-navigation>
+            <a th:href="@{/}">Trang chủ</a><a th:href="@{/tracking}">Tra cứu vận đơn</a><a th:href="@{/quote}">Ước tính phí</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}">Đăng nhập</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-warning">Bắt đầu gửi hàng</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/account}" class="btn btn-outline-light">Tài khoản của tôi</a>
+        </div>
+    </div>
+</nav>
+<nav th:fragment="customerNav" class="customer-nav" aria-label="Điều hướng khách hàng">
+    <a th:replace="~{layout/fragments :: skip}"></a>
+    <div class="container nav-inner">
+        <a th:replace="~{layout/fragments :: brand(@{/user/shipments})}"></a>
+        <button class="btn menu-toggle" type="button" data-ui-menu aria-controls="customer-menu" aria-expanded="true" hidden><svg th:replace="~{layout/fragments :: icon('menu')}"></svg> Menu</button>
+        <div id="customer-menu" class="nav-links" data-ui-navigation>
+            <a th:href="@{/user/shipments}">Vận đơn của tôi</a><a th:href="@{/user/shipments/create}">Tạo vận đơn</a>
+            <a th:href="@{/account/support}">Hỗ trợ</a><a th:href="@{/account/profile}">Hồ sơ</a>
+            <span th:replace="~{notifications/fragments :: bell}"></span><a th:href="@{/account}">Tài khoản</a>
+            <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button></form>
+        </div>
+    </div>
+</nav>
+<div th:fragment="workspace(area,links)">
+    <a th:replace="~{layout/fragments :: skip}"></a>
+    <header class="workspace-topbar">
+        <div class="workspace-title">
+            <button class="btn menu-toggle" type="button" data-ui-menu aria-controls="workspace-menu" aria-expanded="true" hidden><svg th:replace="~{layout/fragments :: icon('menu')}"></svg> Menu</button>
+            <span th:text="${area == 'admin' ? 'UTEExpress · Admin' : (area == 'manager' ? 'Điều hành logistics' : 'Lấy & giao hàng')}"></span>
+        </div>
+        <div class="workspace-actions">
+            <span th:replace="~{notifications/fragments :: bell}"></span>
+            <a th:href="@{/account}" class="btn btn-sm btn-outline-secondary">Tài khoản</a>
+            <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-secondary" type="submit">Đăng xuất</button></form>
+        </div>
+    </header>
+    <aside id="workspace-menu" class="app-sidebar" aria-label="Điều hướng không gian làm việc">
+        <a th:replace="~{layout/fragments :: brand(@{/{section}(section=${area})})}"></a>
+        <p class="sidebar-caption">Không gian làm việc</p>
+        <nav class="sidebar-links" data-ui-navigation th:insert="${links}"></nav>
+        <div class="sidebar-note"><svg th:replace="~{layout/fragments :: icon('check')}"></svg><span>Đúng phạm vi phụ trách.<br>Mỗi bàn giao có lịch sử.</span></div>
+    </aside>
+</div>
+<footer th:fragment="footer" class="page-footer">
+    <div class="container d-flex flex-wrap justify-content-between gap-3"><span>UTEExpress · Kết nối từng hành trình</span><span><a th:href="@{/tracking}">Tra cứu</a> · <a th:href="@{/quote}">Ước tính phí</a> · <a th:href="@{/account}">Tài khoản</a></span></div>
+</footer>
+</body>
+</html>

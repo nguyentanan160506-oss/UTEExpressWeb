@@ -1,13 +1,4 @@
-.tracking-nav { background: #14306b; }
+/* Tracking keeps its focused reading width. Timeline styling is shared in ui.css. */
 .tracking-shell { max-width: 960px; }
-.tracking-card { border: 1px solid #e0e7f3; border-radius: 1.25rem; box-shadow: 0 12px 36px rgb(24 46 87 / 6%); }
-.tracking-input { text-transform: uppercase; font-family: ui-monospace, monospace; }
-.tracking-status { padding: .65rem 1rem; background: #e5edff; color: #16418c; white-space: normal; }
-.tracking-timeline { list-style: none; padding-left: 1.5rem; margin-left: .35rem; border-left: 2px solid #d4e1fa; }
-.tracking-timeline li { position: relative; padding: 0 0 1.75rem .4rem; }
-.tracking-timeline li:last-child { padding-bottom: .25rem; }
-.tracking-timeline li::before { content: ""; position: absolute; left: -1.9rem; top: .4rem; width: .7rem; height: .7rem; border-radius: 50%; background: #1746a2; box-shadow: 0 0 0 4px #edf2fd; }
-@media (max-width: 575.98px) {
-    .tracking-nav .brand-name { font-size: 1.4rem; }
-    .tracking-input { font-size: .95rem; }
-}
+.tracking-card h2 { overflow-wrap: anywhere; }
+.tracking-card time { font-variant-numeric: tabular-nums; }

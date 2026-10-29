@@ -1,6 +1,6 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Thực hiện giao hàng')}"></head><body>
-<nav th:replace="~{shipper/fragments :: nav}"></nav><main class="container py-4" th:with="d=${detail}">
+<head th:replace="~{shipments/fragments :: head('Thực hiện giao hàng')}"></head><body class="workspace-page">
+<nav th:replace="~{shipper/fragments :: nav}"></nav><main data-ui-sections id="main-content" tabindex="-1" class="container py-4" th:with="d=${detail}">
 <div th:replace="~{shipper/fragments :: messages}"></div><p><a th:href="@{/shipper/deliveries}">Nhiệm vụ giao hàng</a></p><h1 class="h3" th:text="${d.task.trackingNumber}"></h1>
 <p th:replace="~{delivery/fragments :: taskStatus(${d.task.status})}"></p>
 <section th:if="${d.recipient != null}" class="card p-3 mb-3"><h2 class="h5">Người nhận cần liên hệ</h2><strong th:text="${d.recipient.name}"></strong><span th:text="${d.recipient.phone}"></span><p th:text="${d.recipient.address}"></p></section>

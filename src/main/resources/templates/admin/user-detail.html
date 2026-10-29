@@ -7,10 +7,11 @@
     <title>Chi tiết tài khoản · Admin UTEExpress</title>
     <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
 </head>
-<body>
+<body class="workspace-page">
 <nav th:replace="~{admin/fragments :: nav}"></nav>
-<main class="container py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container py-4 py-md-5">
     <a th:href="@{/admin/users}" class="small text-decoration-none">← Danh sách tài khoản</a>
     <h1 class="h3 fw-bold my-3">Chi tiết tài khoản</h1>
     <div th:replace="~{admin/fragments :: messages}"></div>
