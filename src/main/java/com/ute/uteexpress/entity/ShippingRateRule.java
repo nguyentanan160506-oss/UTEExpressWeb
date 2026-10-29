@@ -17,7 +17,7 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "IX_rate_rules_search", columnList = "service_id, scope_type, is_active, effective_from, effective_to")
     },
     check = {
-        @CheckConstraint(name = "CK_rate_rules_scope", constraint = "scope_type IN ('INTRA_PROVINCE', 'INTER_PROVINCE', 'INTER_REGION')"),
+        @CheckConstraint(name = "CK_rate_rules_scope", constraint = "scope_type IN ('INTRA_PROVINCE', 'INTER_PROVINCE', 'INTER_REGION', 'SAME_REGION', 'NORTH_CENTRAL', 'CENTRAL_SOUTH', 'NORTH_SOUTH')"),
         @CheckConstraint(name = "CK_rate_rules_base_weight", constraint = "base_weight_kg > 0"),
         @CheckConstraint(name = "CK_rate_rules_base_price", constraint = "base_price >= 0"),
         @CheckConstraint(name = "CK_rate_rules_step_weight", constraint = "extra_weight_step_kg > 0"),

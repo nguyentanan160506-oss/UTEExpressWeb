@@ -71,7 +71,7 @@ public class UserShipmentService {
             shipment.getHeightCm(), shipment.getCodAmount(), shipment.getDeclaredValue(), shipment.getShippingFee(),
             shipment.getInsuranceFee(), shipment.getTotalFee(), shipment.getPaymentPayer(), shipment.getPaymentStatus(),
             shipment.getStatus(), shipment.getNote(), shipment.getCreatedAt(), shipment.getUpdatedAt(), timeline,
-            shipment.getShipmentMethod(), shipment.getPickupFee());
+            shipment.getShipmentMethod(), shipment.getPickupFee(), com.ute.uteexpress.dto.pricing.PriceBreakdown.of(shipment.getPriceSnapshot()));
     }
 
     private User requireUser() {

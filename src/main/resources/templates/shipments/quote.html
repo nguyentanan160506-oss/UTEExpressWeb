@@ -35,12 +35,17 @@
         <section class="col-lg-5"><div class="card shipment-card"><div class="card-body p-4">
             <h2 class="h5 fw-bold">Chi tiết báo giá</h2>
             <dl class="row mt-4">
+                <th:block th:if="${quote.breakdown != null}">
+                    <dt class="col-7 fw-normal">Nhóm tuyến</dt><dd class="col-5 text-end" th:text="${quote.breakdown.scope.label}"></dd>
+                    <dt class="col-7 fw-normal">Giá cơ bản</dt><dd class="col-5 text-end" th:text="|${quote.breakdown.baseFee} VND|"></dd>
+                    <dt class="col-7 fw-normal">Phí trọng lượng vượt</dt><dd class="col-5 text-end" th:text="|${quote.breakdown.extraFee} VND|"></dd>
+                </th:block>
                 <dt class="col-7 fw-normal">Phí vận chuyển cơ bản</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.shippingFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
                 <dt class="col-7 fw-normal">Phụ phí lấy tận nhà</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.pickupFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
                 <dt class="col-7 fw-normal">Phí bảo hiểm</dt><dd class="col-5 text-end" th:text="${#numbers.formatDecimal(quote.insuranceFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
                 <dt class="col-7 border-top pt-3">Tổng phí cần thanh toán</dt><dd class="col-5 border-top pt-3 text-end fw-bold" th:text="${#numbers.formatDecimal(quote.totalFee, 1, 'POINT', 2, 'COMMA') + ' VND'}"></dd>
             </dl>
-            <p class="small text-secondary">Phí vận chuyển cơ bản gồm phần trọng lượng vượt mức. COD là khoản thu hộ, không cộng vào tổng phí. Chưa áp dụng sản phẩm bảo hiểm.</p>
+            <p class="small text-secondary">Phí vận chuyển là tổng giá cơ bản và phí cân vượt, làm tròn lên theo bước cân của bảng giá. COD là khoản thu hộ, không cộng vào tổng phí. Chưa áp dụng sản phẩm bảo hiểm. Khi xác nhận, server kiểm tra lại công thức đã lưu; báo giá hợp lệ được giữ đến hạn dù bảng giá mới thay đổi.</p>
             <p>Hiệu lực đến <strong th:text="${#temporals.format(quote.expiresAt, 'dd/MM/yyyy HH:mm:ss')}"></strong> UTC.</p>
             <p th:if="${quote.consumed}" class="alert alert-info">Báo giá đã được sử dụng. Gửi lại xác nhận sẽ mở vận đơn đã tạo, không tạo đơn thứ hai.</p>
             <p th:if="${!quote.confirmable and !quote.consumed}" class="alert alert-warning">Báo giá đã hết hạn. Vui lòng lấy báo giá mới.</p>

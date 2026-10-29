@@ -85,7 +85,7 @@ class PricingManagementTests {
         assertThrows(AdminRuleException.class, () -> f.draft(NOW.withNano(1), null)); assertTrue(f.books.isEmpty());
     }
     @Test void noRuleOrNoConfirmationCannotPublish() {
-        var v = draft(); assertThrows(AdminRuleException.class, () -> f.publish(v)); f.shipping(v, RateScopeType.INTER_PROVINCE, "30000.00");
+        var v = draft(); assertThrows(AdminRuleException.class, () -> f.publish(v)); f.shipping(v, RateScopeType.SAME_REGION, "30000.00");
         assertThrows(AdminRuleException.class, () -> f.management.publish(v.getId(), v.getVersion(), false)); assertEquals(PricingVersionStatus.DRAFT, v.getStatus());
     }
     @Test void cannotBackdatePublication() {
@@ -178,7 +178,8 @@ class PricingManagementTests {
     @Test void guestAndUserUseIdenticalPricesWithoutPublicQuotePersistence() {
         guest(); var estimate = f.quoting.estimate(f.guest()); assertTrue(f.quoteRows.isEmpty()); assertTrue(f.shipmentRows.isEmpty());
         f.as(f.customer); String token = f.quoting.quote(form()); assertEquals(estimate.totalFee(), f.quoteRows.get(token).getTotalFee());
-        assertEquals(Set.of("service", "method", "shippingFee", "pickupFee", "insuranceFee", "totalFee", "currency", "estimatedAt", "expiresAt"), Arrays.stream(PublicQuoteView.class.getRecordComponents()).map(java.lang.reflect.RecordComponent::getName).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(Set.of("service", "method", "shippingFee", "pickupFee", "insuranceFee", "totalFee", "currency", "estimatedAt", "expiresAt", "breakdown"), Arrays.stream(PublicQuoteView.class.getRecordComponents()).map(java.lang.reflect.RecordComponent::getName).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(Set.of("scope", "baseFee", "extraFee"), Arrays.stream(PriceBreakdown.class.getRecordComponents()).map(java.lang.reflect.RecordComponent::getName).collect(java.util.stream.Collectors.toSet()));
     }
     @Test void draftSimulationUsesSameFormulaWithoutLeakingDraftToLiveSelection() {
         var v = configured(); f.catalog.setActive(false);

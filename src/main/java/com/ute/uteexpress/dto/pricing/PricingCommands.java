@@ -22,6 +22,6 @@ public final class PricingCommands {
         @NotNull @DecimalMin("0.00") @Digits(integer = 16, fraction = 2) BigDecimal basePrice,
         @NotNull @DecimalMin("0.01") @Digits(integer = 8, fraction = 2) BigDecimal extraWeightStepKg,
         @NotNull @DecimalMin("0.00") @Digits(integer = 16, fraction = 2) BigDecimal extraPricePerStep, boolean active) { }
-    public record PickupRule(@Positive Long ruleId, @NotNull @Positive Long branchId,
+    public record PickupRule(@Positive Long ruleId, @Positive Long branchId,
         @NotNull @DecimalMin("0.01") @Digits(integer = 16, fraction = 2) BigDecimal amount, boolean active) { }
 }

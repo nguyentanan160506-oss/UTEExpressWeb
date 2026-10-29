@@ -1,3 +1,34 @@
+# Gate hiện tại — Commit 24–25
+
+| Gate | Kết quả thực tế |
+|---|---|
+| Giữ nguyên Commit 24, V1–V14; không đổi Git branch/index | PASS |
+| Catalog 34 tỉnh/1.156 cặp, 5 nhóm, phí DB, snapshot, RBAC/CSRF | PASS trên unit/JPA H2/MVC |
+| Full Maven clean verify lịch sử | PASS: 1.592 passed, 1 SQL opt-in skipped, 0 failure/error; không chạy clean lại trong lượt kết sổ |
+| Regression sau sửa NPE helper SQL QA | PASS: 95/95 targeted; full Maven test 1.598 passed, 1 SQL opt-in skipped, 0 failure/error |
+| Offline chuẩn bị helper V15 | PASS: 75 targeted; full Maven 1.615 passed / 1 SQL opt-in skipped / 0 failure/error; JAR package/isolation PASS |
+| Offline sau người dùng xác nhận SQL V15 | PASS: 75/75 targeted ngày 29/10/2026; không kết nối database, không chạy lại SQL Run |
+| Chrome headless H2 / OTP / logistics / realtime | PASS: 399 checkpoint, 0 fail/blocked; không Computer Use |
+| JavaScript / WebSocket backend | PASS: 12/12 và 17/17 |
+| Production JAR loại tooling/test SMTP/H2/credential | PASS |
+| SQL V14 Inspect/Preflight trước ghi | PASS: DESKTOP-31GJQ3T/SQLEXPRESS/1433, đúng QA/login, không access ba DB bảo vệ; lúc bắt đầu 0 user objects/bảng/history/fixture |
+| SQL V14 migrations/filtered UNIQUE/CHECK/legacy/rollback/validate | PASS trên SQL Server thật ngày 29/10/2026: V1–V14 SUCCESS, fault rollback đủ proof, business rollback, Flyway/Hibernate baseline V14 validate đạt; 0 gate bắt buộc SKIP/BLOCKED |
+| Database QA V14 sau Run duy nhất | Giữ nguyên 42 bảng, 14 history SUCCESS, fixture tối thiểu; không còn trống, không fresh Run/clean/repair/reset/drop |
+| SQL V15 upgrade nguyên bản / Flyway / Hibernate | PASS theo kết quả thực tế người dùng xác nhận: V1–V15 SUCCESS, checksum V15 **347627752**, validate đạt |
+| SQL V15 rollback / constraints / legacy | PASS: `migration-rollback=PASS`, UNIQUE default NULL, FK/CHECK/DECIMAL, snapshot legacy bảo toàn và business rollback |
+| SQL V15 pricing / snapshot / RBAC / concurrency | PASS: 1.156 cặp × hai phương thức, trọng lượng, pickup fallback, publish/giá cũ, ownership, hai thread confirm |
+| Database QA V15 sau Run | Đã có schema/history/fixture; giữ nguyên, không chạy lại Run/Preflight, không tự SELECT hoặc điền số bảng/row chưa có bằng chứng mới |
+| Nghiệm thu Commit 24/25 trong phạm vi QA | PASS; khuyến nghị kết thúc scope sau review/Git thủ công; không mở Commit 26 |
+| Browser E2E trên SQL Server / SQL demo restart / production load | NOT RUN trong QA V15; không suy ra từ Chrome H2 hoặc service concurrency |
+
+**H2 local demo và SQL QA V14/V15 đã PASS trong phạm vi được kiểm thử; chưa chứng nhận production-ready hoặc browser/persistence sau restart của checkout mới trên SQL demo.** Không dùng launcher SQL demo V14 cho source cần V15: guard vẫn chặn trước JDBC; QA V15 PASS không tự cấp phép nâng UTEExpress_Demo hoặc restart cổng 8083. Chủ dự án review/tách commit thủ công; agent không stage/commit/push/merge. Xem [nghiệm thu Commit 25](commit25-final-qa.md), [SQL V15](v15-sql-server-qa.md), [manifest và lệnh Git dự kiến](commit24-25-git-plan.md). Các mục dưới là lịch sử, không ghi đè gate hiện tại.
+
+Lượt trước chỉ SELECT để sửa NPE; sau phê duyệt mới đã Inspect → Preflight → Run đúng một lần → Inspect. Không có lỗi ngoài dự kiến, không đổi credential hoặc database khác. Bằng chứng/chỉ số SQL thực tế: [SQL Server V14](v14-sql-server-qa.md), [nghiệm thu Commit 24](commit24-final-qa.md). [Điều tra NPE](v14-null-context-investigation.md) là lịch sử trước lần Run thành công.
+
+V15: nguồn kết quả là dòng `RESULT PASS required-gates migration-rollback=PASS database-retained-no-cleanup` và xác nhận các gate của người dùng. Lượt kết sổ chỉ đối chiếu source/checksum, chạy tests offline, secret/artifact scan và cập nhật docs; không đọc credential hoặc kết nối SQL. Không bịa timestamp Run, row counts hoặc transcript SQL chưa được cung cấp.
+
+---
+
 # Cập nhật Commit 23 — sản phẩm SQL Server demo
 
 Phạm vi mới yêu cầu dữ liệu bền vững trên **UTEExpress_Demo**. Kết luận DEMO-READY bên dưới thuộc H2/Commit 22, không chứng nhận mục tiêu SQL demo mới. **Commit 23 chưa đủ điều kiện đóng** khi chưa cấp phép và chưa chạy migration/seed/startup/persistence sau restart trên DB demo riêng. Không thực hiện thao tác SQL Server trong giai đoạn chuẩn bị này.

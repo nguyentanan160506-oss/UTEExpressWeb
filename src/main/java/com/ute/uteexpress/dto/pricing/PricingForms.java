@@ -114,7 +114,7 @@ public final class PricingForms {
         @Positive(message = "Giá trị phải lớn hơn 0.") private Long ruleId;
         public Long getRuleId() { return ruleId; }
         public void setRuleId(Long value) { ruleId = value; }
-        @NotNull(message = "Vui lòng nhập/chọn thông tin này.") @Positive(message = "Giá trị phải lớn hơn 0.") private Long branchId;
+        @Positive(message = "Giá trị phải lớn hơn 0.") private Long branchId;
         public Long getBranchId() { return branchId; }
         public void setBranchId(Long value) { branchId = value; }
         @NotNull(message = "Vui lòng nhập/chọn thông tin này.") @DecimalMin(value = "0.01", message = "Giá trị tối thiểu {value}.") @Digits(integer = 16, fraction = 2, message = "Tối đa {integer} số nguyên và 2 số lẻ.") private BigDecimal amount;

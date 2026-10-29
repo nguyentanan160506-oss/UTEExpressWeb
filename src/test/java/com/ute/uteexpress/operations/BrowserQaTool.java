@@ -150,7 +150,7 @@ public final class BrowserQaTool implements AutoCloseable {
         String fieldNames=js("Array.from(new FormData(document.querySelector(\"form[action=\\\"/user/shipments/quotes\\\"]\")).keys()).join(\",\")").asText();
         submit("/user/shipments/quotes",Map.of());
         String quotePath=location();boolean quoted=quotePath.startsWith("/user/shipments/quotes/");
-        result(method+" quote",quoted&&text().contains(method.equals("HOME_PICKUP")?"52.500,00":"45.000,00"),"Detailed quote with database price; "+quotePath.replaceAll("/quotes/.*","/quotes/[token]")+(quoted?"":" fields="+fieldNames+" errors="+js("Array.from(document.querySelectorAll(\".alert-danger,.invalid-feedback\")).map(e=>e.innerText).filter(Boolean).join(\"; \")").asText()));
+        result(method+" quote",quoted&&text().contains(method.equals("HOME_PICKUP")?"60.000,00":"50.000,00"),"Detailed quote with database price; "+quotePath.replaceAll("/quotes/.*","/quotes/[token]")+(quoted?"":" fields="+fieldNames+" errors="+js("Array.from(document.querySelectorAll(\".alert-danger,.invalid-feedback\")).map(e=>e.innerText).filter(Boolean).join(\"; \")").asText()));
         if(!quoted)return null;
         submit("/user/shipments",Map.of());String shipment=location();result(method+" confirmation creates shipment",shipment.matches("/user/shipments/[0-9]+")&&text().contains("Tạo vận đơn thành công"),shipment);
         if(shipment.matches("/user/shipments/[0-9]+")){nav(quotePath);submit("/user/shipments",Map.of());result(method+" repeated confirmation reopens same shipment",location().equals(shipment),"Same quote confirmation is idempotent");return shipment.substring(shipment.lastIndexOf('/')+1);}
@@ -241,7 +241,7 @@ public final class BrowserQaTool implements AutoCloseable {
             var screenshot=call("Page.captureScreenshot",Map.of("format","png"));Path dir=Path.of(System.getenv().getOrDefault("UTE_BROWSER_EVIDENCE_DIR",System.getProperty("java.io.tmpdir")));Files.createDirectories(dir);Files.write(dir.resolve("uteexpress-tracking-"+width+".png"),Base64.getDecoder().decode(screenshot.path("data").asText()));
         }
     }
-    void run()throws Exception {guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
+    void run()throws Exception {guest();new BrowserNationwidePricingJourney(this).guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();new BrowserNationwidePricingJourney(this).admin();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
     public void close(){
         if(!ownedContexts.isEmpty()){
             try{

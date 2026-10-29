@@ -1,1468 +1,1604 @@
 {
-  "executedAt" : "2026-10-28T16:02:51Z",
+  "executedAt" : "2026-10-28T21:25:19Z",
   "target" : "http://127.0.0.1:18082",
   "browser" : "Chrome headless via native Java 21 CDP WebSocket; isolated TEMP profile",
   "database" : "Disposable H2 demo; no JDBC/SQL Server calls in this runner",
   "cases" : [ {
+    "name" : "Guest /",
     "status" : "PASS",
-    "detail" : "/ HTTP=200 expected=200",
-    "name" : "Guest /"
+    "detail" : "/ HTTP=200 expected=200"
   }, {
+    "name" : "Guest /tracking",
     "status" : "PASS",
-    "detail" : "/tracking HTTP=200 expected=200",
-    "name" : "Guest /tracking"
+    "detail" : "/tracking HTTP=200 expected=200"
   }, {
+    "name" : "Guest /quote",
     "status" : "PASS",
-    "detail" : "/quote HTTP=200 expected=200",
-    "name" : "Guest /quote"
+    "detail" : "/quote HTTP=200 expected=200"
   }, {
+    "name" : "Guest /login",
     "status" : "PASS",
-    "detail" : "/login HTTP=200 expected=200",
-    "name" : "Guest /login"
+    "detail" : "/login HTTP=200 expected=200"
   }, {
+    "name" : "Guest /register",
     "status" : "PASS",
-    "detail" : "/register HTTP=200 expected=200",
-    "name" : "Guest /register"
+    "detail" : "/register HTTP=200 expected=200"
   }, {
+    "name" : "Guest cannot open private shipment ID",
     "status" : "PASS",
-    "detail" : "/user/shipments/1 HTTP=401 expected=401",
-    "name" : "Guest cannot open private shipment ID"
+    "detail" : "/user/shipments/1 HTTP=401 expected=401"
   }, {
+    "name" : "Guest API 401",
     "status" : "PASS",
-    "detail" : "/api/notifications HTTP=401 expected=401",
-    "name" : "Guest API 401"
+    "detail" : "/api/notifications HTTP=401 expected=401"
   }, {
+    "name" : "Register HTML validation",
     "status" : "PASS",
-    "detail" : "Empty required fields block submit",
-    "name" : "Register HTML validation"
+    "detail" : "Empty required fields block submit"
   }, {
+    "name" : "Register CSRF enforced",
     "status" : "PASS",
-    "detail" : "POST without token rejected",
-    "name" : "Register CSRF enforced"
+    "detail" : "POST without token rejected"
   }, {
+    "name" : "OTP registration sends mail and opens verify form",
     "status" : "PASS",
-    "detail" : "Actual RegistrationService and production SMTP sender, local sink only",
-    "name" : "OTP registration sends mail and opens verify form"
+    "detail" : "Actual RegistrationService and production SMTP sender, local sink only"
   }, {
+    "name" : "Guest cannot read demo inbox",
     "status" : "PASS",
-    "detail" : "/admin/demo-mailbox HTTP=401 expected=401",
-    "name" : "Guest cannot read demo inbox"
+    "detail" : "/admin/demo-mailbox HTTP=401 expected=401"
   }, {
+    "name" : "OTP received through real local SMTP",
     "status" : "PASS",
-    "detail" : "Code held in memory only; value never logged or written",
-    "name" : "OTP received through real local SMTP"
+    "detail" : "Code held in memory only; value never logged or written"
   }, {
+    "name" : "UNVERIFIED account cannot log in",
     "status" : "PASS",
-    "detail" : "No automatic activation",
-    "name" : "UNVERIFIED account cannot log in"
+    "detail" : "No automatic activation"
   }, {
+    "name" : "Wrong OTP rejected in browser",
     "status" : "PASS",
-    "detail" : "Verification remains mandatory",
-    "name" : "Wrong OTP rejected in browser"
+    "detail" : "Verification remains mandatory"
   }, {
+    "name" : "Correct received OTP activates account",
     "status" : "PASS",
-    "detail" : "Normal verification endpoint, no DB/service mutation from runner",
-    "name" : "Correct received OTP activates account"
+    "detail" : "Normal verification endpoint, no DB/service mutation from runner"
   }, {
+    "name" : "browserqa-registration login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "browserqa-registration login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "New verified USER can enter shipments",
     "status" : "PASS",
-    "detail" : "/user/shipments HTTP=200 expected=200",
-    "name" : "New verified USER can enter shipments"
+    "detail" : "/user/shipments HTTP=200 expected=200"
   }, {
+    "name" : "New USER profile and empty address book",
     "status" : "PASS",
-    "detail" : "/account/profile HTTP=200 expected=200",
-    "name" : "New USER profile and empty address book"
+    "detail" : "/account/profile HTTP=200 expected=200"
   }, {
+    "name" : "New USER updates own profile",
     "status" : "PASS",
-    "detail" : "Name persists through redirect; login identity and roles unchanged",
-    "name" : "New USER updates own profile"
+    "detail" : "Name persists through redirect; login identity and roles unchanged"
   }, {
+    "name" : "New USER saves own address",
     "status" : "PASS",
-    "detail" : "Actual form, CSRF and owner-scoped persistence",
-    "name" : "New USER saves own address"
+    "detail" : "Actual form, CSRF and owner-scoped persistence"
   }, {
+    "name" : "Address is private to new USER",
     "status" : "PASS",
-    "detail" : "No shared address book",
-    "name" : "Address is private to new USER"
+    "detail" : "No shared address book"
   }, {
+    "name" : "other login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "other login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Other USER profile hides new account address",
     "status" : "PASS",
-    "detail" : "/account/profile HTTP=200 expected=200",
-    "name" : "Other USER profile hides new account address"
+    "detail" : "/account/profile HTTP=200 expected=200"
   }, {
+    "name" : "New USER deletes own address",
     "status" : "PASS",
-    "detail" : "POST mutation retains CSRF protection",
-    "name" : "New USER deletes own address"
+    "detail" : "POST mutation retains CSRF protection"
   }, {
+    "name" : "New USER sees coverage instructions before lookup",
     "status" : "PASS",
-    "detail" : "Fresh account sees why options are initially empty; no employee or shipment history prerequisite",
-    "name" : "New USER sees coverage instructions before lookup"
+    "detail" : "Fresh account sees why options are initially empty; no employee or shipment history prerequisite"
   }, {
+    "name" : "Reported pickup area does not hide a valid destination",
     "status" : "PASS",
-    "detail" : "Reported tp da nang/Nui Thanh strings have no demo origin coverage; receiver lookup remains independent",
-    "name" : "Reported pickup area does not hide a valid destination"
+    "detail" : "Canonical province selected; reported Nui Thanh district/ward still has no demo coverage; receiver lookup remains independent"
   }, {
+    "name" : "New USER sees explicit unsupported destination error",
     "status" : "PASS",
-    "detail" : "No unfiltered fallback or fabricated branch",
-    "name" : "New USER sees explicit unsupported destination error"
+    "detail" : "No unfiltered fallback or fabricated branch"
   }, {
+    "name" : "New USER can load destination using nearby lookup button",
     "status" : "PASS",
-    "detail" : "Valid active receiver branch comes from DB after explicit lookup",
-    "name" : "New USER can load destination using nearby lookup button"
+    "detail" : "Valid active receiver branch comes from DB after explicit lookup"
   }, {
+    "name" : "HOME_PICKUP quote",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "HOME_PICKUP quote"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "HOME_PICKUP confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "/user/shipments/19",
-    "name" : "HOME_PICKUP confirmation creates shipment"
+    "detail" : "/user/shipments/19"
   }, {
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "Fresh registered USER completes quote and shipment creation",
     "status" : "PASS",
-    "detail" : "Regression covers register -> OTP -> login -> branch lookup -> quote -> create with the same new account",
-    "name" : "Fresh registered USER completes quote and shipment creation"
+    "detail" : "Regression covers register -> OTP -> login -> branch lookup -> quote -> create with the same new account"
   }, {
+    "name" : "New USER cannot read SMTP inbox",
     "status" : "PASS",
-    "detail" : "/admin/demo-mailbox HTTP=403 expected=403",
-    "name" : "New USER cannot read SMTP inbox"
+    "detail" : "/admin/demo-mailbox HTTP=403 expected=403"
   }, {
+    "name" : "Used OTP cannot be replayed",
     "status" : "PASS",
-    "detail" : "Single-use code enforced",
-    "name" : "Used OTP cannot be replayed"
+    "detail" : "Single-use code enforced"
   }, {
+    "name" : "admin login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "admin login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Admin H2 test SMTP inbox",
     "status" : "PASS",
-    "detail" : "/admin/demo-mailbox HTTP=200 expected=200",
-    "name" : "Admin H2 test SMTP inbox"
+    "detail" : "/admin/demo-mailbox HTTP=200 expected=200"
   }, {
+    "name" : "Registration SMTP OTP browser journey complete",
     "status" : "PASS",
-    "detail" : "register -> SMTP -> ADMIN test inbox -> reject wrong code -> verify -> login USER -> reject reuse",
-    "name" : "Registration SMTP OTP browser journey complete"
+    "detail" : "register -> SMTP -> ADMIN test inbox -> reject wrong code -> verify -> login USER -> reject reuse"
   }, {
+    "name" : "Tracking invalid format",
     "status" : "PASS",
-    "detail" : "Invalid code gives validation, not private data",
-    "name" : "Tracking invalid format"
+    "detail" : "Invalid code gives validation, not private data"
   }, {
+    "name" : "Tracking unknown",
     "status" : "PASS",
-    "detail" : "Unknown tracking number",
-    "name" : "Tracking unknown"
+    "detail" : "Unknown tracking number"
   }, {
+    "name" : "Login CSRF enforced",
     "status" : "PASS",
-    "detail" : "Missing token gives 403",
-    "name" : "Login CSRF enforced"
+    "detail" : "Missing token gives 403"
   }, {
+    "name" : "Invalid login generic error",
     "status" : "PASS",
-    "detail" : "Unknown account -> /login?error",
-    "name" : "Invalid login generic error"
+    "detail" : "Unknown account -> /login?error"
   }, {
+    "name" : "National quote has exactly 34 origin and destination choices",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "Official catalog + one placeholder"
   }, {
+    "name" : "National estimate does not require invented branches",
     "status" : "PASS",
-    "detail" : "/user/shipments HTTP=200 expected=200",
-    "name" : "USER list"
+    "detail" : "Non-binding national pricing mode"
   }, {
+    "name" : "National price Hà Nội → Hà Nội BRANCH_DROPOFF",
     "status" : "PASS",
-    "detail" : "No empty status badge",
-    "name" : "USER visible status labels"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=25000.00"
   }, {
+    "name" : "National price Hà Nội → Hà Nội HOME_PICKUP",
     "status" : "PASS",
-    "detail" : "/user/shipments/17 HTTP=200 expected=200",
-    "name" : "USER detail/timeline"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=35000.00"
   }, {
+    "name" : "National price Hà Nội → Hải Phòng BRANCH_DROPOFF",
     "status" : "PASS",
-    "detail" : "/account/support HTTP=200 expected=200",
-    "name" : "USER support list"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=35000.00"
   }, {
+    "name" : "National price Hà Nội → Hải Phòng HOME_PICKUP",
     "status" : "PASS",
-    "detail" : "/account/support/1 HTTP=200 expected=200",
-    "name" : "USER support conversation"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=45000.00"
   }, {
+    "name" : "National price Hà Nội → Đà Nẵng BRANCH_DROPOFF",
     "status" : "PASS",
-    "detail" : "POST conversation form",
-    "name" : "USER sends support message"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=45000.00"
   }, {
+    "name" : "National price Hà Nội → Đà Nẵng HOME_PICKUP",
     "status" : "PASS",
-    "detail" : "Public conversation only",
-    "name" : "Support internal note hidden"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=55000.00"
   }, {
+    "name" : "National price Đà Nẵng → Hồ Chí Minh BRANCH_DROPOFF",
     "status" : "PASS",
-    "detail" : "/notifications HTTP=200 expected=200",
-    "name" : "USER notifications"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=50000.00"
   }, {
+    "name" : "National price Đà Nẵng → Hồ Chí Minh HOME_PICKUP",
     "status" : "PASS",
-    "detail" : "/admin/users HTTP=403 expected=403",
-    "name" : "USER denied ADMIN"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=60000.00"
   }, {
+    "name" : "National price Hà Nội → Hồ Chí Minh BRANCH_DROPOFF",
     "status" : "PASS",
-    "detail" : "/manager/trips HTTP=403 expected=403",
-    "name" : "USER denied Manager"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=65000.00"
   }, {
+    "name" : "National price Hà Nội → Hồ Chí Minh HOME_PICKUP",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "BRANCH_DROPOFF quote"
+    "detail" : "Server-rendered base + ceil(overweight) + DB pickup; expected=75000.00"
   }, {
+    "name" : "National weight below 1 kg has no extra charge",
     "status" : "PASS",
-    "detail" : "/user/shipments/20",
-    "name" : "BRANCH_DROPOFF confirmation creates shipment"
+    "detail" : "Included first kilogram"
   }, {
+    "name" : "National client-supplied amount rejected",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment"
+    "detail" : "Allowlist rejects price fields HTTP=400"
   }, {
+    "name" : "National quote CSRF enforced",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "HOME_PICKUP quote"
+    "detail" : "No public POST CSRF exemption"
   }, {
+    "name" : "National invalid province rejected by backend",
     "status" : "PASS",
-    "detail" : "/user/shipments/21",
-    "name" : "HOME_PICKUP confirmation creates shipment"
+    "detail" : "No guessed region or zero tariff"
   }, {
+    "name" : "Coverage-aware quote remains available",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+    "detail" : "Actual creation still requires explicit coverage"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "Session retained after rejected logout",
-    "name" : "Logout CSRF enforced"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "USER list",
     "status" : "PASS",
-    "detail" : "Logout clears authentication",
-    "name" : "Logout redirect"
+    "detail" : "/user/shipments HTTP=200 expected=200"
   }, {
+    "name" : "USER visible status labels",
     "status" : "PASS",
-    "detail" : "/user/shipments HTTP=401 expected=401",
-    "name" : "Logout revokes private route"
+    "detail" : "No empty status badge"
   }, {
+    "name" : "USER detail/timeline",
     "status" : "PASS",
-    "detail" : "Only public tracking data",
-    "name" : "Public tracking valid and private fields absent"
+    "detail" : "/user/shipments/17 HTTP=200 expected=200"
   }, {
+    "name" : "USER support list",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "other login"
+    "detail" : "/account/support HTTP=200 expected=200"
   }, {
+    "name" : "USER support conversation",
     "status" : "PASS",
-    "detail" : "/user/shipments/17 HTTP=404 expected=404",
-    "name" : "Other USER shipment ownership"
+    "detail" : "/account/support/1 HTTP=200 expected=200"
   }, {
+    "name" : "USER sends support message",
     "status" : "PASS",
-    "detail" : "/account/support/1 HTTP=404 expected=404",
-    "name" : "Other USER support ownership"
+    "detail" : "POST conversation form"
   }, {
+    "name" : "Support internal note hidden",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "Public conversation only"
   }, {
+    "name" : "USER notifications",
     "status" : "PASS",
-    "detail" : "/manager HTTP=200 expected=200",
-    "name" : "Manager /manager"
+    "detail" : "/notifications HTTP=200 expected=200"
   }, {
+    "name" : "USER denied ADMIN",
     "status" : "PASS",
-    "detail" : "/manager/operations HTTP=200 expected=200",
-    "name" : "Manager /manager/operations"
+    "detail" : "/admin/users HTTP=403 expected=403"
   }, {
+    "name" : "USER denied Manager",
     "status" : "PASS",
-    "detail" : "/manager/shipments HTTP=200 expected=200",
-    "name" : "Manager /manager/shipments"
+    "detail" : "/manager/trips HTTP=403 expected=403"
   }, {
+    "name" : "BRANCH_DROPOFF quote",
     "status" : "PASS",
-    "detail" : "/manager/handoffs HTTP=200 expected=200",
-    "name" : "Manager /manager/handoffs"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "BRANCH_DROPOFF confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "/manager/trips HTTP=200 expected=200",
-    "name" : "Manager /manager/trips"
+    "detail" : "/user/shipments/20"
   }, {
+    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "/manager/trips/new HTTP=200 expected=200",
-    "name" : "Manager /manager/trips/new"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "HOME_PICKUP quote",
     "status" : "PASS",
-    "detail" : "/manager/deliveries HTTP=200 expected=200",
-    "name" : "Manager /manager/deliveries"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "HOME_PICKUP confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "/manager/tickets HTTP=200 expected=200",
-    "name" : "Manager /manager/tickets"
+    "detail" : "/user/shipments/21"
   }, {
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "/admin/users HTTP=403 expected=403",
-    "name" : "Manager denied ADMIN"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "Logout CSRF enforced",
     "status" : "PASS",
-    "detail" : "Physical receipt is separate",
-    "name" : "Manager confirms Browser dropoff"
+    "detail" : "Session retained after rejected logout"
   }, {
+    "name" : "Logout redirect",
     "status" : "PASS",
-    "detail" : "Receipt and timeline rendered",
-    "name" : "Manager physical branch intake"
+    "detail" : "Logout clears authentication"
   }, {
+    "name" : "Logout revokes private route",
     "status" : "PASS",
-    "detail" : "Only source-branch eligible courier",
-    "name" : "Manager assigns pickup"
+    "detail" : "/user/shipments HTTP=401 expected=401"
   }, {
+    "name" : "Public tracking valid and private fields absent",
     "status" : "PASS",
-    "detail" : "/manager/trips/29",
-    "name" : "Manager creates collection trip"
+    "detail" : "Only public tracking data"
   }, {
+    "name" : "other login",
     "status" : "PASS",
-    "detail" : "Selected newly created/physically received parcel",
-    "name" : "Manager adds received shipment to manifest"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Other USER shipment ownership",
     "status" : "PASS",
-    "detail" : "Source branch -> configured hub",
-    "name" : "Manager seals and departs collection trip"
+    "detail" : "/user/shipments/17 HTTP=404 expected=404"
   }, {
+    "name" : "Other USER support ownership",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-origin-manager login"
+    "detail" : "/account/support/1 HTTP=404 expected=404"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "Receipt controls parcel custody; distinct branch actor",
-    "name" : "Hub Manager arrives receives and closes trip"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Manager /manager",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "/manager HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/operations",
     "status" : "PASS",
-    "detail" : "/manager/tickets/1 HTTP=200 expected=200",
-    "name" : "Destination Manager ticket conversation"
+    "detail" : "/manager/operations HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/shipments",
     "status" : "PASS",
-    "detail" : "Physical handoff remains subject to courier acceptance",
-    "name" : "Manager prepares delivery 9"
+    "detail" : "/manager/shipments HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/handoffs",
     "status" : "PASS",
-    "detail" : "Physical handoff remains subject to courier acceptance",
-    "name" : "Manager prepares delivery 10"
+    "detail" : "/manager/handoffs HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/trips",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "pickup-courier login"
+    "detail" : "/manager/trips HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/trips/new",
     "status" : "PASS",
-    "detail" : "/shipper HTTP=200 expected=200",
-    "name" : "Pickup courier dashboard"
+    "detail" : "/manager/trips/new HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/deliveries",
     "status" : "PASS",
-    "detail" : "/shipper/pickups HTTP=200 expected=200",
-    "name" : "Pickup courier tasks"
+    "detail" : "/manager/deliveries HTTP=200 expected=200"
   }, {
+    "name" : "Manager /manager/tickets",
     "status" : "PASS",
-    "detail" : "/shipper/pickups/9 HTTP=200 expected=200",
-    "name" : "Pickup task evidence/handoff forms"
+    "detail" : "/manager/tickets HTTP=200 expected=200"
   }, {
+    "name" : "Manager denied ADMIN",
     "status" : "PASS",
-    "detail" : "Actual collection form",
-    "name" : "Shipper pickup evidence"
+    "detail" : "/admin/users HTTP=403 expected=403"
   }, {
+    "name" : "Manager confirms Browser dropoff",
     "status" : "PASS",
-    "detail" : "Does not self-accept branch custody",
-    "name" : "Shipper requests source handoff"
+    "detail" : "Physical receipt is separate"
   }, {
+    "name" : "Manager physical branch intake",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "Receipt and timeline rendered"
   }, {
+    "name" : "Manager assigns pickup",
     "status" : "PASS",
-    "detail" : "Follow linked source receipt and verify persisted reference",
-    "name" : "Independent Manager accepts source handoff"
+    "detail" : "Only source-branch eligible courier"
   }, {
+    "name" : "Manager creates collection trip",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "shipper login"
+    "detail" : "/manager/trips/29"
   }, {
+    "name" : "Manager adds received shipment to manifest",
     "status" : "PASS",
-    "detail" : "/shipper HTTP=200 expected=200",
-    "name" : "Delivery courier dashboard"
+    "detail" : "Selected newly created/physically received parcel"
   }, {
+    "name" : "Manager seals and departs collection trip",
     "status" : "PASS",
-    "detail" : "/shipper/deliveries HTTP=200 expected=200",
-    "name" : "Delivery task list"
+    "detail" : "Source branch -> configured hub"
   }, {
+    "name" : "hub-origin-manager login",
     "status" : "PASS",
-    "detail" : "/shipper/deliveries/10 HTTP=200 expected=200",
-    "name" : "Delivery task proof/failure forms"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Hub Manager arrives receives and closes trip",
     "status" : "PASS",
-    "detail" : "Correct assigned courier and CSRF form",
-    "name" : "Courier accepts and starts delivery 0"
+    "detail" : "Receipt controls parcel custody; distinct branch actor"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "Task completed; proof reference checked separately in Manager view",
-    "name" : "Courier successful delivery proof"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Destination Manager ticket conversation",
     "status" : "PASS",
-    "detail" : "Correct assigned courier and CSRF form",
-    "name" : "Courier accepts and starts delivery 1"
+    "detail" : "/manager/tickets/1 HTTP=200 expected=200"
   }, {
+    "name" : "Manager prepares delivery 9",
     "status" : "PASS",
-    "detail" : "Failure reason and attempt displayed",
-    "name" : "Courier failed attempt"
+    "detail" : "Physical handoff remains subject to courier acceptance"
   }, {
+    "name" : "Manager prepares delivery 10",
     "status" : "PASS",
-    "detail" : "/manager/trips HTTP=403 expected=403",
-    "name" : "Shipper denied Manager"
+    "detail" : "Physical handoff remains subject to courier acceptance"
   }, {
+    "name" : "pickup-courier login",
     "status" : "PASS",
-    "detail" : "/user/shipments/17 HTTP=403 expected=403",
-    "name" : "Shipper denied customer data"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Pickup courier dashboard",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "/shipper HTTP=200 expected=200"
   }, {
+    "name" : "Pickup courier tasks",
     "status" : "PASS",
-    "detail" : "Proof checked at its actual detail URL",
-    "name" : "Manager sees persisted delivery proof"
+    "detail" : "/shipper/pickups HTTP=200 expected=200"
   }, {
+    "name" : "Pickup task evidence/handoff forms",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "/shipper/pickups/9 HTTP=200 expected=200"
   }, {
+    "name" : "Shipper pickup evidence",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "HOME_PICKUP quote"
+    "detail" : "Actual collection form"
   }, {
+    "name" : "Shipper requests source handoff",
     "status" : "PASS",
-    "detail" : "/user/shipments/22",
-    "name" : "HOME_PICKUP confirmation creates shipment"
+    "detail" : "Does not self-accept branch custody"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Independent Manager accepts source handoff",
     "status" : "PASS",
-    "detail" : "Never substitute seeded shipment",
-    "name" : "E2E new HOME_PICKUP parcel"
+    "detail" : "Follow linked source receipt and verify persisted reference"
   }, {
+    "name" : "shipper login",
     "status" : "PASS",
-    "detail" : "Public tracking format",
-    "name" : "E2E tracking identifier"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Delivery courier dashboard",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "/shipper HTTP=200 expected=200"
   }, {
+    "name" : "Delivery task list",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "HOME_PICKUP quote"
+    "detail" : "/shipper/deliveries HTTP=200 expected=200"
   }, {
+    "name" : "Delivery task proof/failure forms",
     "status" : "PASS",
-    "detail" : "/user/shipments/23",
-    "name" : "HOME_PICKUP confirmation creates shipment"
+    "detail" : "/shipper/deliveries/10 HTTP=200 expected=200"
   }, {
+    "name" : "Courier accepts and starts delivery 0",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "HOME_PICKUP repeated confirmation reopens same shipment"
+    "detail" : "Correct assigned courier and CSRF form"
   }, {
+    "name" : "Courier successful delivery proof",
     "status" : "PASS",
-    "detail" : "Never substitute seeded shipment",
-    "name" : "E2E new HOME_PICKUP parcel"
+    "detail" : "Task completed; proof reference checked separately in Manager view"
   }, {
+    "name" : "Courier accepts and starts delivery 1",
     "status" : "PASS",
-    "detail" : "Public tracking format",
-    "name" : "E2E tracking identifier"
+    "detail" : "Correct assigned courier and CSRF form"
   }, {
+    "name" : "Courier failed attempt",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "Failure reason and attempt displayed"
   }, {
+    "name" : "Shipper denied Manager",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/shipments/22/confirm"
+    "detail" : "/manager/trips HTTP=403 expected=403"
   }, {
+    "name" : "Shipper denied customer data",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/shipments/22/confirm"
+    "detail" : "/user/shipments/17 HTTP=403 expected=403"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/shipments/22/pickup-assignments"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Manager sees persisted delivery proof",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/shipments/22/pickup-assignments"
+    "detail" : "Proof checked at its actual detail URL"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "pickup-courier login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "HOME_PICKUP quote",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 22",
-    "name" : "E2E exact parcel link /shipper/pickups/"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "HOME_PICKUP confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/pickups/11/collect"
+    "detail" : "/user/shipments/22"
   }, {
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/pickups/11/collect"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "E2E new HOME_PICKUP parcel",
     "status" : "PASS",
-    "detail" : "Evidence visible after save",
-    "name" : "E2E pickup evidence 22"
+    "detail" : "Never substitute seeded shipment"
   }, {
+    "name" : "E2E tracking identifier",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/pickups/11/handoffs"
+    "detail" : "Public tracking format"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/pickups/11/handoffs"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "HOME_PICKUP quote",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "HOME_PICKUP confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 22",
-    "name" : "E2E exact parcel link /manager/handoffs/"
+    "detail" : "/user/shipments/23"
   }, {
+    "name" : "HOME_PICKUP repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/handoffs/2/accept"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "E2E new HOME_PICKUP parcel",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/handoffs/2/accept"
+    "detail" : "Never substitute seeded shipment"
   }, {
+    "name" : "E2E tracking identifier",
     "status" : "PASS",
-    "detail" : "Source custody only after physical acceptance",
-    "name" : "E2E independent source receipt 22"
+    "detail" : "Public tracking format"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/shipments/22/confirm",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/shipments/23/confirm"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/shipments/22/confirm",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/shipments/23/confirm"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/shipments/22/pickup-assignments",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/shipments/23/pickup-assignments"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/shipments/22/pickup-assignments",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/shipments/23/pickup-assignments"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "pickup-courier login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "pickup-courier login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /shipper/pickups/",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 23",
-    "name" : "E2E exact parcel link /shipper/pickups/"
+    "detail" : "Matches tracking of newly created shipment 22"
   }, {
+    "name" : "E2E form /shipper/pickups/11/collect",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/pickups/12/collect"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/pickups/11/collect",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/pickups/12/collect"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E pickup evidence 22",
     "status" : "PASS",
-    "detail" : "Evidence visible after save",
-    "name" : "E2E pickup evidence 23"
+    "detail" : "Evidence visible after save"
   }, {
+    "name" : "E2E form /shipper/pickups/11/handoffs",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/pickups/12/handoffs"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/pickups/11/handoffs",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/pickups/12/handoffs"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /manager/handoffs/",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 23",
-    "name" : "E2E exact parcel link /manager/handoffs/"
+    "detail" : "Matches tracking of newly created shipment 22"
   }, {
+    "name" : "E2E form /manager/handoffs/2/accept",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/handoffs/3/accept"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/handoffs/2/accept",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/handoffs/3/accept"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E independent source receipt 22",
     "status" : "PASS",
-    "detail" : "Source custody only after physical acceptance",
-    "name" : "E2E independent source receipt 23"
+    "detail" : "Source custody only after physical acceptance"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/shipments/23/confirm",
     "status" : "PASS",
-    "detail" : "Destination=Hub miền Trung demo; no guessed route ID",
-    "name" : "E2E configured route FWD-COLLECTION"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/shipments/23/confirm",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/shipments/23/pickup-assignments",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/shipments/23/pickup-assignments",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip FWD-COLLECTION"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "pickup-courier login",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest FWD-COLLECTION"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /shipper/pickups/",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/30/seal"
+    "detail" : "Matches tracking of newly created shipment 23"
   }, {
+    "name" : "E2E form /shipper/pickups/12/collect",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/30/seal"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/pickups/12/collect",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/30/depart"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E pickup evidence 23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/30/depart"
+    "detail" : "Evidence visible after save"
   }, {
+    "name" : "E2E form /shipper/pickups/12/handoffs",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-origin-manager login"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/pickups/12/handoffs",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/30/arrive"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/30/arrive"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /manager/handoffs/",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-COLLECTION/22"
+    "detail" : "Matches tracking of newly created shipment 23"
   }, {
+    "name" : "E2E form /manager/handoffs/3/accept",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-COLLECTION/22"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/handoffs/3/accept",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-COLLECTION/22"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E independent source receipt 23",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-COLLECTION/23"
+    "detail" : "Source custody only after physical acceptance"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-COLLECTION/23"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route FWD-COLLECTION",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-COLLECTION/23"
+    "detail" : "Destination=Hub miền Trung demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/30/close"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/30/close"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip FWD-COLLECTION",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip FWD-COLLECTION"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest FWD-COLLECTION",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-origin-manager login"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/30/seal",
     "status" : "PASS",
-    "detail" : "Destination=Hub phía Nam demo; no guessed route ID",
-    "name" : "E2E configured route FWD-LINEHAUL"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/30/seal",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/30/depart",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/30/depart",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip FWD-LINEHAUL"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "hub-origin-manager login",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest FWD-LINEHAUL"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/30/arrive",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/31/seal"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/30/arrive",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/31/seal"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item FWD-COLLECTION/22",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/31/depart"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-COLLECTION/22",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/31/depart"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-COLLECTION/22",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-dest-manager login"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E manifested item FWD-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/31/arrive"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/31/arrive"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-LINEHAUL/22"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/30/close",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-LINEHAUL/22"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/30/close",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-LINEHAUL/22"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip FWD-COLLECTION",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-LINEHAUL/23"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "hub-origin-manager login",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-LINEHAUL/23"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route FWD-LINEHAUL",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-LINEHAUL/23"
+    "detail" : "Destination=Hub phía Nam demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/31/close"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/31/close"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip FWD-LINEHAUL",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip FWD-LINEHAUL"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest FWD-LINEHAUL",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-dest-manager login"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/31/seal",
     "status" : "PASS",
-    "detail" : "Destination=Chi nhánh TP.HCM demo; no guessed route ID",
-    "name" : "E2E configured route FWD-DISTRIBUTION"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/31/seal",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/31/depart",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/31/depart",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip FWD-DISTRIBUTION"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "hub-dest-manager login",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest FWD-DISTRIBUTION"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/31/arrive",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/32/seal"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/31/arrive",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/32/seal"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item FWD-LINEHAUL/22",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/32/depart"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-LINEHAUL/22",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/32/depart"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-LINEHAUL/22",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E manifested item FWD-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/32/arrive"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/32/arrive"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-DISTRIBUTION/22"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/31/close",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-DISTRIBUTION/22"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/31/close",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-DISTRIBUTION/22"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip FWD-LINEHAUL",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item FWD-DISTRIBUTION/23"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "hub-dest-manager login",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt FWD-DISTRIBUTION/23"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route FWD-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt FWD-DISTRIBUTION/23"
+    "detail" : "Destination=Chi nhánh TP.HCM demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/32/close"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/32/close"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip FWD-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip FWD-DISTRIBUTION"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest FWD-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/32/seal",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/22/assign"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/32/seal",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/22/assign"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/32/depart",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/22/handoff"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/32/depart",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/22/handoff"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "shipper login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/32/arrive",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 22",
-    "name" : "E2E exact parcel link /shipper/deliveries/"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/32/arrive",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/13/accept"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item FWD-DISTRIBUTION/22",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/13/accept"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-DISTRIBUTION/22",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/13/start"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-DISTRIBUTION/22",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/13/start"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E manifested item FWD-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/13/complete"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt FWD-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/13/complete"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt FWD-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/32/close",
     "status" : "PASS",
-    "detail" : "Same parcel from user quote through all three forward legs",
-    "name" : "E2E delivered with proof"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/32/close",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip FWD-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/23/assign"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/23/assign"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/deliveries/22/assign",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/23/handoff"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/22/assign",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/23/handoff"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/deliveries/22/handoff",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "shipper login"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/22/handoff",
     "status" : "PASS",
-    "detail" : "Matches tracking of newly created shipment 23",
-    "name" : "E2E exact parcel link /shipper/deliveries/"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "shipper login",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/14/accept"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /shipper/deliveries/",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/14/accept"
+    "detail" : "Matches tracking of newly created shipment 22"
   }, {
+    "name" : "E2E form /shipper/deliveries/13/accept",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/14/start"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/accept",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/14/start"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /shipper/deliveries/13/start",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/14/fail"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/start",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/14/fail"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /shipper/deliveries/13/complete",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/13/complete",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/23/return"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/23/return"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E delivered with proof",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "shipper login"
+    "detail" : "Same parcel from user quote through all three forward legs"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /shipper/deliveries/14/return-to-branch"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/deliveries/23/assign",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /shipper/deliveries/14/return-to-branch"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/23/assign",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/deliveries/23/handoff",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/23/recoveries/accept"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/23/handoff",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/23/recoveries/accept"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "shipper login",
     "status" : "PASS",
-    "detail" : "Return decision does not invent custody",
-    "name" : "E2E failed parcel physically recovered"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E exact parcel link /shipper/deliveries/",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "destination-manager login"
+    "detail" : "Matches tracking of newly created shipment 23"
   }, {
+    "name" : "E2E form /shipper/deliveries/14/accept",
     "status" : "PASS",
-    "detail" : "Destination=Hub phía Nam demo; no guessed route ID",
-    "name" : "E2E configured route REV-COLLECTION"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/accept",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /shipper/deliveries/14/start",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/start",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip REV-COLLECTION"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /shipper/deliveries/14/fail",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest REV-COLLECTION"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/fail",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/33/seal"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/33/seal"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/deliveries/23/return",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/33/depart"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/23/return",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/33/depart"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "shipper login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-dest-manager login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /shipper/deliveries/14/return-to-branch",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/33/arrive"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /shipper/deliveries/14/return-to-branch",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/33/arrive"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item REV-COLLECTION/23"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/deliveries/23/recoveries/accept",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt REV-COLLECTION/23"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/23/recoveries/accept",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt REV-COLLECTION/23"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E failed parcel physically recovered",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/33/close"
+    "detail" : "Return decision does not invent custody"
   }, {
+    "name" : "destination-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/33/close"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route REV-COLLECTION",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip REV-COLLECTION"
+    "detail" : "Destination=Hub phía Nam demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-dest-manager login"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "Destination=Hub miền Trung demo; no guessed route ID",
-    "name" : "E2E configured route REV-LINEHAUL"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip REV-COLLECTION",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest REV-COLLECTION",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/33/seal",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip REV-LINEHAUL"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/33/seal",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest REV-LINEHAUL"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/33/depart",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/34/seal"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/33/depart",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/34/seal"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "hub-dest-manager login",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/34/depart"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/33/arrive",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/34/depart"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/33/arrive",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-origin-manager login"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item REV-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/34/arrive"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt REV-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/34/arrive"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt REV-COLLECTION/23",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item REV-LINEHAUL/23"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/33/close",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt REV-LINEHAUL/23"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/33/close",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt REV-LINEHAUL/23"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip REV-COLLECTION",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/34/close"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "hub-dest-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/34/close"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route REV-LINEHAUL",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip REV-LINEHAUL"
+    "detail" : "Destination=Hub miền Trung demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "hub-origin-manager login"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "Destination=Chi nhánh Đà Nẵng demo; no guessed route ID",
-    "name" : "E2E configured route REV-DISTRIBUTION"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip REV-LINEHAUL",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest REV-LINEHAUL",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/34/seal",
     "status" : "PASS",
-    "detail" : "Trip created via UI",
-    "name" : "E2E draft trip REV-DISTRIBUTION"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/34/seal",
     "status" : "PASS",
-    "detail" : "Only the new parcels selected; correct forward/reverse form",
-    "name" : "E2E manifest REV-DISTRIBUTION"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/34/depart",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/35/seal"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/34/depart",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/35/seal"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "hub-origin-manager login",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/35/depart"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/34/arrive",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/35/depart"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/34/arrive",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item REV-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/35/arrive"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt REV-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/35/arrive"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt REV-LINEHAUL/23",
     "status" : "PASS",
-    "detail" : "Receipt targets exact tracking, not first row",
-    "name" : "E2E manifested item REV-DISTRIBUTION/23"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/34/close",
     "status" : "PASS",
-    "detail" : "Receiving manager supplies physical receipt",
-    "name" : "E2E physical receipt REV-DISTRIBUTION/23"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/34/close",
     "status" : "PASS",
-    "detail" : "Receipt reference visible",
-    "name" : "E2E persisted receipt REV-DISTRIBUTION/23"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip REV-LINEHAUL",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/trips/35/close"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "hub-origin-manager login",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/trips/35/close"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E configured route REV-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "No unresolved parcel/discrepancy before close",
-    "name" : "E2E closed trip REV-DISTRIBUTION"
+    "detail" : "Destination=Chi nhánh Đà Nẵng demo; no guessed route ID"
   }, {
+    "name" : "E2E form /manager/trips",
     "status" : "PASS",
-    "detail" : "Rendered CSRF/version form submitted",
-    "name" : "E2E form /manager/deliveries/23/return-to-sender"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips",
     "status" : "PASS",
-    "detail" : "No business validation/error flash after submit",
-    "name" : "E2E no rejected mutation /manager/deliveries/23/return-to-sender"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E draft trip REV-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "All three reverse legs received before sender handover",
-    "name" : "E2E RETURNED requires sender receipt"
+    "detail" : "Trip created via UI"
   }, {
+    "name" : "E2E manifest REV-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "/manager/trips/shipments/23/history HTTP=200 expected=200",
-    "name" : "E2E complete return trip history"
+    "detail" : "Only the new parcels selected; correct forward/reverse form"
   }, {
+    "name" : "E2E form /manager/trips/35/seal",
     "status" : "PASS",
-    "detail" : "Physical receipt references survive the full chain",
-    "name" : "E2E trip history includes forward and reverse"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/35/seal",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E form /manager/trips/35/depart",
     "status" : "PASS",
-    "detail" : "/user/shipments/22 HTTP=200 expected=200",
-    "name" : "E2E owner final detail 22"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/35/depart",
     "status" : "PASS",
-    "detail" : "No repricing on delivery/return",
-    "name" : "E2E original fee snapshot retained 22"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "other login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E form /manager/trips/35/arrive",
     "status" : "PASS",
-    "detail" : "/user/shipments/22 HTTP=404 expected=404",
-    "name" : "E2E other customer denied 22"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/35/arrive",
     "status" : "PASS",
-    "detail" : "/user/shipments/22 HTTP=401 expected=401",
-    "name" : "E2E Guest numeric ID denied 22"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E manifested item REV-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "/tracking?trackingNumber=UTECE35EDE719F2453AB5A05E87CBE11427 HTTP=200 expected=200",
-    "name" : "E2E public final timeline 22"
+    "detail" : "Receipt targets exact tracking, not first row"
   }, {
+    "name" : "E2E physical receipt REV-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "Only public milestone timeline, no internal proof/contact details",
-    "name" : "E2E final tracking privacy 22"
+    "detail" : "Receiving manager supplies physical receipt"
   }, {
+    "name" : "E2E persisted receipt REV-DISTRIBUTION/23",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "Receipt reference visible"
   }, {
+    "name" : "E2E form /manager/trips/35/close",
     "status" : "PASS",
-    "detail" : "/user/shipments/23 HTTP=200 expected=200",
-    "name" : "E2E owner final detail 23"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/trips/35/close",
     "status" : "PASS",
-    "detail" : "No repricing on delivery/return",
-    "name" : "E2E original fee snapshot retained 23"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E closed trip REV-DISTRIBUTION",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "other login"
+    "detail" : "No unresolved parcel/discrepancy before close"
   }, {
+    "name" : "E2E form /manager/deliveries/23/return-to-sender",
     "status" : "PASS",
-    "detail" : "/user/shipments/23 HTTP=404 expected=404",
-    "name" : "E2E other customer denied 23"
+    "detail" : "Rendered CSRF/version form submitted"
   }, {
+    "name" : "E2E no rejected mutation /manager/deliveries/23/return-to-sender",
     "status" : "PASS",
-    "detail" : "/user/shipments/23 HTTP=401 expected=401",
-    "name" : "E2E Guest numeric ID denied 23"
+    "detail" : "No business validation/error flash after submit"
   }, {
+    "name" : "E2E RETURNED requires sender receipt",
     "status" : "PASS",
-    "detail" : "/tracking?trackingNumber=UTE5606D1DF2F354F218E650C06DB78EF1B HTTP=200 expected=200",
-    "name" : "E2E public final timeline 23"
+    "detail" : "All three reverse legs received before sender handover"
   }, {
+    "name" : "E2E complete return trip history",
     "status" : "PASS",
-    "detail" : "Only public milestone timeline, no internal proof/contact details",
-    "name" : "E2E final tracking privacy 23"
+    "detail" : "/manager/trips/shipments/23/history HTTP=200 expected=200"
   }, {
+    "name" : "E2E trip history includes forward and reverse",
     "status" : "PASS",
-    "detail" : "New HOME_PICKUP shipments 22 DELIVERED and 23 RETURNED; 3 forward and 3 reverse legs, no seeded-parcel substitution",
-    "name" : "Coherent logistics browser journeys complete"
+    "detail" : "Physical receipt references survive the full chain"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E owner final detail 22",
     "status" : "PASS",
-    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]",
-    "name" : "BRANCH_DROPOFF quote"
+    "detail" : "/user/shipments/22 HTTP=200 expected=200"
   }, {
+    "name" : "E2E original fee snapshot retained 22",
     "status" : "PASS",
-    "detail" : "/user/shipments/24",
-    "name" : "BRANCH_DROPOFF confirmation creates shipment"
+    "detail" : "No repricing on delivery/return"
   }, {
+    "name" : "other login",
     "status" : "PASS",
-    "detail" : "Same quote confirmation is idempotent",
-    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E other customer denied 22",
     "status" : "PASS",
-    "detail" : "Fresh UI-created parcel for independent status changes",
-    "name" : "WS test uses new owned shipment"
+    "detail" : "/user/shipments/22 HTTP=404 expected=404"
   }, {
+    "name" : "E2E Guest numeric ID denied 22",
     "status" : "PASS",
-    "detail" : "Private BrowserContexts, real CONNECTED frames; no cookies/tokens in report",
-    "name" : "Two independent USER sessions connect STOMP"
+    "detail" : "/user/shipments/22 HTTP=401 expected=401"
   }, {
+    "name" : "E2E public final timeline 22",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "manager login"
+    "detail" : "/tracking?trackingNumber=UTE12116A4D36E04DF398C97558F390B3DC HTTP=200 expected=200"
   }, {
+    "name" : "E2E final tracking privacy 22",
     "status" : "PASS",
-    "detail" : "Separate manager browser session",
-    "name" : "Manager confirms while customer inbox stays open"
+    "detail" : "Only public milestone timeline, no internal proof/contact details"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "Received MESSAGE and rendered matching new notification before 60-second fallback",
-    "name" : "WebSocket updates customer UI without reload"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E owner final detail 23",
     "status" : "PASS",
-    "detail" : "Unrelated session inbox excludes tracking",
-    "name" : "Other customer does not receive owned parcel content"
+    "detail" : "/user/shipments/23 HTTP=200 expected=200"
   }, {
+    "name" : "E2E original fee snapshot retained 23",
     "status" : "PASS",
-    "detail" : "Rendered server notification",
-    "name" : "Authoritative notification has private ID"
+    "detail" : "No repricing on delivery/return"
   }, {
+    "name" : "other login",
     "status" : "PASS",
-    "detail" : "Direct numeric notification lookup remains ownership-checked",
-    "name" : "Other customer cannot open specific owner notification"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "E2E other customer denied 23",
     "status" : "PASS",
-    "detail" : "Client outage does not lose persisted event",
-    "name" : "Manager changes state during client disconnect"
+    "detail" : "/user/shipments/23 HTTP=404 expected=404"
   }, {
+    "name" : "E2E Guest numeric ID denied 23",
     "status" : "PASS",
-    "detail" : "Production reconnect/backoff and DB refresh recover latest notification; no manual refresh",
-    "name" : "Reconnect reconciles missed status without page reload"
+    "detail" : "/user/shipments/23 HTTP=401 expected=401"
   }, {
+    "name" : "E2E public final timeline 23",
     "status" : "PASS",
-    "detail" : "No cross-user delivery",
-    "name" : "Other session still isolated after reconnect"
+    "detail" : "/tracking?trackingNumber=UTE7E37A9CF47934F8DA3C7F8B23780BBA7 HTTP=200 expected=200"
   }, {
+    "name" : "E2E final tracking privacy 23",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "owner login"
+    "detail" : "Only public milestone timeline, no internal proof/contact details"
   }, {
+    "name" : "Coherent logistics browser journeys complete",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "other login"
+    "detail" : "New HOME_PICKUP shipments 22 DELIVERED and 23 RETURNED; 3 forward and 3 reverse legs, no seeded-parcel substitution"
   }, {
+    "name" : "owner login",
     "status" : "PASS",
-    "detail" : "Manager transition -> owner inbox MESSAGE/DOM update; other excluded; offline/reconnect recovers cancelled event",
-    "name" : "WebSocket UI two-session journey complete"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "BRANCH_DROPOFF quote",
     "status" : "PASS",
-    "detail" : "POST /login -> /account",
-    "name" : "admin login"
+    "detail" : "Detailed quote with database price; /user/shipments/quotes/[token]"
   }, {
+    "name" : "BRANCH_DROPOFF confirmation creates shipment",
     "status" : "PASS",
-    "detail" : "/admin/users HTTP=200 expected=200",
-    "name" : "Admin /admin/users"
+    "detail" : "/user/shipments/24"
   }, {
+    "name" : "BRANCH_DROPOFF repeated confirmation reopens same shipment",
     "status" : "PASS",
-    "detail" : "/admin/reports HTTP=200 expected=200",
-    "name" : "Admin /admin/reports"
+    "detail" : "Same quote confirmation is idempotent"
   }, {
+    "name" : "WS test uses new owned shipment",
     "status" : "PASS",
-    "detail" : "/admin/audit HTTP=200 expected=200",
-    "name" : "Admin /admin/audit"
+    "detail" : "Fresh UI-created parcel for independent status changes"
   }, {
+    "name" : "Two independent USER sessions connect STOMP",
     "status" : "PASS",
-    "detail" : "Only disposable other customer; exact role gates retained",
-    "name" : "Admin lock and unlock customer"
+    "detail" : "Private BrowserContexts, real CONNECTED frames; no cookies/tokens in report"
   }, {
+    "name" : "manager login",
     "status" : "PASS",
-    "detail" : "HTTP=200 content-type=text/csv;charset=UTF-8 bytes=2809",
-    "name" : "Admin CSV via browser download request"
+    "detail" : "POST /login -> /account"
   }, {
+    "name" : "Manager confirms while customer inbox stays open",
     "status" : "PASS",
-    "detail" : "/manager/trips HTTP=403 expected=403",
-    "name" : "Admin no implicit Manager role"
+    "detail" : "Separate manager browser session"
   }, {
+    "name" : "WebSocket updates customer UI without reload",
     "status" : "PASS",
-    "detail" : "No page-level horizontal overflow",
-    "name" : "Tracking viewport 1366"
+    "detail" : "Received MESSAGE and rendered matching new notification before 60-second fallback"
   }, {
+    "name" : "Other customer does not receive owned parcel content",
     "status" : "PASS",
-    "detail" : "No page-level horizontal overflow",
-    "name" : "Tracking viewport 390"
+    "detail" : "Unrelated session inbox excludes tracking"
   }, {
+    "name" : "Authoritative notification has private ID",
     "status" : "PASS",
-    "detail" : "Observed=0",
-    "name" : "No uncaught JavaScript or console.error"
+    "detail" : "Rendered server notification"
   }, {
+    "name" : "Other customer cannot open specific owner notification",
     "status" : "PASS",
-    "detail" : "[]",
-    "name" : "No HTTP 5xx/Thymeleaf render failure"
+    "detail" : "Direct numeric notification lookup remains ownership-checked"
+  }, {
+    "name" : "Manager changes state during client disconnect",
+    "status" : "PASS",
+    "detail" : "Client outage does not lose persisted event"
+  }, {
+    "name" : "Reconnect reconciles missed status without page reload",
+    "status" : "PASS",
+    "detail" : "Production reconnect/backoff and DB refresh recover latest notification; no manual refresh"
+  }, {
+    "name" : "Other session still isolated after reconnect",
+    "status" : "PASS",
+    "detail" : "No cross-user delivery"
+  }, {
+    "name" : "owner login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "other login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "WebSocket UI two-session journey complete",
+    "status" : "PASS",
+    "detail" : "Manager transition -> owner inbox MESSAGE/DOM update; other excluded; offline/reconnect recovers cancelled event"
+  }, {
+    "name" : "admin login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "Admin /admin/users",
+    "status" : "PASS",
+    "detail" : "/admin/users HTTP=200 expected=200"
+  }, {
+    "name" : "Admin /admin/reports",
+    "status" : "PASS",
+    "detail" : "/admin/reports HTTP=200 expected=200"
+  }, {
+    "name" : "Admin /admin/audit",
+    "status" : "PASS",
+    "detail" : "/admin/audit HTTP=200 expected=200"
+  }, {
+    "name" : "Admin lock and unlock customer",
+    "status" : "PASS",
+    "detail" : "Only disposable other customer; exact role gates retained"
+  }, {
+    "name" : "Admin CSV via browser download request",
+    "status" : "PASS",
+    "detail" : "HTTP=200 content-type=text/csv;charset=UTF-8 bytes=2803"
+  }, {
+    "name" : "Admin no implicit Manager role",
+    "status" : "PASS",
+    "detail" : "/manager/trips HTTP=403 expected=403"
+  }, {
+    "name" : "admin login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "Admin creates real JPA service with ID and audit",
+    "status" : "PASS",
+    "detail" : "Regresses managed save result issue"
+  }, {
+    "name" : "Admin creates real JPA draft with ID and audit",
+    "status" : "PASS",
+    "detail" : "New pricing version listed"
+  }, {
+    "name" : "Admin configures INTRA_PROVINCE",
+    "status" : "PASS",
+    "detail" : "Existing versioned pricing UI"
+  }, {
+    "name" : "Admin configures SAME_REGION",
+    "status" : "PASS",
+    "detail" : "Existing versioned pricing UI"
+  }, {
+    "name" : "Admin configures NORTH_CENTRAL",
+    "status" : "PASS",
+    "detail" : "Existing versioned pricing UI"
+  }, {
+    "name" : "Admin configures CENTRAL_SOUTH",
+    "status" : "PASS",
+    "detail" : "Existing versioned pricing UI"
+  }, {
+    "name" : "Admin configures NORTH_SOUTH",
+    "status" : "PASS",
+    "detail" : "Existing versioned pricing UI"
+  }, {
+    "name" : "Admin edits base and extra-kilogram tariff in draft",
+    "status" : "PASS",
+    "detail" : "Published versions remain immutable"
+  }, {
+    "name" : "Admin configures nationwide pickup default",
+    "status" : "PASS",
+    "detail" : "No fake branch"
+  }, {
+    "name" : "Admin five-group version validation",
+    "status" : "PASS",
+    "detail" : "No overlapping price period"
+  }, {
+    "name" : "Admin publishes five-group book",
+    "status" : "PASS",
+    "detail" : "Scheduled future; running demo tariffs unchanged"
+  }, {
+    "name" : "Published price forms disappear",
+    "status" : "PASS",
+    "detail" : "Immutable published book"
+  }, {
+    "name" : "owner login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "USER cannot open nationwide pricing admin",
+    "status" : "PASS",
+    "detail" : "/admin/pricing/2 HTTP=403 expected=403"
+  }, {
+    "name" : "pickup-courier login",
+    "status" : "PASS",
+    "detail" : "POST /login -> /account"
+  }, {
+    "name" : "SHIPPER cannot open nationwide pricing admin",
+    "status" : "PASS",
+    "detail" : "/admin/pricing/2 HTTP=403 expected=403"
+  }, {
+    "name" : "Tracking viewport 1366",
+    "status" : "PASS",
+    "detail" : "No page-level horizontal overflow"
+  }, {
+    "name" : "Tracking viewport 390",
+    "status" : "PASS",
+    "detail" : "No page-level horizontal overflow"
+  }, {
+    "name" : "No uncaught JavaScript or console.error",
+    "status" : "PASS",
+    "detail" : "Observed=0"
+  }, {
+    "name" : "No HTTP 5xx/Thymeleaf render failure",
+    "status" : "PASS",
+    "detail" : "[]"
   } ],
   "javascriptErrorCount" : 0,
   "serverErrors" : [ ],

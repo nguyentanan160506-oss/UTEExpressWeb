@@ -1,0 +1,35 @@
+code,name,region,city
+01,Hà Nội,NORTH,true
+04,Cao Bằng,NORTH,false
+08,Tuyên Quang,NORTH,false
+11,Điện Biên,NORTH,false
+12,Lai Châu,NORTH,false
+14,Sơn La,NORTH,false
+15,Lào Cai,NORTH,false
+19,Thái Nguyên,NORTH,false
+20,Lạng Sơn,NORTH,false
+22,Quảng Ninh,NORTH,false
+24,Bắc Ninh,NORTH,false
+25,Phú Thọ,NORTH,false
+31,Hải Phòng,NORTH,true
+33,Hưng Yên,NORTH,false
+37,Ninh Bình,NORTH,false
+38,Thanh Hóa,CENTRAL,false
+40,Nghệ An,CENTRAL,false
+42,Hà Tĩnh,CENTRAL,false
+44,Quảng Trị,CENTRAL,false
+46,Huế,CENTRAL,true
+48,Đà Nẵng,CENTRAL,true
+51,Quảng Ngãi,CENTRAL,false
+52,Gia Lai,CENTRAL,false
+56,Khánh Hòa,CENTRAL,false
+66,Đắk Lắk,CENTRAL,false
+68,Lâm Đồng,CENTRAL,false
+75,Đồng Nai,SOUTH,false
+79,Hồ Chí Minh,SOUTH,true
+80,Tây Ninh,SOUTH,false
+82,Đồng Tháp,SOUTH,false
+86,Vĩnh Long,SOUTH,false
+91,An Giang,SOUTH,false
+92,Cần Thơ,SOUTH,true
+96,Cà Mau,SOUTH,false

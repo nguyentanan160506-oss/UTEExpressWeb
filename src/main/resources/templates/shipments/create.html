@@ -8,6 +8,7 @@
     <p class="shipment-eyebrow mt-4 mb-2">GỬI HÀNG CÙNG UTEEXPRESS</p>
     <h1 class="h2 fw-bold mb-2">Tạo vận đơn</h1>
     <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Xem báo giá trước khi xác nhận tạo vận đơn.</p>
+    <p><a th:href="@{/quote}">Ước tính giá toàn quốc theo tỉnh/thành và trọng lượng</a>. Tạo đơn tại đây vẫn cần chi nhánh và vùng phục vụ hợp lệ.</p>
     <form th:action="@{/user/shipments/quotes}" th:object="${shipmentForm}" method="post">
         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
             <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="mb-0"></p>
@@ -52,8 +53,9 @@
                     </div>
                     <div class="col-sm-6">
                         <label for="senderProvince" class="form-label">Tỉnh / Thành phố <span aria-hidden="true" class="text-danger">*</span></label>
-                        <input id="senderProvince" type="text" th:field="*{senderProvince}" class="form-control"
-                               th:errorclass="is-invalid" aria-describedby="senderProvince-error" required maxlength="100" list="branch-provinces">
+                        <select id="senderProvince" th:field="*{senderProvince}" class="form-select" th:errorclass="is-invalid" aria-describedby="senderProvince-error" required>
+                            <option value="">Chọn tỉnh/thành gửi</option><option th:each="p : ${provinces}" th:value="${p.name}" th:text="${p.label}"></option>
+                        </select>
                         <div id="senderProvince-error" th:errors="*{senderProvince}" class="invalid-feedback"></div>
                     </div>
                     <div class="col-sm-6">
@@ -100,8 +102,9 @@
                     </div>
                     <div class="col-sm-6">
                         <label for="receiverProvince" class="form-label">Tỉnh / Thành phố <span aria-hidden="true" class="text-danger">*</span></label>
-                        <input id="receiverProvince" type="text" th:field="*{receiverProvince}" class="form-control"
-                               th:errorclass="is-invalid" aria-describedby="receiverProvince-error" required maxlength="100" list="branch-provinces">
+                        <select id="receiverProvince" th:field="*{receiverProvince}" class="form-select" th:errorclass="is-invalid" aria-describedby="receiverProvince-error" required>
+                            <option value="">Chọn tỉnh/thành nhận</option><option th:each="p : ${provinces}" th:value="${p.name}" th:text="${p.label}"></option>
+                        </select>
                         <div id="receiverProvince-error" th:errors="*{receiverProvince}" class="invalid-feedback"></div>
                     </div>
                     <div class="col-sm-6">
@@ -210,7 +213,7 @@
                 </div>
             </div></div></section>
         </div>
-        <datalist id="branch-provinces"><option th:each="branch : ${options.branches}" th:value="${branch.province}"></option></datalist>
+        <p class="small text-secondary">Danh mục 34 tỉnh/thành xác định nhóm giá; khả năng nhận/giao thực tế còn phụ thuộc vùng phục vụ và chi nhánh. Phí gồm giá cơ bản, cân vượt theo bước làm tròn lên và phụ phí lấy tận nhà nếu có.</p>
         <div class="d-flex flex-wrap justify-content-end gap-3 mt-4">
             <a th:href="@{/user/shipments}" class="btn btn-outline-primary">Quay lại danh sách</a>
             <button type="submit" th:formaction="@{/user/shipments/branches}" formnovalidate class="btn btn-outline-primary">Tìm chi nhánh phục vụ</button>

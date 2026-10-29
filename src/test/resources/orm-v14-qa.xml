@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm" version="3.2">
+    <!-- This tool validates the approved V14 schema only. Production uses the V15 embedding.
+         All pre-existing mappings remain annotated; only the additive V15 attribute is excluded. -->
+    <entity class="com.ute.uteexpress.entity.Shipment" access="FIELD">
+        <attributes><transient name="priceSnapshot"/></attributes>
+    </entity>
+    <entity class="com.ute.uteexpress.entity.ShipmentQuote" access="FIELD">
+        <attributes><transient name="priceSnapshot"/></attributes>
+    </entity>
+</entity-mappings>

@@ -6,4 +6,10 @@ import java.time.LocalDateTime;
 
 /** Public estimate has no internal rule/version IDs, contacts, policy amounts or persistence token. */
 public record PublicQuoteView(String service, ShipmentMethod method, BigDecimal shippingFee, BigDecimal pickupFee,
-    BigDecimal insuranceFee, BigDecimal totalFee, String currency, LocalDateTime estimatedAt, LocalDateTime expiresAt) { }
+    BigDecimal insuranceFee, BigDecimal totalFee, String currency, LocalDateTime estimatedAt, LocalDateTime expiresAt,
+    PriceBreakdown breakdown) {
+    public PublicQuoteView(String service, ShipmentMethod method, BigDecimal shippingFee, BigDecimal pickupFee,
+            BigDecimal insuranceFee, BigDecimal totalFee, String currency, LocalDateTime estimatedAt, LocalDateTime expiresAt) {
+        this(service, method, shippingFee, pickupFee, insuranceFee, totalFee, currency, estimatedAt, expiresAt, null);
+    }
+}

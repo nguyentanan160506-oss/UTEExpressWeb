@@ -42,6 +42,7 @@ import org.hibernate.type.SqlTypes;
         @Index(name = "IX_shipments_branches", columnList = "origin_branch_id, destination_branch_id, current_branch_id")
     },
     check = {
+        @CheckConstraint(name = "CK_shipments_nationwide_price", constraint = ShippingPriceSnapshot.CHECK),
         @CheckConstraint(name = "CK_shipments_delivered_time", constraint = "delivered_at IS NULL OR status = 'DELIVERED'"),
         @CheckConstraint(name = "CK_shipments_returned_time", constraint = "returned_at IS NULL OR status = 'RETURNED'"),
         @CheckConstraint(name = "CK_shipments_weight", constraint = "weight_kg > 0"),
@@ -65,6 +66,10 @@ import org.hibernate.type.SqlTypes;
     }
 )
 public class Shipment {
+    @jakarta.persistence.Embedded
+    private ShippingPriceSnapshot priceSnapshot;
+    public ShippingPriceSnapshot getPriceSnapshot() { return priceSnapshot; }
+    public void setPriceSnapshot(ShippingPriceSnapshot value) { priceSnapshot = value; }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

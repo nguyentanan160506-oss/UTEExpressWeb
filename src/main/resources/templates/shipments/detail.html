@@ -49,6 +49,7 @@
             </div></section>
             <section class="card shipment-card"><div class="card-body p-4">
                 <h2 class="h5 fw-bold mb-4">Giá trị &amp; phí vận chuyển</h2>
+                <p th:if="${shipment.breakdown != null}" th:text="|${shipment.breakdown.scope.label}: cơ bản ${shipment.breakdown.baseFee} VND + cân vượt ${shipment.breakdown.extraFee} VND|" class="small text-secondary"></p>
                 <dl class="row mb-0">
                     <dt class="col-sm-5 text-secondary fw-normal">Giá trị khai báo</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.declaredValue, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>
                     <dt class="col-sm-5 text-secondary fw-normal">Tiền thu hộ COD</dt><dd class="col-sm-7"><span th:text="${#numbers.formatDecimal(shipment.codAmount, 1, 'POINT', 2, 'COMMA')}"></span> VND</dd>

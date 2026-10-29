@@ -53,7 +53,7 @@ class CoreDatabaseMappingTests {
             schema = parseSchema(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
         for (String migration : List.of("V3__extend_shipper_identity_and_shipment_lifecycle.sql",
-                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql", "V12__add_customer_support_portal.sql", "V13__add_admin_reports_audit.sql", "V14__add_generated_origin_intake_receipts.sql")) {
+                "V4__add_pickup_pricing_and_shipment_quotes.sql", "V5__add_pickup_assignment_guard_and_origin_intakes.sql", "V6__add_pickup_evidence_and_origin_handoffs.sql", "V7__add_transport_trips_and_hub_handoffs.sql", "V8__add_last_mile_delivery_and_returns.sql", "V9__add_service_catalog_and_pricing_management.sql", "V10__add_shipment_notifications.sql", "V11__add_operations_tickets.sql", "V12__add_customer_support_portal.sql", "V13__add_admin_reports_audit.sql", "V14__add_generated_origin_intake_receipts.sql", "V15__add_nationwide_shipping_pricing.sql")) {
             try (var input = CoreDatabaseMappingTests.class.getResourceAsStream("/db/migration/" + migration)) {
                 assertNotNull(input);
                 String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
@@ -66,6 +66,8 @@ class CoreDatabaseMappingTests {
                 }
                 var index = Pattern.compile("CREATE INDEX (\\w+) ON dbo\\.(\\w+) \\(([^;]+)\\);").matcher(sql);
                 while (index.find()) { schema.get(index.group(2)).indexes.put(index.group(1), normalize(index.group(3))); }
+                var alteredColumn = Pattern.compile("ALTER TABLE dbo\\.(\\w+) ALTER COLUMN ([^;]+);").matcher(sql);
+                while (alteredColumn.find()) { applyDefinition(schema.get(alteredColumn.group(1)), alteredColumn.group(2)); }
                 // Filter predicates cannot be represented by JPA's portable @Index.
                 if (migration.startsWith("V3")) {
                     assertTrue(sql.contains("CREATE UNIQUE INDEX UX_employees_user_nonnull ON dbo.employees (user_id) WHERE user_id IS NOT NULL;"));

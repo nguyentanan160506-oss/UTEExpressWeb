@@ -1,3 +1,21 @@
+# Cập nhật Commit 24–25 — QA local trên feature/auto-intake-receipts
+
+**Kết sổ mới nhất — SQL QA V15 PASS theo xác nhận thực tế của chủ dự án:** `RESULT PASS required-gates migration-rollback=PASS database-retained-no-cleanup`. V1–V15, checksum V15 **347627752**, Flyway/Hibernate validate, legacy/constraints/rollback, 1.156 cặp giá, snapshot, RBAC và concurrency đạt trong database QA V15 riêng. Không chạy lại SQL ở lượt cập nhật này. [Người dùng xác nhận và giới hạn](commit25-final-qa.md), [SQL V15](v15-sql-server-qa.md), [manifest/kế hoạch Git](commit24-25-git-plan.md).
+
+Offline lượt kết sổ: 75/75 targeted PASS; full Maven gần nhất 1.615 PASS / 1 SQL opt-in SKIPPED là kết quả trước đó, không chạy full lại vì chỉ sửa docs/ignore. Browser H2 399 PASS và JS 12/12 là bằng chứng lịch sử, không phải browser trên SQL Server. Chưa chứng nhận SQL browser E2E, restart/persistence của SQL demo hiện tại, production load/multi-instance hoặc production-ready. Không thay đổi app 8083, database, source/helper/migration hoặc Git index/branch. Các mục V15 NOT RUN/PENDING bên dưới thuộc lịch sử trước Run, đã được thay thế bởi kết quả mới này.
+
+**Nghiệm thu SQL V14 mới nhất 29/10/2026, khoảng 10:45:48 UTC+7: PASS.** Sau Inspect/Preflight xác nhận đúng QA và trống, Run được phê duyệt đã thực hiện đúng một lần: V1–V14 SUCCESS, filtered UNIQUE/CHECK/legacy, migration rollback có proof thực tế, business rollback, Flyway/Hibernate baseline V14 validate đều PASS; không gate bắt buộc SKIP/BLOCKED. Inspect sau cùng: 42 bảng, 14 history SUCCESS, fixture tối thiểu được giữ, không V15. Không còn trạng thái database trống. [Bằng chứng SQL đầy đủ](v14-sql-server-qa.md), [kết luận Commit 24](commit24-final-qa.md). Các ghi nhận 10:29–10:34 bên dưới là lịch sử xử lý helper, không phải blocker hiện tại.
+
+**Cập nhật helper SQL QA 29/10/2026 10:34 UTC+7:** Credential đã hoạt động; SELECT Inspect PASS đúng QA/instance/port/login, 0 user objects/bảng/history/fixture. NPE callback Context NULL đã được tái hiện RED trước vá và sửa, 95/95 targeted; Maven `test` mới nhất **1.598 PASS / 1 SQL opt-in SKIPPED / 0 failure/error**. Chưa chạy lại Run hoặc ghi SQL; gate migration V14 là **PENDING APPROVAL / NOT RUN**. [Báo cáo điều tra và manifest helper](v14-null-context-investigation.md). Các số clean verify/browser/JAR bên dưới là bằng chứng của lượt Commit 25 trước đó; không chạy lại browser trong lượt sửa helper.
+
+29/10/2026: `clean verify` **1.593 tests / 1.592 PASS / 1 SQL opt-in SKIPPED / 0 failures/errors**, Surefire XML khớp. Chrome headless/H2 **399 PASS / 0 FAIL / 0 BLOCKED**; JavaScript 12/12, WebSocket backend 17/17. Không đóng gói test/browser/SMTP/H2/DPAPI tooling vào JAR. Không sửa V1–V14, pom hoặc cấu hình production, không thay đổi Git index/branch.
+
+Commit 25 có catalog 34 tỉnh/mã chính thức, 5 nhóm, DB pricing/default pickup, snapshot và bảo vệ giá, Admin UI, non-binding national estimate tách khỏi khả năng phục vụ. H2 demo không tự tạo 34 chi nhánh/tuyến giả. Chi tiết, manifest và manual QA ở [nationwide-shipping-pricing.md](nationwide-shipping-pricing.md).
+
+**Mốc lịch sử trước V15 Run:** SQL V14 đã PASS, còn V15 khi đó NOT RUN. Trạng thái hiện tại V15 là PASS theo phần kết sổ ở đầu báo cáo; vẫn không suy ra production-ready hoặc SQL browser E2E. Xem [commit24-final-qa.md](commit24-final-qa.md). Các phần bên dưới là mốc lịch sử.
+
+---
+
 # Cập nhật Commit 23 — sản phẩm SQL Server demo
 
 Phạm vi mới yêu cầu dữ liệu bền vững trên **UTEExpress_Demo**. Kết luận DEMO-READY bên dưới thuộc H2/Commit 22, không chứng nhận mục tiêu SQL demo mới. **Commit 23 chưa đủ điều kiện đóng** khi chưa cấp phép và chưa chạy migration/seed/startup/persistence sau restart trên DB demo riêng. Không thực hiện thao tác SQL Server trong giai đoạn chuẩn bị này.

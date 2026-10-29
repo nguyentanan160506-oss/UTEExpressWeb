@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Offline only: no credentials imported and no network connections. */
 class SqlDemoSafetyTests {
+    @org.junit.jupiter.api.Test void newV15CheckoutCannotUseV14OnlySqlDemoWritePolicy() {
+        for (String mode : java.util.List.of("migrate", "seed", "run")) {
+            org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () -> SqlDemoApplication.requireCompatibleSchemaPolicy(mode));
+        }
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> SqlDemoApplication.requireCompatibleSchemaPolicy("inspect"));
+    }
     private Map<String,String> env(String approval){return Map.of("UTE_SQL_DEMO_APPROVED",approval,
         "UTE_SQL_DEMO_USERNAME","uteexpress_demo","UTE_SQL_DEMO_PASSWORD",java.util.UUID.randomUUID().toString());}
     @ParameterizedTest @ValueSource(strings={"migrate","seed","run"})

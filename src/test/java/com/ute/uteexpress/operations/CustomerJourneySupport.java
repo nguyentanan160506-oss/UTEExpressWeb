@@ -27,6 +27,9 @@ abstract class CustomerJourneySupport extends OperationsJdbcSupport {
 
     @BeforeEach void pricingFixture() {
         db(() -> {
+            f.source.setProvince("Hồ Chí Minh"); f.destination.setProvince("Đà Nẵng");
+            em.find(Branch.class, f.source.getId()).setProvince("Hồ Chí Minh");
+            em.find(Branch.class, f.destination.getId()).setProvince("Đà Nẵng");
             for (Branch b : new Branch[]{f.source, f.destination}) {
                 em.find(Branch.class, b.getId()).setParentHub(em.find(Branch.class, f.hub.getId()));
                 for (ShipmentMethod method : ShipmentMethod.values()) {
@@ -39,11 +42,11 @@ abstract class CustomerJourneySupport extends OperationsJdbcSupport {
             version.setStatus(PricingVersionStatus.PUBLISHED); version.setCreatedBy(f.admin); version.setUpdatedBy(f.admin);
             version.setPublishedBy(f.admin); version.setPublishedAt(NOW.minusDays(1));
             version.setValidFrom(NOW.minusDays(1)); em.persist(version);
-            for (RateScopeType scope : new RateScopeType[]{RateScopeType.INTRA_PROVINCE, RateScopeType.INTER_PROVINCE}) {
+            for (RateScopeType scope : new RateScopeType[]{RateScopeType.INTRA_PROVINCE, RateScopeType.CENTRAL_SOUTH}) {
                 var rate = ShipmentFixtures.rate(); rate.setService(f.catalog); rate.setScopeType(scope);
                 rate.setEffectiveFrom(NOW.minusDays(1)); rate.setPricingVersion(version);
                 rate.setBasePrice(new BigDecimal(scope == RateScopeType.INTRA_PROVINCE ? "20000.00" : "40000.00"));
-                em.persist(rate); em.flush(); if (scope == RateScopeType.INTER_PROVINCE) rateId = rate.getId();
+                em.persist(rate); em.flush(); if (scope == RateScopeType.CENTRAL_SOUTH) rateId = rate.getId();
             }
             var pickup = new PickupFeeRule(); pickup.setBranch(f.source); pickup.setService(f.catalog);
             pickup.setAmount(new BigDecimal("7500.00")); pickup.setEffectiveFrom(NOW.minusDays(1));

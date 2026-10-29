@@ -104,7 +104,7 @@ final class BrowserLogisticsJourneys {
     }
     void finalChecks(Parcel p,String label,String document)throws Exception {
         browser.login("owner");browser.page("E2E owner final detail "+p.id(),"/user/shipments/"+p.id(),200,label);
-        check("E2E original fee snapshot retained "+p.id(),browser.text().contains("52.500,00"),"No repricing on delivery/return");
+        check("E2E original fee snapshot retained "+p.id(),browser.text().contains("60.000,00"),"No repricing on delivery/return");
         browser.login("other");browser.page("E2E other customer denied "+p.id(),"/user/shipments/"+p.id(),404,null);
         browser.call("Network.clearBrowserCookies",Map.of());
         browser.page("E2E Guest numeric ID denied "+p.id(),"/user/shipments/"+p.id(),401,null);
