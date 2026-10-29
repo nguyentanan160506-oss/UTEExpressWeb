@@ -16,5 +16,6 @@ public final class PickupViews {
             LocalDateTime reviewedAt, String reason) { }
     public record Detail(Task task, Long version, Page<Evidence> evidence, Page<Handoff> handoffs,
             boolean canCollect, boolean canHandoff) { }
-    public record Review(Handoff handoff, Evidence evidence, Long shipmentId, Long version, boolean canReview) { }
+    public record Review(Handoff handoff, Evidence evidence, Long shipmentId, Long version, boolean canReview,
+            String receiptReference) { }
 }

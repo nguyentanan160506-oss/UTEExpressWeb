@@ -154,8 +154,8 @@ final class SqlServerBusinessSmoke {
             lifecycle.assignPickup(new PickupAssignmentCommand(id,v(id),pickupEmployee.getId(),null,null));as(pickup);Long task=task(id,AssignmentType.PICKUP);
             lifecycle.collectPickup(new PickupCollectionCommand(task,v(id),PickupResult.SUCCESS,true,"QA-PICKUP",null));lifecycle.requestOriginHandoff(new OriginHandoffCommand(task,v(id),null));
             Long handoff=em.createQuery("select h.id from OriginHandoff h where h.shipment.id=:id and h.status=:status",Long.class).setParameter("id",id).setParameter("status",HandoffStatus.PENDING).getSingleResult();
-            operator(source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,v(id),true,true,"QA-INTAKE",null));
-        }else lifecycle.receiveDropoff(new BranchIntakeCommand(id,v(id),"QA-DROPOFF",true,null));
+            operator(source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,v(id),true,true,null));
+        }else lifecycle.receiveDropoff(new BranchIntakeCommand(id,v(id),true,null));
         check(em.find(Shipment.class,id).getCurrentBranch().getId().equals(source.getId()),"origin custody requires real intake");
     }
     private TripCommands.Change change(Long trip){return new TripCommands.Change(trip,tv(trip),true,"QA-TRIP",null);}

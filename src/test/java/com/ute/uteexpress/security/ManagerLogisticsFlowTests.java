@@ -112,25 +112,25 @@ class ManagerLogisticsFlowTests {
             assertFalse(html.contains("name=\"physicallyReceived\""));
         });
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "3")
-                .param("receiptReference", "INVALID-HOME-INTAKE").param("physicallyReceived", "true"))
+                .param("physicallyReceived", "true"))
             .andExpect(flash().attributeExists("error"));
         assertNull(receipt); assertNull(shipment.getCurrentBranch()); assertEquals(total, shipment.getTotalFee());
     }
     @Test void dropoffRequiresSeparateAcknowledgmentAndProducesExactlyOneReceipt() throws Exception {
         shipment.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF); confirm();
-        mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "1").param("receiptReference", "R-001"))
+        mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "1"))
             .andExpect(flash().attributeExists("error")); assertNull(receipt);
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "1")
-                .param("receiptReference", "R-001").param("physicallyReceived", "true"))
+                .param("physicallyReceived", "true"))
             .andExpect(flash().attributeExists("notice"));
         assertEquals(ShipmentStatus.AT_ORIGIN_BRANCH, shipment.getStatus()); assertEquals(11L, shipment.getCurrentBranch().getId());
         assertEquals(22L, receipt.getEmployee().getId()); assertEquals(1L, receipt.getReceivedBy().getId());
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "1")
-                .param("receiptReference", "R-002").param("physicallyReceived", "true"))
-            .andExpect(flash().attributeExists("error"));
+                .param("physicallyReceived", "true"))
+            .andExpect(flash().attributeExists("notice"));
         verify(intakes, times(1)).saveAndFlush(any()); assertEquals(2, recorded.size());
         mvc.perform(get("/manager/shipments/31")).andExpect(status().isOk())
-            .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains("R-001")));
+            .andExpect(result -> assertTrue(result.getResponse().getContentAsString().contains(receipt.getReceiptReference())));
     }
     @Test void foreignShipmentBranchAndForeignEmployeeCannotBeUsedThroughRealGuards() throws Exception {
         shipment.setOriginBranch(branch(12L));
@@ -144,7 +144,7 @@ class ManagerLogisticsFlowTests {
         shipment.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF); shipment.setStatus(ShipmentStatus.CONFIRMED);
         when(employees.findByUserId(1L)).thenReturn(Optional.empty());
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "0")
-                .param("receiptReference", "REF").param("physicallyReceived", "true"))
+                .param("physicallyReceived", "true"))
             .andExpect(status().isForbidden()); assertNull(receipt); assertTrue(recorded.isEmpty());
     }
     @Test void lockedOrRevokedManagerCannotUseOldSession() throws Exception {

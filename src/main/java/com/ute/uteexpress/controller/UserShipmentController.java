@@ -130,6 +130,7 @@ public class UserShipmentController {
     }
 
     private String formPage(Model model) {
+        model.addAttribute("provinces", ProvinceCatalog.all());
         model.addAttribute("options", shipments.options());
         model.addAttribute("payers", PaymentPayer.values());
         if (!model.containsAttribute("branchChoices")) {

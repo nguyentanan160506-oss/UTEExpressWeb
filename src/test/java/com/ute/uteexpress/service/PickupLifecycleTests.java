@@ -62,7 +62,7 @@ class PickupLifecycleTests {
         });
     }
     PickupCollectionCommand collect() { return new PickupCollectionCommand(41L, 0L, PickupResult.SUCCESS, true, "ACTUAL_REF", "Checked"); }
-    HandoffReviewCommand accept() { return new HandoffReviewCommand(61L, 0L, true, true, "RECEIPT", null); }
+    HandoffReviewCommand accept() { return new HandoffReviewCommand(61L, 0L, true, true, null); }
     void pending() {
         s.setStatus(ShipmentStatus.PICKED_UP); a.setStatus(AssignmentStatus.IN_PROGRESS);
         proof = new PickupEvidence(); proof.setId(51L); proof.setShipment(s); proof.setAssignment(a); proof.setEmployee(a.getEmployee());

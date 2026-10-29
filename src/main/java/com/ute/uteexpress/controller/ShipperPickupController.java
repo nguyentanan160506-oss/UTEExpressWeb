@@ -52,10 +52,13 @@ public class ShipperPickupController {
             new OriginHandoffCommand(assignmentId, form.getExpectedVersion(), form.getNotes())));
     }
     static String mutate(String redirect, BindingResult errors, RedirectAttributes flash, Runnable action) {
+        return mutateWithNotice(redirect, errors, flash, () -> { action.run(); return "Đã ghi nhận thao tác."; });
+    }
+    static String mutateWithNotice(String redirect, BindingResult errors, RedirectAttributes flash, java.util.function.Supplier<String> action) {
         if (errors.getSuppressedFields().length > 0) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trường không được phép."); }
         if (errors.hasErrors()) { flash.addFlashAttribute("error", "Thông tin không hợp lệ. Vui lòng kiểm tra và gửi lại."); }
         else {
-            try { action.run(); flash.addFlashAttribute("notice", "Đã ghi nhận thao tác."); }
+            try { flash.addFlashAttribute("notice", action.get()); }
             catch (OptimisticLockingFailureException conflict) { flash.addFlashAttribute("error", "Vận đơn đã thay đổi. Vui lòng tải lại trước khi thao tác."); }
             catch (LogisticsRuleException rule) { flash.addFlashAttribute("error", rule.getMessage()); }
             catch (DataAccessException failure) { flash.addFlashAttribute("error", "Không thể ghi nhận. Vui lòng tải lại kiểm tra; chưa xác nhận thành công."); }

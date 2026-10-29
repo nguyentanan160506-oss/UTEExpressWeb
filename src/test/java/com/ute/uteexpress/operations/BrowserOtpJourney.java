@@ -51,16 +51,16 @@ final class BrowserOtpJourney {
                 browser.text().contains("Địa chỉ được phục vụ trong bản demo")&&browser.text().contains("Danh sách được tải sau khi")
                     &&browser.js("document.querySelector('#destinationBranchId').options.length===1").asBoolean(),
                 "Fresh account sees why options are initially empty; no employee or shipment history prerequisite");
-            browser.fill(Map.of("shipmentMethod","HOME_PICKUP","senderProvince","tp đà nẵng","senderDistrict","huyện núi thành","senderWard","xã núi thành",
+            browser.fill(Map.of("shipmentMethod","HOME_PICKUP","senderProvince","Đà Nẵng","senderDistrict","huyện núi thành","senderWard","xã núi thành",
                 "receiverProvince","Hồ Chí Minh","receiverDistrict","Khu vực demo","receiverWard","Phường demo"));
             double reportedOriginPage=browser.js("performance.timeOrigin").asDouble();
             browser.js("document.querySelector('#destinationBranchId').closest('div').querySelector('button[formaction]').click();true");
             browser.waitNavigation(reportedOriginPage);
             check("Reported pickup area does not hide a valid destination",browser.text().contains("Không có chi nhánh gửi đang hoạt động")
                 &&browser.js("Array.from(document.querySelector('#destinationBranchId').options).some(o=>o.value&&o.text.includes('Chi nhánh TP.HCM demo'))").asBoolean(),
-                "Reported tp da nang/Nui Thanh strings have no demo origin coverage; receiver lookup remains independent");
+                "Canonical province selected; reported Nui Thanh district/ward still has no demo coverage; receiver lookup remains independent");
             browser.fill(Map.of("senderProvince","Đà Nẵng","senderDistrict","Khu vực demo","senderWard","Phường demo",
-                "receiverProvince","tp đà nẵng","receiverDistrict","huyện núi thành","receiverWard","xã núi thành"));
+                "receiverProvince","Đà Nẵng","receiverDistrict","huyện núi thành","receiverWard","xã núi thành"));
             double unsupportedPage=browser.js("performance.timeOrigin").asDouble();
             browser.js("document.querySelector('#destinationBranchId').closest('div').querySelector('button[formaction]').click();true");
             browser.waitNavigation(unsupportedPage);

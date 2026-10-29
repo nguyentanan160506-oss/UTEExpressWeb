@@ -18,8 +18,8 @@ public class PickupFeeRule {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "branch_id", nullable = false, foreignKey = @ForeignKey(name = "FK_pickup_fee_rules_branch"))
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", foreignKey = @ForeignKey(name = "FK_pickup_fee_rules_branch"))
     private Branch branch;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

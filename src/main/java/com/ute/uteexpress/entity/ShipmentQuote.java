@@ -14,7 +14,8 @@ import org.hibernate.type.SqlTypes;
     schema = "dbo",
     uniqueConstraints = {@UniqueConstraint(name = "UQ_shipment_quotes_token", columnNames = {"token"})},
     indexes = {@Index(name = "IX_shipment_quotes_owner", columnList = "requester_id, created_at DESC"), @Index(name = "IX_shipment_quotes_expiry", columnList = "expires_at, consumed_at")},
-    check = {@CheckConstraint(name = "CK_quotes_method", constraint = "shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF')"),
+    check = {@CheckConstraint(name = "CK_quotes_nationwide_price", constraint = ShippingPriceSnapshot.CHECK),
+        @CheckConstraint(name = "CK_quotes_method", constraint = "shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF')"),
         @CheckConstraint(name = "CK_quotes_payer", constraint = "payment_payer IN ('SENDER', 'RECEIVER')"),
         @CheckConstraint(name = "CK_quotes_weight", constraint = "weight_kg > 0"),
         @CheckConstraint(name = "CK_quotes_length", constraint = "length_cm IS NULL OR length_cm > 0"),
@@ -25,6 +26,10 @@ import org.hibernate.type.SqlTypes;
         @CheckConstraint(name = "CK_quotes_expiry", constraint = "expires_at > created_at"),
         @CheckConstraint(name = "CK_quotes_consumed", constraint = "consumed_at IS NULL OR (consumed_at >= created_at AND consumed_at < expires_at)")})
 public class ShipmentQuote {
+    @Embedded
+    private ShippingPriceSnapshot priceSnapshot;
+    public ShippingPriceSnapshot getPriceSnapshot() { return priceSnapshot; }
+    public void setPriceSnapshot(ShippingPriceSnapshot value) { priceSnapshot = value; }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
     private Long id;

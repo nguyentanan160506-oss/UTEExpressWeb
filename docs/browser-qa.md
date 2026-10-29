@@ -1,3 +1,17 @@
+# Cập nhật Commit 25 — báo giá toàn quốc và regression Commit 24
+
+Chrome headless/H2 riêng: **399 PASS / 0 FAIL / 0 BLOCKED**, không Computer Use. Có 34 lựa chọn tỉnh ở hai đầu; giá 5 nhóm và 2 phương thức, phí cân vượt, CSRF/chống sửa tiền, input tỉnh giả, mode coverage, Admin tạo dịch vụ/nháp/sửa/công bố 5 nhóm + default pickup, USER/SHIPPER bị chặn. Bộ hành trình cũ register/SMTP OTP/khách mới, hai logistics journeys, biên nhận nguồn tự sinh, returns, WebSocket hai phiên/reconnect vẫn đạt. Không JS/console.error hoặc HTTP 5xx; runtime-secret guard PASS. Xem [JSON lượt cuối](browser-qa-results.json) và [báo cáo giá toàn quốc](nationwide-shipping-pricing.md).
+
+Maven clean verify: **1.592 PASS / 1 SKIPPED**, 0 failures/errors; JavaScript 12/12. H2 không chứng nhận SQL V14/V15. SQL V14 Preflight BLOCKED với 18488; không SQL migration hoặc ghi DB trong lượt này. 399 là checkpoint, không phải 399 hành trình độc lập. Phần dưới là lịch sử các lượt trước.
+
+---
+
+# Cập nhật Commit 24 — biên nhận nguồn tự sinh
+
+Chrome headless trên H2 riêng: **365 PASS / 0 FAIL / 0 BLOCKED**, 2026-10-28T19:38:08Z (29/10/2026 UTC+7). Hai form nguồn không gửi mã client; mã RCV tự sinh được đọc lại từ trang biên nhận. Logistics/hub/delivery/returns, OTP và WebSocket vẫn đạt. Maven: **1.508 passed, 1 skipped**. Xem [báo cáo Commit 24](automatic-origin-receipts.md). Không truy cập SQL Server hoặc dừng cổng 8083; V14 trên SQL Server thật chưa được chạy. Phần dưới là lịch sử Commit 23/22.
+
+---
+
 # Cập nhật Commit 23 — Chrome headless / H2
 
 Kết quả mới nhất: **365 PASS / 0 FAIL / 0 BLOCKED**, 2026-10-28T16:02:51Z. Maven clean verify: **1.492 passed, 1 skipped, 0 failure/error**. Có User mới register/OTP → hồ sơ/địa chỉ → tạo vận đơn; 2 logistics journeys; WebSocket hai phiên và reconnect. Lỗi checkbox unchecked đã được browser phát hiện, tái hiện regression FAIL trước patch và sửa; chi tiết [QA Commit 23](final-website-qa.md). Không SQL Server hoặc Computer Use trong lượt này. SQL demo bền vững/persistence vẫn BLOCKED chờ cấp phép, không suy ra PASS từ H2. Nội dung bên dưới là lịch sử QA Commit 22/dropdown trước đó.

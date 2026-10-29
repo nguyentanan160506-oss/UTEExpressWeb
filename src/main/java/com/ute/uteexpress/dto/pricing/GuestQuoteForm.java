@@ -7,6 +7,15 @@ import java.math.BigDecimal;
 
 /** No contact name, telephone, street address or declared/COD value is collected. */
 public class GuestQuoteForm {
+    private boolean nationwide;
+    public boolean isNationwide() { return nationwide; }
+    public void setNationwide(boolean value) { nationwide = value; }
+    @AssertTrue(message = "Khi kiểm tra khả năng phục vụ, cần đủ quận/huyện, phường/xã hai đầu và chi nhánh nhận.")
+    public boolean isCoverageComplete() {
+        return nationwide || (destinationBranchId != null && nonblank(senderDistrict) && nonblank(senderWard)
+            && nonblank(receiverDistrict) && nonblank(receiverWard));
+    }
+    private boolean nonblank(String value) { return value != null && !value.isBlank(); }
     @NotNull(message = "Vui lòng nhập/chọn thông tin này.") private ShipmentMethod shipmentMethod;
     public ShipmentMethod getShipmentMethod() { return shipmentMethod; }
     public void setShipmentMethod(ShipmentMethod value) { shipmentMethod = value; }
@@ -16,25 +25,25 @@ public class GuestQuoteForm {
     @Positive(message = "Giá trị phải lớn hơn 0.") private Long originBranchId;
     public Long getOriginBranchId() { return originBranchId; }
     public void setOriginBranchId(Long value) { originBranchId = value; }
-    @NotNull(message = "Vui lòng nhập/chọn thông tin này.") @Positive(message = "Giá trị phải lớn hơn 0.") private Long destinationBranchId;
+    @Positive(message = "Giá trị phải lớn hơn 0.") private Long destinationBranchId;
     public Long getDestinationBranchId() { return destinationBranchId; }
     public void setDestinationBranchId(Long value) { destinationBranchId = value; }
     @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String senderProvince;
     public String getSenderProvince() { return senderProvince; }
     public void setSenderProvince(String value) { senderProvince = value; }
-    @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String senderDistrict;
+    @Size(max = 100, message = "Tối đa {max} ký tự.") private String senderDistrict;
     public String getSenderDistrict() { return senderDistrict; }
     public void setSenderDistrict(String value) { senderDistrict = value; }
-    @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String senderWard;
+    @Size(max = 100, message = "Tối đa {max} ký tự.") private String senderWard;
     public String getSenderWard() { return senderWard; }
     public void setSenderWard(String value) { senderWard = value; }
     @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String receiverProvince;
     public String getReceiverProvince() { return receiverProvince; }
     public void setReceiverProvince(String value) { receiverProvince = value; }
-    @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String receiverDistrict;
+    @Size(max = 100, message = "Tối đa {max} ký tự.") private String receiverDistrict;
     public String getReceiverDistrict() { return receiverDistrict; }
     public void setReceiverDistrict(String value) { receiverDistrict = value; }
-    @NotBlank(message = "Không được để trống.") @Size(max = 100, message = "Tối đa {max} ký tự.") private String receiverWard;
+    @Size(max = 100, message = "Tối đa {max} ký tự.") private String receiverWard;
     public String getReceiverWard() { return receiverWard; }
     public void setReceiverWard(String value) { receiverWard = value; }
     @NotNull(message = "Vui lòng nhập/chọn thông tin này.") @DecimalMin(value = "0.01", message = "Giá trị tối thiểu {value}.") @Digits(integer = 8, fraction = 2, message = "Tối đa {integer} số nguyên và 2 số lẻ.") private BigDecimal weightKg;

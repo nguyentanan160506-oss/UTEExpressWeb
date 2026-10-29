@@ -1,5 +1,7 @@
 # SQL Server demo bền vững — Windows một laptop
 
+> Commit 24: mapping biên nhận nguồn mới yêu cầu V14. Nội dung V1–V13 bên dưới là quy trình Commit 23. Launcher hiện validate V1–V14; không chạy bản mới với schema 13. Nâng cấp DB demo hiện có cần phê duyệt riêng; không chạy lại seed/clean/repair/reset. Xem [biên nhận tự sinh](automatic-origin-receipts.md).
+
 Trạng thái: tooling đã chuẩn bị để review. Chưa được cấp phép ghi SQL Server trong Commit 23; chưa chạy migration/seed/startup/persistence trên UTEExpress_Demo. H2 là QA riêng, không phải database chính của sản phẩm.
 
 ## Mục tiêu và quyền

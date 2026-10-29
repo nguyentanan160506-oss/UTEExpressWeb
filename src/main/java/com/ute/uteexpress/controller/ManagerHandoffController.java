@@ -21,7 +21,7 @@ public class ManagerHandoffController {
         this.manager = manager; this.lifecycle = lifecycle;
     }
     @InitBinder("reviewForm") void fields(WebDataBinder binder) {
-        binder.setAllowedFields("handoffId", "expectedVersion", "physicallyReceived", "receiptReference", "reason", "_csrf");
+        binder.setAllowedFields("handoffId", "expectedVersion", "physicallyReceived", "reason", "_csrf");
     }
     @GetMapping({"", "/"}) String pending(@RequestParam(defaultValue = "0") @Min(0) @Max(1000000) int page, Model model) {
         model.addAttribute("handoffs", manager.pending(page)); return "manager/handoffs";
@@ -38,8 +38,8 @@ public class ManagerHandoffController {
         return review(handoffId, false, form, errors, flash);
     }
     private String review(Long id, boolean accept, PickupForms.Review form, BindingResult errors, RedirectAttributes flash) {
-        return ShipperPickupController.mutate("/manager/handoffs/" + id, errors, flash,
+        return ShipperPickupController.mutateWithNotice("/manager/handoffs/" + id, errors, flash,
             () -> lifecycle.reviewOriginHandoff(new HandoffReviewCommand(id, form.getExpectedVersion(), accept,
-                form.isPhysicallyReceived(), form.getReceiptReference(), form.getReason())));
+                form.isPhysicallyReceived(), form.getReason())).notice());
     }
 }

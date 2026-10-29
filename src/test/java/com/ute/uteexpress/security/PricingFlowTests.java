@@ -111,9 +111,9 @@ class PricingFlowTests {
     @Test void editPeriodAndExistingRuleUsePathBookAndVersion() throws Exception {
         createDraft(); shipping();
         mvc.perform(action("/admin/pricing/101").param("expectedVersion", version()).param("validFrom", f.time.plusHours(3).toString())).andExpect(flash().attributeExists("notice"));
-        mvc.perform(action("/admin/pricing/101/rules").param("expectedVersion", version()).param("ruleId", "42").param("scope", "INTER_PROVINCE").param("baseWeightKg", "1.00")
+        mvc.perform(action("/admin/pricing/101/rules").param("expectedVersion", version()).param("ruleId", "42").param("scope", "SAME_REGION").param("baseWeightKg", "1.00")
             .param("basePrice", "40000.00").param("extraWeightStepKg", "0.50").param("extraPricePerStep", "5000.00").param("active", "true"))
-            .andExpect(flash().attributeExists("notice")); assertEquals(RateScopeType.INTER_PROVINCE, f.shippingRows.get(42L).getScopeType());
+            .andExpect(flash().attributeExists("notice")); assertEquals(RateScopeType.SAME_REGION, f.shippingRows.get(42L).getScopeType());
     }
     @Test void guestCanEstimateThroughSameEngineWithoutInternalConfigOrPersistence() throws Exception {
         mvc.perform(get("/quote")).andExpect(status().isOk()).andExpect(r -> { var html = r.getResponse().getContentAsString(); assertTrue(html.contains("name=\"_csrf\"")); assertFalse(html.contains("Admin</a>")); });
@@ -122,6 +122,13 @@ class PricingFlowTests {
             String html = r.getResponse().getContentAsString(); assertTrue(html.contains("25000.00"));
             for (String internal : new String[] {"shippingRateRuleId", "pricingVersionId", "baseWeightKg", "extraPricePerStep", "receiverPhone", "quoteToken"}) { assertFalse(html.contains(internal), internal); }
         }); assertTrue(f.quoteRows.isEmpty()); assertTrue(f.shipmentRows.isEmpty());
+    }
+    @Test void coverageModeRequiresDistrictWardAndBranchEvenThoughNationalModeDoesNot() throws Exception {
+        mvc.perform(post("/quote").with(csrf()).param("nationwide","false").param("shipmentMethod","BRANCH_DROPOFF")
+                .param("serviceId","21").param("senderProvince","Hà Nội").param("receiverProvince","Cà Mau").param("weightKg","1.00"))
+            .andExpect(status().isOk()).andExpect(model().attributeHasErrors("estimateForm"))
+            .andExpect(r->assertTrue(r.getResponse().getContentAsString().contains("cần đủ quận/huyện")));
+        assertTrue(f.quoteRows.isEmpty());assertTrue(f.shipmentRows.isEmpty());
     }
     @Test void adminPreviewUsesLiveEngineAndNeverChangesShipments() throws Exception {
         mvc.perform(admin(get("/admin/pricing/preview"))).andExpect(status().isOk());

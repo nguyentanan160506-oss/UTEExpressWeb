@@ -53,7 +53,7 @@ class ManagerLifecycleTests {
     PickupAssignmentCommand assignment(Long replaces, Long employee, String reason) {
         return new PickupAssignmentCommand(31L, 0L, employee, replaces, reason);
     }
-    BranchIntakeCommand intake() { return new BranchIntakeCommand(31L, 0L, "RECEIPT-TEST", true, "Checked package"); }
+    BranchIntakeCommand intake() { return new BranchIntakeCommand(31L, 0L, true, "Checked package"); }
     void pendingAssignment(AssignmentStatus status) {
         shipment.setStatus(ShipmentStatus.PICKUP_ASSIGNED);
         current = new ShipmentAssignment(); current.setId(41L); current.setShipment(shipment); current.setEmployee(courier(21L));
@@ -135,24 +135,24 @@ class ManagerLifecycleTests {
         ReflectionTestUtils.setField(shipment, "version", 1L);
         assertThrows(ObjectOptimisticLockingFailureException.class, () -> service.assignPickup(assignment(null, 21L, null)));
         assertThrows(ObjectOptimisticLockingFailureException.class, () -> service.receiveDropoff(intake()));
-        verifyNoInteractions(events, intakes);
+        verifyNoInteractions(events); verify(intakes, never()).saveAndFlush(any());
     }
     @Test void dropoffIntakeWritesEmployeeReceiptPhysicalBranchAndEventAtomically() {
         shipment.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF);
-        assertEquals(1L, service.receiveDropoff(intake()));
+        assertEquals(1L, service.receiveDropoff(intake()).version());
         assertEquals(ShipmentStatus.AT_ORIGIN_BRANCH, shipment.getStatus()); assertSame(shipment.getOriginBranch(), shipment.getCurrentBranch());
         verify(intakes).saveAndFlush(argThat(r -> r.getEmployee().getId() == 22L && r.getReceivedBy().getId() == 1L
-            && r.getPickupAssignment() == null && r.getReceiptReference().equals("RECEIPT-TEST")));
-        verify(events).saveAndFlush(argThat(e -> e.getToStatus() == ShipmentStatus.AT_ORIGIN_BRANCH && e.getDescription().contains("RECEIPT-TEST")));
+            && r.getPickupAssignment() == null && r.getReceiptReference().matches("RCV-[0-9]{8}-[A-F0-9]{32}") && r.getReceiptReference().equals(r.getSystemReceiptCode())));
+        verify(events).saveAndFlush(argThat(e -> e.getToStatus() == ShipmentStatus.AT_ORIGIN_BRANCH && e.getDescription().contains("RCV-")));
     }
     @ParameterizedTest @EnumSource(value = ShipmentStatus.class, names = {"CREATED", "CONFIRMED", "PICKUP_ASSIGNED", "PICKED_UP", "AT_ORIGIN_BRANCH"})
     void homePickupCannotBeReceivedBeforeCommit11Evidence(ShipmentStatus status) {
         shipment.setStatus(status); assertThrows(LogisticsRuleException.class, () -> service.receiveDropoff(intake()));
-        verifyNoInteractions(intakes, events);
+        verifyNoInteractions(events); verify(intakes, never()).saveAndFlush(any());
     }
     @Test void dropoffIntakeNeedsActualReceiptConfirmationAndStaffIdentity() {
         shipment.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF);
-        assertThrows(LogisticsRuleException.class, () -> service.receiveDropoff(new BranchIntakeCommand(31L, 0L, "REF", false, null)));
+        assertThrows(LogisticsRuleException.class, () -> service.receiveDropoff(new BranchIntakeCommand(31L, 0L, false, null)));
         when(access.requireIntakeEmployee(11L)).thenThrow(new AccessDeniedException("Forbidden"));
         assertThrows(AccessDeniedException.class, () -> service.receiveDropoff(intake())); verifyNoInteractions(intakes, events);
     }

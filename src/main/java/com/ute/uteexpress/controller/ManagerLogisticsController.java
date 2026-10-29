@@ -35,7 +35,7 @@ public class ManagerLogisticsController {
         binder.setAllowedFields("expectedVersion", "reason", "employeeId", "replacesAssignmentId", "_csrf", "id");
     }
     @InitBinder("intakeForm") void intakeFields(WebDataBinder binder) {
-        binder.setAllowedFields("expectedVersion", "receiptReference", "physicallyReceived", "notes", "_csrf", "id");
+        binder.setAllowedFields("expectedVersion", "physicallyReceived", "notes", "_csrf", "id");
     }
     @ModelAttribute("statusLabels") Map<ShipmentStatus, String> statuses() { return ShipmentStatusLabels.VALUES; }
 
@@ -84,16 +84,19 @@ public class ManagerLogisticsController {
     @PostMapping("/shipments/{id}/intake")
     public String intake(@PathVariable @Positive Long id, @Valid @ModelAttribute("intakeForm") ManagerForms.Intake form,
             BindingResult errors, RedirectAttributes flash) {
-        return mutate(id, errors, flash, () -> lifecycle.receiveDropoff(new BranchIntakeCommand(id, form.getExpectedVersion(),
-            form.getReceiptReference(), form.getPhysicallyReceived(), form.getNotes())));
+        return mutateWithNotice(id, errors, flash, () -> lifecycle.receiveDropoff(new BranchIntakeCommand(id, form.getExpectedVersion(),
+            form.getPhysicallyReceived(), form.getNotes())).notice());
     }
     private String mutate(Long id, BindingResult errors, RedirectAttributes flash, Runnable operation) {
+        return mutateWithNotice(id, errors, flash, () -> { operation.run(); return "Đã ghi nhận thao tác thành công."; });
+    }
+    private String mutateWithNotice(Long id, BindingResult errors, RedirectAttributes flash, java.util.function.Supplier<String> operation) {
         if (errors.getSuppressedFields().length > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Yêu cầu chứa trường không được phép.");
         }
         if (errors.hasErrors()) { flash.addFlashAttribute("error", "Thông tin thao tác không hợp lệ. Vui lòng kiểm tra và gửi lại."); }
         else {
-            try { operation.run(); flash.addFlashAttribute("notice", "Đã ghi nhận thao tác thành công."); }
+            try { flash.addFlashAttribute("notice", operation.get()); }
             catch (OptimisticLockingFailureException conflict) { flash.addFlashAttribute("error", "Vận đơn đã thay đổi. Vui lòng kiểm tra dữ liệu mới trước khi thao tác lại."); }
             catch (LogisticsRuleException rule) { flash.addFlashAttribute("error", rule.getMessage()); }
             catch (DataAccessException failure) { flash.addFlashAttribute("error", "Không thể ghi nhận thao tác. Vui lòng tải lại để kiểm tra; chưa xác nhận thành công."); }

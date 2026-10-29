@@ -114,12 +114,13 @@ class UserShipmentServiceTests {
         assertEquals(NOW, event.getValue().getOccurredAt());
     }
 
-    @Test void differentProvincesUseInterProvinceNeverInterRegion() {
+    @Test void differentRegionsUseSpecificNationwideScopeNeverGenericLegacyScope() {
         ShipmentCreateForm form = form(); form.setReceiverProvince("Đà Nẵng");
         Branch destination = branch(12L); destination.setProvince("Đà Nẵng");
         when(branches.findByIdAndStatus(12L, BranchStatus.ACTIVE)).thenReturn(Optional.of(destination));
         create(form);
-        verify(rates).findEffectiveRules(21L, RateScopeType.INTER_PROVINCE, NOW);
+        verify(rates).findEffectiveRules(21L, RateScopeType.CENTRAL_SOUTH, NOW);
+        verify(rates, never()).findEffectiveRules(anyLong(), eq(RateScopeType.INTER_PROVINCE), any());
         verify(rates, never()).findEffectiveRules(anyLong(), eq(RateScopeType.INTER_REGION), any());
     }
 

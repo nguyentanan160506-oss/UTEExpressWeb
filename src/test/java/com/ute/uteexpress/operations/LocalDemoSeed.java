@@ -112,10 +112,7 @@ public final class LocalDemoSeed {
             }
             LocalDateTime since=LocalDateTime.ofInstant(clock.instant(),ZoneOffset.UTC).minusDays(1);
             var version=new PricingVersion();version.setService(f.catalog);version.setCode("DEMO-PUBLISHED");version.setStatus(PricingVersionStatus.PUBLISHED);version.setCreatedBy(f.admin);version.setUpdatedBy(f.admin);version.setPublishedBy(f.admin);version.setPublishedAt(since);version.setValidFrom(since);em.persist(version);
-            for(RateScopeType scope:List.of(RateScopeType.INTRA_PROVINCE,RateScopeType.INTER_PROVINCE)) {
-                var rate=ShipmentFixtures.rate();rate.setService(f.catalog);rate.setScopeType(scope);rate.setEffectiveFrom(since);rate.setPricingVersion(version);rate.setBasePrice(new BigDecimal(scope==RateScopeType.INTRA_PROVINCE?"20000.00":"40000.00"));em.persist(rate);
-            }
-            var fee=new PickupFeeRule();fee.setBranch(f.source);fee.setService(f.catalog);fee.setPricingVersion(version);fee.setEffectiveFrom(since);fee.setAmount(new BigDecimal("7500.00"));em.persist(fee);
+            NationwideDemoPricing.seed(em,f.catalog,version);
             var routing=new SupportTicketRoute();routing.setOriginBranch(f.source);routing.setHandlingBranch(f.destination);em.persist(routing);
             route(f.source,f.hub,TransportLeg.COLLECTION);route(f.hub,hubB,TransportLeg.LINEHAUL);route(hubB,f.destination,TransportLeg.DISTRIBUTION);
             route(f.destination,hubB,TransportLeg.COLLECTION);route(hubB,f.hub,TransportLeg.LINEHAUL);route(f.hub,f.source,TransportLeg.DISTRIBUTION);
@@ -139,7 +136,7 @@ public final class LocalDemoSeed {
     private Long confirmed(ShipmentMethod method) {Long id=created(method);operator(f.source);lifecycle.transition(new ShipmentTransitionCommand(id,version(id),ShipmentStatus.CONFIRMED));return id;}
     private Long pickupAssigned() {Long id=confirmed(ShipmentMethod.HOME_PICKUP);operator(f.source);lifecycle.assignPickup(new PickupAssignmentCommand(id,version(id),pickupEmployee,null,null));return id;}
     private Long collected() {Long id=pickupAssigned();as(pickup,"SHIPPER");lifecycle.collectPickup(new PickupCollectionCommand(assignment(id,AssignmentType.PICKUP),version(id),PickupResult.SUCCESS,true,"DEMO-PICKUP",null));return id;}
-    private Long intake(ShipmentMethod method) {Long id=confirmed(method);operator(f.source);lifecycle.receiveDropoff(new BranchIntakeCommand(id,version(id),"DEMO-COUNTER",true,null));return id;}
+    private Long intake(ShipmentMethod method) {Long id=confirmed(method);operator(f.source);lifecycle.receiveDropoff(new BranchIntakeCommand(id,version(id),true,null));return id;}
     private record Leg(Long trip,Branch from,Branch to) { }
     private Leg manifest(Long id,Branch from,Branch to) {operator(from);Long trip=transport.create(new Create(routes.get(from.getId()+":"+to.getId()),token()));transport.addItems(new Manifest(trip,tripVersion(trip),List.of(id)));return new Leg(trip,from,to);}
     private Long item(Long trip,Long id) {return db(()->em.createQuery("select i.id from TransportTripItem i where i.trip.id=:trip and i.shipment.id=:id",Long.class).setParameter("trip",trip).setParameter("id",id).getSingleResult());}

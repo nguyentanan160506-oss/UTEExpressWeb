@@ -63,7 +63,7 @@ class CustomerShipmentJourneyTests extends CustomerJourneySupport {
         Long id = quoteService.confirm(quoteService.quote(form));
         as(f.manager, "ROLE_MANAGER"); lifecycle.transition(new ShipmentTransitionCommand(id, shipmentVersion(id), ShipmentStatus.CONFIRMED));
         as(f.owner, "ROLE_USER"); assertEquals(ShipmentStatus.CONFIRMED, userShipments.detail(id, 0).status());
-        as(f.manager, "ROLE_MANAGER"); lifecycle.receiveDropoff(new BranchIntakeCommand(id, shipmentVersion(id), "LOCAL-INTAKE", true, null));
+        as(f.manager, "ROLE_MANAGER"); lifecycle.receiveDropoff(new BranchIntakeCommand(id, shipmentVersion(id), true, null));
         transport.readyAtSameBranch(new LocalReady(id, shipmentVersion(id), true, "LOCAL-SORT", null));
         assertEquals(0, count(TransportTrip.class)); assertEquals(1, count(ShipmentIntake.class)); return id;
     }

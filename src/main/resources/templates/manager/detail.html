@@ -44,7 +44,7 @@
                 <form th:if="${detail.canReceive}" th:action="@{/manager/shipments/{id}/intake(id=${s.id})}" method="post" class="border-top pt-4">
                     <h3 class="h6 fw-bold">Tiếp nhận kiện BRANCH_DROPOFF thực tế</h3>
                     <input type="hidden" name="expectedVersion" th:value="${detail.version}">
-                    <label for="receiptReference" class="form-label">Mã / tham chiếu biên nhận thực tế</label><input id="receiptReference" name="receiptReference" required maxlength="100" class="form-control mb-3">
+                    <p class="small text-secondary">Hệ thống tự sinh mã biên nhận sau khi tiếp nhận thành công. Bạn không cần nhập mã thủ công.</p>
                     <label for="intakeNotes" class="form-label">Ghi chú tiếp nhận</label><textarea id="intakeNotes" name="notes" maxlength="500" rows="2" class="form-control mb-3"></textarea>
                     <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="physicallyReceived" value="true" id="physicallyReceived" required>
                         <label class="form-check-label" for="physicallyReceived">Tôi đã kiểm tra và thực nhận kiện tại chi nhánh nguồn.</label></div>

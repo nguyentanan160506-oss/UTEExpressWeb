@@ -150,7 +150,7 @@ public final class BrowserQaTool implements AutoCloseable {
         String fieldNames=js("Array.from(new FormData(document.querySelector(\"form[action=\\\"/user/shipments/quotes\\\"]\")).keys()).join(\",\")").asText();
         submit("/user/shipments/quotes",Map.of());
         String quotePath=location();boolean quoted=quotePath.startsWith("/user/shipments/quotes/");
-        result(method+" quote",quoted&&text().contains(method.equals("HOME_PICKUP")?"52.500,00":"45.000,00"),"Detailed quote with database price; "+quotePath.replaceAll("/quotes/.*","/quotes/[token]")+(quoted?"":" fields="+fieldNames+" errors="+js("Array.from(document.querySelectorAll(\".alert-danger,.invalid-feedback\")).map(e=>e.innerText).filter(Boolean).join(\"; \")").asText()));
+        result(method+" quote",quoted&&text().contains(method.equals("HOME_PICKUP")?"60.000,00":"50.000,00"),"Detailed quote with database price; "+quotePath.replaceAll("/quotes/.*","/quotes/[token]")+(quoted?"":" fields="+fieldNames+" errors="+js("Array.from(document.querySelectorAll(\".alert-danger,.invalid-feedback\")).map(e=>e.innerText).filter(Boolean).join(\"; \")").asText()));
         if(!quoted)return null;
         submit("/user/shipments",Map.of());String shipment=location();result(method+" confirmation creates shipment",shipment.matches("/user/shipments/[0-9]+")&&text().contains("Tạo vận đơn thành công"),shipment);
         if(shipment.matches("/user/shipments/[0-9]+")){nav(quotePath);submit("/user/shipments",Map.of());result(method+" repeated confirmation reopens same shipment",location().equals(shipment),"Same quote confirmation is idempotent");return shipment.substring(shipment.lastIndexOf('/')+1);}
@@ -172,7 +172,7 @@ public final class BrowserQaTool implements AutoCloseable {
     void manager()throws Exception {
         login("manager");for(String path:List.of("/manager","/manager/operations","/manager/shipments","/manager/handoffs","/manager/trips","/manager/trips/new","/manager/deliveries","/manager/tickets"))page("Manager "+path,path,200,null);
         page("Manager denied ADMIN","/admin/users",403,null);
-        if(createdShipment!=null){nav("/manager/shipments/"+createdShipment);boolean confirmed=submit("/manager/shipments/"+createdShipment+"/confirm",Map.of());result("Manager confirms Browser dropoff",confirmed&&text().contains("Đã xác nhận"),"Physical receipt is separate");boolean received=submit("/manager/shipments/"+createdShipment+"/intake",Map.of("receiptReference","BROWSER-INTAKE","physicallyReceived",true));result("Manager physical branch intake",received&&text().contains("BROWSER-INTAKE"),"Receipt and timeline rendered");}
+        if(createdShipment!=null){nav("/manager/shipments/"+createdShipment);boolean confirmed=submit("/manager/shipments/"+createdShipment+"/confirm",Map.of());result("Manager confirms Browser dropoff",confirmed&&text().contains("Đã xác nhận"),"Physical receipt is separate");boolean received=submit("/manager/shipments/"+createdShipment+"/intake",Map.of("physicallyReceived",true));result("Manager physical branch intake",received&&text().contains("RCV-"),"Receipt and timeline rendered");}
         if(homeShipment!=null){nav("/manager/shipments/"+homeShipment);submit("/manager/shipments/"+homeShipment+"/confirm",Map.of());String employee=js("document.querySelector('select[name=employeeId] option[value]:not([value=\"\"])')?.value || ''").asText();boolean assigned=!employee.isBlank()&&submit("/manager/shipments/"+homeShipment+"/pickup-assignments",Map.of("employeeId",employee));result("Manager assigns pickup",assigned&&text().contains("Đã phân công lấy hàng"),"Only source-branch eligible courier");}
         if(createdShipment!=null)transportCollection();
         login("destination-manager");page("Destination Manager ticket conversation","/manager/tickets/1",200,"GHI_CHU_NOI_BO_DEMO_KHONG_CONG_KHONG_CONG_KHAI".replace("KHONG_CONG_KHONG_CONG","KHONG_CONG"));
@@ -209,7 +209,7 @@ public final class BrowserQaTool implements AutoCloseable {
         }else blocked("Pickup task detail","No available pickup link");
         login("manager");nav("/manager/handoffs");
         String handoff=js("Array.from(document.querySelectorAll('a')).map(a=>a.getAttribute('href')).find(h=>/^\\/manager\\/handoffs\\/[0-9]+$/.test(h))||''").asText();
-        if(!handoff.isBlank()){nav(handoff);String receiptPage=js("document.querySelector('a[href^=\"/manager/shipments/\"]').getAttribute('href')").asText();boolean received=submit(handoff+"/accept",Map.of("receiptReference","BROWSER-HOME-INTAKE","physicallyReceived",true));nav(receiptPage);result("Independent Manager accepts source handoff",received&&text().contains("BROWSER-HOME-INTAKE"),"Follow linked source receipt and verify persisted reference");}
+        if(!handoff.isBlank()){nav(handoff);String receiptPage=js("document.querySelector('a[href^=\"/manager/shipments/\"]').getAttribute('href')").asText();boolean received=submit(handoff+"/accept",Map.of("physicallyReceived",true));nav(receiptPage);result("Independent Manager accepts source handoff",received&&text().contains("RCV-"),"Follow linked source receipt and verify persisted reference");}
         login("shipper");page("Delivery courier dashboard","/shipper",200,null);page("Delivery task list","/shipper/deliveries",200,null);
         String delivery=js("Array.from(document.querySelectorAll('a')).map(a=>a.getAttribute('href')).find(h=>/^\\/shipper\\/deliveries\\/[0-9]+$/.test(h))||''").asText();
         if(!delivery.isBlank())page("Delivery task proof/failure forms",delivery,200,null);else blocked("Delivery task detail","No delivery task link");
@@ -241,7 +241,7 @@ public final class BrowserQaTool implements AutoCloseable {
             var screenshot=call("Page.captureScreenshot",Map.of("format","png"));Path dir=Path.of(System.getenv().getOrDefault("UTE_BROWSER_EVIDENCE_DIR",System.getProperty("java.io.tmpdir")));Files.createDirectories(dir);Files.write(dir.resolve("uteexpress-tracking-"+width+".png"),Base64.getDecoder().decode(screenshot.path("data").asText()));
         }
     }
-    void run()throws Exception {guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
+    void run()throws Exception {guest();new BrowserNationwidePricingJourney(this).guest();customer();manager();courier();new BrowserLogisticsJourneys(this).run();new BrowserWebSocketJourney(this).run();admin();new BrowserNationwidePricingJourney(this).admin();responsive();result("No uncaught JavaScript or console.error",javascriptErrors.isEmpty(),"Observed="+javascriptErrors.size());result("No HTTP 5xx/Thymeleaf render failure",serverErrors.isEmpty(),serverErrors.toString());}
     public void close(){
         if(!ownedContexts.isEmpty()){
             try{

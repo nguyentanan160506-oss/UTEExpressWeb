@@ -19,9 +19,11 @@ public class PublicQuoteController {
     private final AdminPricingService admin;
     public PublicQuoteController(QuoteService quotes, AdminPricingService admin) { this.quotes = quotes; this.admin = admin; }
     @InitBinder("estimateForm") void fields(WebDataBinder b) {
-        b.setAllowedFields("shipmentMethod", "serviceId", "originBranchId", "destinationBranchId", "senderProvince", "senderDistrict", "senderWard", "receiverProvince", "receiverDistrict", "receiverWard", "weightKg", "lengthCm", "widthCm", "heightCm", "id", "_csrf");
+        b.setAllowedFields("nationwide", "shipmentMethod", "serviceId", "originBranchId", "destinationBranchId", "senderProvince", "senderDistrict", "senderWard", "receiverProvince", "receiverDistrict", "receiverWard", "weightKg", "lengthCm", "widthCm", "heightCm", "id", "_csrf");
     }
-    @GetMapping("/quote") String form(Model m) { m.addAttribute("estimateForm", new GuestQuoteForm()); return page(m, false); }
+    @GetMapping("/quote") String form(@RequestParam(defaultValue="true") boolean nationwide, Model m) {
+        var form = new GuestQuoteForm(); form.setNationwide(nationwide); m.addAttribute("estimateForm", form); return page(m, false);
+    }
     @PostMapping("/quote") String estimate(@Valid @ModelAttribute("estimateForm") GuestQuoteForm f, BindingResult e, Model m) { return calculate(f, e, m, false); }
     @PostMapping("/quote/branches") String branches(@ModelAttribute("estimateForm") GuestQuoteForm f, BindingResult e, Model m) { return branches(f, e, m, false); }
     @GetMapping("/admin/pricing/preview") @PreAuthorize("hasRole('ADMIN')") String preview(Model m) { admin.authorize(); m.addAttribute("estimateForm", new GuestQuoteForm()); return page(m, true); }
@@ -57,6 +59,7 @@ public class PublicQuoteController {
     }
     private void allowed(BindingResult e) { if (e.getSuppressedFields().length > 0) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trường không được phép."); } }
     private String page(Model m, boolean preview) {
+        m.addAttribute("provinces", ProvinceCatalog.all());
         if (!m.containsAttribute("validationMessages")) { m.addAttribute("validationMessages", java.util.List.of()); }
         m.addAttribute("adminPreview", preview); if (!m.containsAttribute("services")) { m.addAttribute("services", quotes.estimateServices()); }
         if (!m.containsAttribute("choices")) {

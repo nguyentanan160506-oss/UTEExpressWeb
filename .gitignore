@@ -39,3 +39,8 @@ build/
 # Local configuration and logs
 application-local.properties
 *.log
+
+# Windows DPAPI QA credentials and encrypted replacement artifacts stay outside Git.
+*.credential.xml
+*.credential.xml.candidate.*
+*.credential.xml.backup.*

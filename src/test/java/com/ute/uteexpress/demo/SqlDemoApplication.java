@@ -26,6 +26,7 @@ public final class SqlDemoApplication {
     }
     private static void execute(String[] args)throws Exception {
         if(args.length<1||args.length>2)throw new IllegalArgumentException("Mode and optional port only");
+        requireCompatibleSchemaPolicy(args[0]);
         String mode=args[0];var env=System.getenv();SqlDemoTarget.requireApproval(mode,env);
         int port=args.length==2?Integer.parseInt(args[1]):8081;
         if(port<1024||port>65535)throw new IllegalArgumentException("Invalid port");
@@ -49,12 +50,12 @@ public final class SqlDemoApplication {
         }
         if("inspect".equals(mode))return;
         var flyway=Flyway.configure().dataSource(source).locations("classpath:db/migration").defaultSchema("dbo")
-            .target("13").cleanDisabled(true).baselineOnMigrate(false).outOfOrder(false).validateOnMigrate(true).load();
-        if("migrate".equals(mode)){flyway.migrate();flyway.validate();System.out.println("PASS migration V1-V13");return;}
+            .target("14").cleanDisabled(true).baselineOnMigrate(false).outOfOrder(false).validateOnMigrate(true).load();
+        if("migrate".equals(mode)){flyway.migrate();flyway.validate();System.out.println("PASS migration V1-V14");return;}
         flyway.validate();
         var applied=flyway.info().applied();
-        if(applied.length!=13||java.util.Arrays.stream(applied).anyMatch(m->m.getState()!=org.flywaydb.core.api.MigrationState.SUCCESS)
-                ||!"13".equals(flyway.info().current().getVersion().getVersion()))
+        if(applied.length!=14||java.util.Arrays.stream(applied).anyMatch(m->m.getState()!=org.flywaydb.core.api.MigrationState.SUCCESS)
+                ||!"14".equals(flyway.info().current().getVersion().getVersion()))
             throw new IllegalStateException("Complete V1-V13 history required; never auto-migrate at startup");
         System.setProperty("spring.devtools.restart.enabled","false");
         var app=new SpringApplicationBuilder(UteexpressApplication.class,Configuration.class)
@@ -68,6 +69,11 @@ public final class SqlDemoApplication {
                 System.out.println(created?"PASS demo reference data created atomically":"PASS seed no-op; existing data and password hashes preserved");}
             finally{app.close();}
         }else System.out.println("READY http://127.0.0.1:"+port+" — SQL Server persistent demo; no automatic seed or migrations");
+    }
+    static void requireCompatibleSchemaPolicy(String mode) {
+        if (!"inspect".equals(mode) && SqlDemoApplication.class.getResource("/db/migration/V15__add_nationwide_shipping_pricing.sql") != null) {
+            throw new IllegalStateException("This checkout requires V15. SQL demo policy is approved only through V14; a separately reviewed upgrade is required. Use isolated H2 meanwhile.");
+        }
     }
     @TestConfiguration(proxyBeanMethods=false)
     @Profile("demo-sql")

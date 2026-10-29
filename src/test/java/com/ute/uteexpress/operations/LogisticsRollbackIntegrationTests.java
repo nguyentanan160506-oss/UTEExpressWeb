@@ -37,7 +37,7 @@ class LogisticsRollbackIntegrationTests extends LogisticsJourneySupport {
             }
             case "HOME_INTAKE" -> {
                 id=collected();Long handoff=pendingOriginHandoff(id),v=shipmentVersion(id);operator(f.source);
-                operation=()->lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,v,true,true,"INTAKE",null));table="shipment_intakes";
+                operation=()->lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,v,true,true,null));table="shipment_intakes";
             }
             case "MANIFEST" -> {
                 id=intake(ShipmentMethod.BRANCH_DROPOFF);operator(f.source);Long trip=transport.create(new Create(routes.get(key(f.source,f.hub)),token())),v=tripVersion(trip);

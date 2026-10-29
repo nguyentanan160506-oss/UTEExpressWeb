@@ -84,14 +84,14 @@ public class QuoteService {
         ShippingService service = activeService(form.getServiceId());
         requireUser(); // Refresh account/roles after any wait for the pricing gate.
         LocalDateTime now = now();
-        RateScopeType scope = form.getSenderProvince().equalsIgnoreCase(form.getReceiverProvince())
-            ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
+        RateScopeType scope = ProvinceCatalog.classify(form.getSenderProvince(), form.getReceiverProvince());
         conditions(service, form);
         Price price = price(service, scope, form.getShipmentMethod(), origin.getId(), form.getWeightKg(), now);
         ShippingRateRule rate = price.rate(); PickupFeeRule pickup = price.pickup();
         BigDecimal shipping = price.shipping(), pickupFee = price.pickupFee(); LocalDateTime expires = price.expires();
         ShipmentQuote quote = new ShipmentQuote();
         ShipmentQuoteInputs.capture(form, quote);
+        quote.setPriceSnapshot(snapshot(form, rate, shipping));
         quote.setToken(UUID.randomUUID().toString().replace("-", "")); quote.setRequester(owner);
         quote.setShipmentMethod(form.getShipmentMethod()); quote.setOriginBranch(origin); quote.setDestinationBranch(destination);
         quote.setOriginHub(originHub); quote.setDestinationHub(destinationHub); quote.setService(service);
@@ -112,7 +112,8 @@ public class QuoteService {
             q.getOriginBranch().getName(), q.getDestinationBranch().getName(), q.getService().getName(),
             q.getPackageDescription(), q.getWeightKg(), q.getLengthCm(), q.getWidthCm(), q.getHeightCm(), q.getCodAmount(),
             q.getDeclaredValue(), q.getPaymentPayer(), q.getNote(), q.getShippingFee(), q.getPickupFee(), q.getInsuranceFee(),
-            q.getTotalFee(), q.getExpiresAt(), q.getConsumedAt() == null && now().isBefore(q.getExpiresAt()), q.getConsumedAt() != null);
+            q.getTotalFee(), q.getExpiresAt(), q.getConsumedAt() == null && now().isBefore(q.getExpiresAt()), q.getConsumedAt() != null,
+            PriceBreakdown.of(q.getPriceSnapshot()));
     }
 
     @Transactional
@@ -141,6 +142,8 @@ public class QuoteService {
             throw error("originBranchId", "Mạng lưới đã thay đổi. Vui lòng lấy báo giá mới.");
         }
         Shipment shipment = new Shipment(); ShipmentQuoteInputs.apply(quote, shipment);
+        verifyStoredPrice(quote);
+        shipment.setPriceSnapshot(quote.getPriceSnapshot() == null ? null : quote.getPriceSnapshot().copy());
         shipment.setTrackingNumber(tracking.next()); shipment.setSender(owner); shipment.setQuote(quote);
         shipment.setShipmentMethod(quote.getShipmentMethod()); shipment.setOriginBranch(quote.getOriginBranch());
         shipment.setDestinationBranch(quote.getDestinationBranch()); shipment.setOriginHub(quote.getOriginHub());
@@ -191,6 +194,8 @@ public class QuoteService {
         LocalDateTime expires = earlier(earlier(earlier(now.plus(validity), rate.getEffectiveTo()), rate.getRetiredFrom()), rate.getPricingVersion() == null ? null : rate.getPricingVersion().getRetiredFrom());
         if (method == ShipmentMethod.HOME_PICKUP) {
             var rules = pickupOverride == null ? pickups.findEffectiveRules(originId, service.getId(), now) : List.of(pickupOverride);
+            // A branch-specific policy wins. An ambiguous branch policy is never hidden by a global one.
+            if (rules.isEmpty() && originId != null && pickupOverride == null) { rules = pickups.findEffectiveRules(null, service.getId(), now); }
             if (rules.size() != 1) { throw error("shipmentMethod", "Chưa có đúng một bảng phụ phí lấy hàng đang hiệu lực cho chi nhánh và dịch vụ này."); }
             pickup = rules.getFirst();
             if (pickup.getAmount() == null || pickup.getAmount().signum() <= 0) {
@@ -213,25 +218,28 @@ public class QuoteService {
             throw error("serviceId", "Chỉ mô phỏng bản nháp của đúng dịch vụ; bản đã công bố dùng công cụ giá hiệu lực.");
         }
         var violations = validator.validate(form); if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
-        var input = form.toShipmentInput(); Route route = route(input); conditions(service, input);
-        RateScopeType scope = form.getSenderProvince().strip().equalsIgnoreCase(form.getReceiverProvince().strip()) ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
+        var input = form.toShipmentInput(); Route route = form.isNationwide() ? null : route(input); conditions(service, input);
+        RateScopeType scope = ProvinceCatalog.classify(form.getSenderProvince(), form.getReceiverProvince());
         var shipping = rates.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getScopeType() == scope).toList();
-        var pickup = pickups.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getBranch().getId().equals(route.origin().getId())).toList();
+        Long originId = route == null ? null : route.origin().getId();
+        var pickup = pickups.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getBranch() != null && r.getBranch().getId().equals(originId)).toList();
+        if (pickup.isEmpty()) { pickup = pickups.findByPricingVersionIdAndIsActiveTrue(id).stream().filter(r -> r.getBranch() == null).toList(); }
         if (shipping.size() > 1 || pickup.size() > 1) { throw error("serviceId", "Bản nháp có quy tắc chồng lấn, cần sửa trước khi mô phỏng."); }
-        Price result = price(service, scope, form.getShipmentMethod(), route.origin().getId(), form.getWeightKg(), version.getValidFrom(),
+        Price result = price(service, scope, form.getShipmentMethod(), originId, form.getWeightKg(), version.getValidFrom(),
             shipping.isEmpty() ? null : shipping.getFirst(), pickup.isEmpty() ? null : pickup.getFirst());
         return new PublicQuoteView(service.getName(), form.getShipmentMethod(), result.shipping(), result.pickupFee(), new BigDecimal("0.00"),
-            money(result.shipping().add(result.pickupFee())), "VND", version.getValidFrom(), earlier(result.expires(), version.getValidTo()));
+            money(result.shipping().add(result.pickupFee())), "VND", version.getValidFrom(), earlier(result.expires(), version.getValidTo()),
+            PriceBreakdown.of(snapshot(input, result.rate(), result.shipping())));
     }
     @PreAuthorize("permitAll()") @Transactional
     public PublicQuoteView estimate(@NotNull @Valid GuestQuoteForm form) {
         var violations = validator.validate(form); if (!violations.isEmpty()) { throw new ConstraintViolationException(violations); }
-        ShipmentCreateForm input = form.toShipmentInput(); Route route = route(input);
+        ShipmentCreateForm input = form.toShipmentInput(); Route route = form.isNationwide() ? null : route(input);
         ShippingService service = activeService(form.getServiceId()); conditions(service, input); LocalDateTime time = now();
-        RateScopeType scope = form.getSenderProvince().strip().equalsIgnoreCase(form.getReceiverProvince().strip()) ? RateScopeType.INTRA_PROVINCE : RateScopeType.INTER_PROVINCE;
-        Price price = price(service, scope, form.getShipmentMethod(), route.origin().getId(), form.getWeightKg(), time);
+        RateScopeType scope = ProvinceCatalog.classify(form.getSenderProvince(), form.getReceiverProvince());
+        Price price = price(service, scope, form.getShipmentMethod(), route == null ? null : route.origin().getId(), form.getWeightKg(), time);
         return new PublicQuoteView(service.getName(), form.getShipmentMethod(), price.shipping(), price.pickupFee(), new BigDecimal("0.00"),
-            money(price.shipping().add(price.pickupFee())), "VND", time, price.expires());
+            money(price.shipping().add(price.pickupFee())), "VND", time, price.expires(), PriceBreakdown.of(snapshot(input, price.rate(), price.shipping())));
     }
     @PreAuthorize("permitAll()")
     public List<ShipmentOptions.ServiceOption> estimateServices() {
@@ -258,9 +266,9 @@ public class QuoteService {
     private BranchChoices choices(ShipmentCreateForm form) {
         List<ShipmentOptions.BranchOption> origins;
         List<ShipmentOptions.BranchOption> destinations;
-        try { origins = network.quoteServingBranches(form.getSenderProvince(), form.getSenderDistrict(), form.getSenderWard(), form.getShipmentMethod()); }
+        try { origins = network.quoteServingBranches(ProvinceCatalog.require(form.getSenderProvince(), "senderProvince").name(), form.getSenderDistrict(), form.getSenderWard(), form.getShipmentMethod()); }
         catch (LogisticsRuleException failure) { throw error("originBranchId", failure.getMessage()); }
-        try { destinations = network.quoteDeliveryBranches(form.getReceiverProvince(), form.getReceiverDistrict(), form.getReceiverWard()); }
+        try { destinations = network.quoteDeliveryBranches(ProvinceCatalog.require(form.getReceiverProvince(), "receiverProvince").name(), form.getReceiverDistrict(), form.getReceiverWard()); }
         catch (LogisticsRuleException failure) { throw error("destinationBranchId", failure.getMessage()); }
         return new BranchChoices(origins, destinations);
     }
@@ -283,15 +291,27 @@ public class QuoteService {
         return service;
     }
     private BigDecimal shippingFee(ShippingRateRule rule, BigDecimal weight) {
-        if (rule.getBaseWeightKg() == null || rule.getBaseWeightKg().signum() <= 0
-                || rule.getExtraWeightStepKg() == null || rule.getExtraWeightStepKg().signum() <= 0
-                || rule.getBasePrice() == null || rule.getBasePrice().signum() < 0
-                || rule.getExtraPricePerStep() == null || rule.getExtraPricePerStep().signum() < 0) {
-            throw error("serviceId", "Bảng giá vận chuyển không hợp lệ.");
+        return ShippingChargeCalculator.calculate(weight, rule.getBaseWeightKg(), rule.getBasePrice(),
+            rule.getExtraWeightStepKg(), rule.getExtraPricePerStep()).total();
+    }
+    private ShippingPriceSnapshot snapshot(ShipmentCreateForm form, ShippingRateRule rate, BigDecimal shipping) {
+        var origin = ProvinceCatalog.require(form.getSenderProvince(), "senderProvince");
+        var destination = ProvinceCatalog.require(form.getReceiverProvince(), "receiverProvince");
+        return new ShippingPriceSnapshot(ProvinceCatalog.classify(origin.code(), destination.code()), origin.code(), destination.code(),
+            money(rate.getBasePrice()), money(shipping.subtract(rate.getBasePrice())), rate.getBaseWeightKg(), rate.getExtraWeightStepKg(), money(rate.getExtraPricePerStep()));
+    }
+    private void verifyStoredPrice(ShipmentQuote quote) {
+        var snapshot = quote.getPriceSnapshot();
+        // Legacy quotes retain their already-held price; do not infer new zones or rewrite history.
+        if (snapshot == null) { return; }
+        var charges = ShippingChargeCalculator.calculate(quote.getWeightKg(), snapshot.getBaseWeightKg(), snapshot.getBaseFee(), snapshot.getStepWeightKg(), snapshot.getStepPrice());
+        if (snapshot.getScope() != ProvinceCatalog.classify(quote.getSenderProvince(), quote.getReceiverProvince())
+                || !snapshot.getOriginProvinceCode().equals(ProvinceCatalog.require(quote.getSenderProvince(), "senderProvince").code())
+                || !snapshot.getDestinationProvinceCode().equals(ProvinceCatalog.require(quote.getReceiverProvince(), "receiverProvince").code())
+                || charges.extra().compareTo(snapshot.getExtraFee()) != 0 || charges.total().compareTo(quote.getShippingFee()) != 0
+                || money(charges.total().add(quote.getPickupFee()).add(quote.getInsuranceFee())).compareTo(quote.getTotalFee()) != 0) {
+            throw error("serviceId", "Snapshot báo giá không khớp. Vui lòng lấy báo giá mới.");
         }
-        BigDecimal steps = weight.subtract(rule.getBaseWeightKg()).max(BigDecimal.ZERO)
-            .divide(rule.getExtraWeightStepKg(), 0, RoundingMode.CEILING);
-        return money(rule.getBasePrice().add(steps.multiply(rule.getExtraPricePerStep())));
     }
     private BigDecimal money(BigDecimal value) {
         if (value.signum() < 0 || value.compareTo(MAX_MONEY) > 0) {

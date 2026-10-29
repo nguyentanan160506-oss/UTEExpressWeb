@@ -69,7 +69,7 @@ public class AdminPricingService {
         User actor = actor(); String code = code(c.code());
         if (services.existsByCodeIgnoreCase(code)) { throw rule("Mã dịch vụ đã tồn tại."); }
         var s = new ShippingService(); s.setCode(code); apply(s, c); s.setActive(false); s.setCreatedBy(actor); s.setUpdatedBy(actor);
-        s.setCreatedAt(now()); s.setUpdatedAt(now()); services.saveAndFlush(s);
+        s.setCreatedAt(now()); s.setUpdatedAt(now()); s = services.saveAndFlush(s);
         audit(actor, AuditResourceType.SHIPPING_SERVICE, s.getId(), "SERVICE_CREATED", null, catalog(s).toString()); return s.getId();
     }
     @Transactional
@@ -91,7 +91,7 @@ public class AdminPricingService {
         ShippingService s = lockedService(c.serviceId()); User actor = actor(); String code = code(c.code()); period(c.validFrom(), c.validTo());
         if (versions.existsByServiceIdAndCodeIgnoreCase(s.getId(), code)) { throw rule("Mã phiên bản đã tồn tại trong dịch vụ."); }
         PricingVersion v = new PricingVersion(); v.setService(s); v.setCode(code); v.setValidFrom(c.validFrom()); v.setValidTo(c.validTo());
-        v.setCreatedBy(actor); v.setUpdatedBy(actor); v.setCreatedAt(now()); v.setUpdatedAt(now()); versions.saveAndFlush(v);
+        v.setCreatedBy(actor); v.setUpdatedBy(actor); v.setCreatedAt(now()); v.setUpdatedAt(now()); v = versions.saveAndFlush(v);
         audit(actor, AuditResourceType.PRICE_VERSION, v.getId(), "PRICE_DRAFT_CREATED", null, book(v).toString()); return v.getId();
     }
     @Transactional
@@ -119,11 +119,11 @@ public class AdminPricingService {
     }
     @Transactional
     public void pickupRule(@NotNull @Positive Long id, @NotNull @PositiveOrZero Long expected, @NotNull @Valid PickupRule c) {
-        var v = lockedBook(id, expected); User actor = actor(); draft(v); money(c.amount(), true); Branch b = branch(c.branchId());
+        var v = lockedBook(id, expected); User actor = actor(); draft(v); money(c.amount(), true); Branch b = c.branchId() == null ? null : branch(c.branchId());
         if (c.ruleId() == null && pickups.countByPricingVersionId(id) >= 500) { throw rule("Mỗi bản tối đa 500 dòng phụ phí; tách phiên bản theo phạm vi khi cần."); }
         PickupFeeRule r = c.ruleId() == null ? new PickupFeeRule() : pickups.findByIdAndPricingVersionId(c.ruleId(), id).orElseThrow(this::missing);
         String before = r.getId() == null ? null : pickup(r).toString();
-        pickups.findByPricingVersionIdAndBranchId(id, b.getId()).filter(existing -> !Objects.equals(existing.getId(), r.getId()))
+        pickups.findByPricingVersionIdAndBranchId(id, c.branchId()).filter(existing -> !Objects.equals(existing.getId(), r.getId()))
             .ifPresent(existing -> { throw rule("Chi nhánh đã có phụ phí, kể cả dòng đang tắt; sửa dòng hiện có."); });
         r.setService(v.getService()); r.setPricingVersion(v); r.setBranch(b); r.setAmount(c.amount()); r.setActive(c.active());
         r.setEffectiveFrom(v.getValidFrom()); r.setEffectiveTo(v.getValidTo()); pickups.saveAndFlush(r); changed(v, actor);
@@ -171,7 +171,7 @@ public class AdminPricingService {
         if (v.getValidFrom().isBefore(now())) { errors.add("Thời điểm bắt đầu phải ở hiện tại/tương lai UTC, không công bố hồi tố."); }
         var shipping = rates.findByPricingVersionIdAndIsActiveTrue(v.getId()); var pickup = pickups.findByPricingVersionIdAndIsActiveTrue(v.getId());
         if (shipping.isEmpty() && pickup.isEmpty()) { errors.add("Cần ít nhất một quy tắc đang bật."); }
-        if (shipping.size() > 2 || pickup.size() > 500) { errors.add("Vượt phạm vi quy tắc được hỗ trợ."); }
+        if (shipping.size() > 5 || pickup.size() > 500) { errors.add("Vượt phạm vi quy tắc được hỗ trợ."); }
         Set<RateScopeType> scopes = new HashSet<>(); Set<Long> points = new HashSet<>();
         for (var r : shipping) {
             scope(r.getScopeType()); weight(r.getBaseWeightKg()); weight(r.getExtraWeightStepKg()); money(r.getBasePrice(), false); money(r.getExtraPricePerStep(), false);
@@ -179,9 +179,10 @@ public class AdminPricingService {
             if (!rates.findConflicts(v.getService().getId(), r.getScopeType(), v.getId(), v.getValidFrom(), v.getValidTo()).isEmpty()) { errors.add("Xung đột thời gian giá vận chuyển " + r.getScopeType() + "; cần lập lịch ngừng bản trước/legacy trước."); }
         }
         for (var r : pickup) {
-            branch(r.getBranch().getId()); money(r.getAmount(), true);
-            if (!points.add(r.getBranch().getId()) || !sameContext(v, r.getService(), r.getEffectiveFrom(), r.getEffectiveTo())) { errors.add("Phụ phí trùng chi nhánh hoặc thời gian không khớp bản nháp."); }
-            if (!pickups.findConflicts(v.getService().getId(), r.getBranch().getId(), v.getId(), v.getValidFrom(), v.getValidTo()).isEmpty()) { errors.add("Xung đột thời gian phụ phí lấy hàng tại chi nhánh " + r.getBranch().getId() + "."); }
+            Long branchId = r.getBranch() == null ? null : r.getBranch().getId();
+            if (branchId != null) { branch(branchId); } money(r.getAmount(), true);
+            if (!points.add(branchId) || !sameContext(v, r.getService(), r.getEffectiveFrom(), r.getEffectiveTo())) { errors.add("Phụ phí trùng phạm vi hoặc thời gian không khớp bản nháp."); }
+            if (!pickups.findConflicts(v.getService().getId(), branchId, v.getId(), v.getValidFrom(), v.getValidTo()).isEmpty()) { errors.add("Xung đột thời gian phụ phí lấy hàng trong cùng phạm vi."); }
         }
         return List.copyOf(errors);
     }
@@ -219,7 +220,7 @@ public class AdminPricingService {
         s.setMaxWeightKg(c.maxWeightKg()); s.setMaxLengthCm(c.maxLengthCm()); s.setMaxWidthCm(c.maxWidthCm()); s.setMaxHeightCm(c.maxHeightCm());
     }
     private String code(String code) { if (code == null || !code.matches("[A-Z0-9][A-Z0-9_-]{0,49}")) { throw rule("Mã cần 1–50 ký tự A–Z, 0–9, _ hoặc -, bắt đầu bằng chữ/số."); } return code; }
-    private void scope(RateScopeType scope) { if (scope != RateScopeType.INTRA_PROVINCE && scope != RateScopeType.INTER_PROVINCE) { throw rule("Chưa có dữ liệu phân vùng INTER_REGION; chỉ hỗ trợ nội tỉnh/liên tỉnh."); } }
+    private void scope(RateScopeType scope) { if (!RateScopeType.nationwide().contains(scope)) { throw rule("Chọn một trong năm nhóm giá toàn quốc. Quy tắc INTER_PROVINCE/INTER_REGION cũ chỉ được xem hoặc lập lịch ngừng, không tự quy đổi."); } }
     private void weight(BigDecimal n) { if (n == null || n.signum() <= 0 || n.scale() > 2 || n.compareTo(new BigDecimal("99999999.99")) > 0) { throw rule("Trọng lượng/kích thước/bước cân phải dương, tối đa 8 chữ số nguyên và 2 số lẻ."); } }
     private void money(BigDecimal n, boolean positive) { if (n == null || n.signum() < (positive ? 1 : 0) || n.scale() > 2 || n.compareTo(new BigDecimal("9999999999999999.99")) > 0) { throw rule("Giá không hợp lệ; phụ phí lấy hàng phải dương, không tạo giá 0 để che thiếu cấu hình."); } }
     private void period(LocalDateTime from, LocalDateTime to) { if (from == null || (to != null && !to.isAfter(from)) || from.getNano() % 100 != 0 || (to != null && to.getNano() % 100 != 0)) { throw rule("Khoảng hiệu lực UTC phải [bắt đầu, kết thúc), đúng DATETIME2(7)."); } }
@@ -231,7 +232,7 @@ public class AdminPricingService {
     private Page<Audit> history(AuditResourceType resource, Long id, int page) { return audits.findByResourceTypeAndResourceId(resource, id.toString(), page(page)).map(a -> new Audit(a.getAction(), a.getActor() == null ? null : a.getActor().getId(), a.getOldValue(), a.getNewValue(), a.getCreatedAt())); }
     private Catalog catalog(ShippingService s) { return new Catalog(s.getId(), s.getCode(), s.getName(), s.getDescription(), s.getEstimatedDeliveryHours(), s.isActive(), s.getVersion(), s.getMaxWeightKg(), s.getMaxLengthCm(), s.getMaxWidthCm(), s.getMaxHeightCm()); }
     private Rule rule(ShippingRateRule r) { return new Rule(r.getId(), r.getScopeType(), r.getBaseWeightKg(), r.getBasePrice(), r.getExtraWeightStepKg(), r.getExtraPricePerStep(), r.isActive(), r.getEffectiveFrom(), r.getEffectiveTo(), r.getRetiredFrom()); }
-    private Pickup pickup(PickupFeeRule r) { return new Pickup(r.getId(), r.getBranch().getId(), r.getBranch().getName(), r.getAmount(), r.isActive(), r.getEffectiveFrom(), r.getEffectiveTo(), r.getRetiredFrom()); }
+    private Pickup pickup(PickupFeeRule r) { return new Pickup(r.getId(), r.getBranch() == null ? null : r.getBranch().getId(), r.getBranch() == null ? "Toàn quốc (mặc định)" : r.getBranch().getName(), r.getAmount(), r.isActive(), r.getEffectiveFrom(), r.getEffectiveTo(), r.getRetiredFrom()); }
     private Book book(PricingVersion v) {
         LocalDateTime end = v.getRetiredFrom() != null ? v.getRetiredFrom() : v.getValidTo();
         String state = v.getStatus() == PricingVersionStatus.DRAFT ? "Bản nháp" : end != null && !now().isBefore(end) ? "Đã ngừng/hết hạn" : now().isBefore(v.getValidFrom()) ? "Đã công bố, chờ hiệu lực" : "Đang hiệu lực";
