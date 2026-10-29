@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UTEExpress · Kết nối từng hành trình</title>
+    <meta name="description" content="Tạo vận đơn, ước tính phí và theo dõi hành trình gửi hàng cùng UTEExpress.">
+    <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
+    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
+</head>
+<body class="public-page">
+<nav th:replace="~{layout/fragments :: publicNav}"></nav>
+<main id="main-content" tabindex="-1">
+    <section class="hero">
+        <div class="container"><div class="row g-5 align-items-center">
+            <div class="col-lg-7">
+                <p class="eyebrow mb-3">UTEEXPRESS · KẾT NỐI TỪNG HÀNH TRÌNH</p>
+                <h1>Gửi trọn niềm tin.<br><em>Theo dõi từng chặng.</em></h1>
+                <p class="hero-copy mt-4">Từ lấy hàng tận nhà đến giao nhận tại chi nhánh, quản lý đơn gửi và theo dõi hành trình trong một không gian rõ ràng, thuận tiện.</p>
+                <div class="hero-actions">
+                    <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-warning btn-lg">Đăng nhập để tạo vận đơn <svg th:replace="~{layout/fragments :: icon('arrow')}"></svg></a>
+                    <a sec:authorize="hasRole('USER')" th:href="@{/user/shipments/create}" class="btn btn-warning btn-lg">Tạo vận đơn <svg th:replace="~{layout/fragments :: icon('arrow')}"></svg></a>
+                    <a sec:authorize="isAuthenticated() and !hasRole('USER')" th:href="@{/account}" class="btn btn-warning btn-lg">Không gian làm việc <svg th:replace="~{layout/fragments :: icon('arrow')}"></svg></a>
+                    <a th:href="@{/quote}" class="btn btn-outline-light btn-lg">Ước tính phí vận chuyển</a>
+                </div>
+                <p class="hero-note mb-0">Xem giá trước khi xác nhận. Khả năng nhận và giao hàng được kiểm tra theo chi nhánh, tuyến và vùng phục vụ thực tế.</p>
+            </div>
+            <div class="col-lg-5"><div class="journey-illustration">
+                <h2>Hành trình được kết nối</h2><p class="small">Các bước vận chuyển trên UTEExpress</p>
+                <div class="journey-stop"><svg th:replace="~{layout/fragments :: icon('home')}"></svg><div><strong>Bắt đầu từ bạn</strong><small>Chọn lấy tận nhà hoặc gửi tại chi nhánh</small></div></div>
+                <div class="journey-stop"><svg th:replace="~{layout/fragments :: icon('route')}"></svg><div><strong>Tiếp nhận & trung chuyển</strong><small>Chi nhánh, hub và các chặng vận chuyển</small></div></div>
+                <div class="journey-stop"><svg th:replace="~{layout/fragments :: icon('truck')}"></svg><div><strong>Đến người nhận</strong><small>Ghi nhận kết quả và lịch sử giao hàng</small></div></div>
+                <p class="small mb-0">Sơ đồ quy trình · Không phải trạng thái của một vận đơn cụ thể.</p>
+            </div></div>
+        </div></div>
+    </section>
+    <section class="container landing-tracking" aria-labelledby="landing-tracking-title">
+        <div class="card"><div class="card-body p-4 p-md-5">
+            <div class="row g-4 align-items-center"><div class="col-lg-4"><p class="eyebrow mb-2">KHÔNG CẦN ĐĂNG NHẬP</p><h2 id="landing-tracking-title" class="h4 fw-bold">Kiện hàng đang ở đâu?</h2><p class="text-secondary mb-0">Tra cứu những mốc hành trình công khai bằng mã vận đơn.</p></div>
+                <div class="col-lg-8"><form method="get" th:action="@{/tracking}">
+                    <label for="trackingNumber" class="form-label">Mã vận đơn</label>
+                    <div class="row g-2"><div class="col-md-9"><input id="trackingNumber" name="trackingNumber" class="form-control form-control-lg tracking-input" type="text" required minlength="35" maxlength="35" pattern="[Uu][Tt][Ee][A-Fa-f0-9]{32}" autocomplete="off" spellcheck="false" aria-describedby="home-tracking-help" placeholder="Nhập mã vận đơn UTE…"></div><div class="col-md-3"><button class="btn btn-primary btn-lg w-100" type="submit"><svg th:replace="~{layout/fragments :: icon('search')}"></svg>Tra cứu</button></div></div>
+                    <p id="home-tracking-help" class="form-text mb-0">Mã bắt đầu bằng UTE, gồm tổng cộng 35 ký tự.</p>
+                </form></div>
+            </div>
+        </div></div>
+    </section>
+    <section class="landing-section"><div class="container">
+        <p class="eyebrow">LINH HOẠT CÁCH GỬI · RÕ RÀNG THÔNG TIN</p><h2 class="fw-bold">Một hành trình, nhiều tiện ích</h2><p class="section-lead mb-4">Chọn cách gửi phù hợp và kiểm tra thông tin trước khi xác nhận.</p>
+        <div class="row g-4">
+            <div class="col-md-4"><article class="card feature-card"><span class="feature-icon"><svg th:replace="~{layout/fragments :: icon('home')}"></svg></span><h3>Lấy hàng tận nhà</h3><p>Shipper được phân công đến địa chỉ lấy hàng, sau đó bàn giao về chi nhánh nguồn.</p><p class="small text-secondary mb-0">Phụ phí theo cấu hình đang hiệu lực; cần vùng phục vụ hợp lệ.</p></article></div>
+            <div class="col-md-4"><article class="card feature-card"><span class="feature-icon"><svg th:replace="~{layout/fragments :: icon('box')}"></svg></span><h3>Gửi tại chi nhánh</h3><p>Chọn chi nhánh nguồn hợp lệ, tạo vận đơn rồi mang kiện đến để tiếp nhận thực tế.</p><p class="small text-secondary mb-0">Không có phụ phí lấy hàng tận nhà.</p></article></div>
+            <div class="col-md-4"><article class="card feature-card"><span class="feature-icon"><svg th:replace="~{layout/fragments :: icon('receipt')}"></svg></span><h3>Xem phí trước khi gửi</h3><p>Ước tính theo tỉnh/thành và trọng lượng; xem báo giá chi tiết khi tạo vận đơn.</p><p class="small text-secondary mb-0">Ước tính toàn quốc không thay thế kiểm tra khả năng phục vụ.</p></article></div>
+        </div>
+    </div></section>
+    <section class="landing-section pt-0"><div class="container">
+        <p class="eyebrow">TỪ NGƯỜI GỬI ĐẾN NGƯỜI NHẬN</p><h2 class="fw-bold mb-4">Rõ từng bước, dễ theo dõi</h2>
+        <ol class="process-grid"><li><h3>Tạo yêu cầu gửi</h3><p class="small mb-0">Nhập thông tin, tìm chi nhánh phục vụ và xác nhận báo giá hợp lệ.</p></li><li><h3>Tiếp nhận kiện</h3><p class="small mb-0">Lấy tận nhà hoặc nhận tại chi nhánh; ghi nhận biên nhận nguồn.</p></li><li><h3>Vận chuyển qua các chặng</h3><p class="small mb-0">Gom hàng, bàn giao chi nhánh và hub theo tuyến được cấu hình.</p></li><li><h3>Giao & ghi nhận kết quả</h3><p class="small mb-0">Phân công giao hàng, lưu kết quả và cập nhật lịch sử hành trình.</p></li></ol>
+    </div></section>
+    <section class="container mb-5"><div class="cta-panel"><div><h2 class="h3 fw-bold">Sẵn sàng cho đơn gửi tiếp theo?</h2><p class="mb-0">Tạo tài khoản, xác minh email và quản lý vận đơn của bạn.</p></div><a th:href="@{/register}" class="btn btn-primary btn-lg">Bắt đầu cùng UTEExpress <svg th:replace="~{layout/fragments :: icon('arrow')}"></svg></a></div></section>
+</main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
+</body>
+</html>

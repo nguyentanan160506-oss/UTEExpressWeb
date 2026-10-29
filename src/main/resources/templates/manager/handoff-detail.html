@@ -1,6 +1,6 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Kiểm tra bàn giao nguồn')}"></head><body>
-<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<head th:replace="~{shipments/fragments :: head('Kiểm tra bàn giao nguồn')}"></head><body class="workspace-page">
+<nav th:replace="~{manager/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4">
 <div th:replace="~{shipper/fragments :: messages}"></div><h1 class="h3" th:text="${review.handoff.trackingNumber}"></h1>
 <p><a th:href="@{/manager/shipments/{id}(id=${review.shipmentId})}">Vận đơn, biên nhận nguồn và lịch sử thao tác</a></p>
 <p th:if="${review.receiptReference != null}" class="alert alert-success">Biên nhận nguồn đã lưu: <strong th:text="${review.receiptReference}"></strong></p>

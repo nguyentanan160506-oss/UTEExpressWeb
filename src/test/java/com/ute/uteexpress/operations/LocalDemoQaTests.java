@@ -69,9 +69,10 @@ class LocalDemoQaTests {
         assertEquals(200,get(client,"/account").statusCode());
     }
     @Test void publicPagesAssetsAndErrorsRenderOverRealHttp() throws Exception {
-        var client=client();for(String path:List.of("/login","/register","/tracking","/quote","/css/vendor/bootstrap.min.css","/js/notifications.js"))assertEquals(200,get(client,path).statusCode(),path);
+        var client=client();for(String path:List.of("/login","/register","/tracking","/quote","/css/vendor/bootstrap.min.css","/css/tokens.css","/css/ui.css","/js/ui.js","/js/notifications.js"))assertEquals(200,get(client,path).statusCode(),path);
         assertEquals(401,get(client,"/user/shipments/"+manifest.get("NEW")).statusCode());
-        var home=get(client,"/");assertEquals(302,home.statusCode());assertEquals(URI.create(base+"/tracking"),URI.create(base).resolve(home.headers().firstValue("location").orElseThrow()));
+        var home=get(client,"/");assertEquals(200,home.statusCode());assertTrue(home.headers().firstValue("location").isEmpty());
+        assertTrue(home.body().contains("name=\"trackingNumber\""));assertTrue(home.body().contains("vùng phục vụ thực tế"));
         assertEquals(403,post(client,"/","").statusCode(),"Public root does not bypass CSRF");
         var missing=get(client,"/tracking?trackingNumber=UTE00000000000000000000000000000000");assertEquals(200,missing.statusCode());
     }

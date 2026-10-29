@@ -6,9 +6,11 @@
     <title>Xác minh email · UTEExpress</title>
     <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
 </head>
 <body class="auth-page">
-<main class="container py-5">
+<nav th:replace="~{layout/fragments :: publicNav}"></nav>
+<main id="main-content" tabindex="-1" class="container py-5">
     <section class="account-card bg-white rounded-4 shadow-sm p-4 p-md-5 mx-auto">
         <p class="auth-eyebrow">UTEEXPRESS</p>
         <h1 class="h3 fw-bold mb-2">Xác minh email</h1>
@@ -38,5 +40,6 @@
         <a th:href="@{/login}" class="small">Trở về đăng nhập</a>
     </section>
 </main>
+<footer th:replace="~{layout/fragments :: footer}"></footer>
 </body>
 </html>

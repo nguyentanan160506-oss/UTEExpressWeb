@@ -1,5 +1,5 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{pricing/fragments :: head('Thông tin dịch vụ')}"></head><body>
-<nav th:replace="~{admin/fragments :: nav}"></nav><main class="container py-4"><a th:href="@{/admin/services}">Danh mục dịch vụ</a><h1 class="h3" th:text="${service == null ? 'Tạo dịch vụ mới' : 'Chỉnh sửa dịch vụ'}"></h1>
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{pricing/fragments :: head('Thông tin dịch vụ')}"></head><body class="workspace-page">
+<nav th:replace="~{admin/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4"><a th:href="@{/admin/services}">Danh mục dịch vụ</a><h1 class="h3" th:text="${service == null ? 'Tạo dịch vụ mới' : 'Chỉnh sửa dịch vụ'}"></h1>
 <div th:replace="~{admin/fragments :: messages}"></div><form method="post" th:action="${service == null} ? @{/admin/services} : @{/admin/services/{id}(id=${service.id})}" th:object="${catalogForm}" class="card p-3">
 <input th:if="${service != null}" type="hidden" th:field="*{catalogVersion}"><div th:if="${service == null}" class="mb-3"><label for="code" class="form-label">Mã duy nhất (không thay đổi sau khi tạo)</label><input th:field="*{code}" required maxlength="50" pattern="[A-Z0-9][A-Z0-9_-]{0,49}" class="form-control"></div>
 <p th:if="${service != null}" th:text="|Mã cố định: ${service.code}|"></p><label for="name" class="form-label">Tên dịch vụ</label><input th:field="*{name}" required maxlength="100" class="form-control mb-3">

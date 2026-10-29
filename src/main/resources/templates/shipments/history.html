@@ -3,7 +3,7 @@
 <head th:replace="~{shipments/fragments :: head('Vận đơn của tôi · UTEExpress')}"></head>
 <body>
 <nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container shipment-shell py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container shipment-shell py-4 py-md-5">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div><p class="shipment-eyebrow mb-2">HÀNH TRÌNH GỬI HÀNG</p><h1 class="h2 fw-bold mb-2">Vận đơn của tôi</h1>
             <p class="text-secondary mb-0">Tra cứu lịch sử và theo dõi từng lần gửi hàng.</p></div>
@@ -38,8 +38,8 @@
             <a th:href="@{/user/shipments/create}" class="btn btn-outline-primary">Tạo vận đơn</a>
         </div>
         <div th:unless="${shipments.empty}" class="table-responsive">
-            <table class="table shipment-table align-middle mb-0">
-                <thead class="table-light"><tr><th>Mã vận đơn</th><th>Người nhận</th><th>Ngày tạo (UTC)</th><th>Trạng thái</th><th></th></tr></thead>
+            <table class="table shipment-table align-middle mb-0"><caption class="visually-hidden">Bảng dữ liệu và các thao tác tương ứng</caption>
+                <thead class="table-light"><tr><th scope="col">Mã vận đơn</th><th scope="col">Người nhận</th><th scope="col">Ngày tạo (UTC)</th><th scope="col">Trạng thái</th><th scope="col"><span class="visually-hidden">Thao tác</span></th></tr></thead>
                 <tbody><tr th:each="row : ${shipments.content}">
                     <td class="fw-semibold text-break" th:text="${row.trackingNumber}"></td>
                     <td th:text="${row.receiverName}"></td>

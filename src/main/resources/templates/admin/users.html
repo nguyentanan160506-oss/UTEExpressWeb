@@ -7,16 +7,17 @@
     <title>Tài khoản · Admin UTEExpress</title>
     <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
 </head>
-<body>
+<body class="workspace-page">
 <nav th:replace="~{admin/fragments :: nav}"></nav>
-<main class="container py-4 py-md-5">
+<main id="main-content" tabindex="-1" class="container py-4 py-md-5">
     <p class="admin-eyebrow">QUẢN LÝ TÀI KHOẢN</p>
     <h1 class="h3 fw-bold mb-4">Danh sách tài khoản</h1>
     <div th:replace="~{admin/fragments :: messages}"></div>
     <form th:action="@{/admin/users}" method="get" class="card border-0 shadow-sm p-3 mb-4">
         <div class="row g-3 align-items-end">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <label for="q" class="form-label">Tìm kiếm tài khoản</label>
                 <input id="q" name="q" th:value="${q}" class="form-control" maxlength="150"
                        placeholder="Email, tên đăng nhập, họ tên hoặc số điện thoại">
@@ -29,7 +30,7 @@
                             th:text="${state.name()}" th:selected="${state == selectedStatus}"></option>
                 </select>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <label for="size" class="form-label">Mỗi trang</label>
                 <select id="size" name="size" class="form-select">
                     <option th:each="count : ${ {10,20,50,100} }" th:value="${count}"
@@ -42,9 +43,9 @@
     <p class="text-secondary"><span th:text="${users.totalElements}"></span> tài khoản phù hợp</p>
     <div class="card border-0 shadow-sm">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0"><caption class="visually-hidden">Bảng dữ liệu và các thao tác tương ứng</caption>
                 <thead class="table-light"><tr>
-                    <th>ID</th><th>Tài khoản</th><th>Họ tên</th><th>Trạng thái</th><th>Vai trò</th><th></th>
+                    <th scope="col">ID</th><th scope="col">Tài khoản</th><th scope="col">Họ tên</th><th scope="col">Trạng thái</th><th scope="col">Vai trò</th><th scope="col"><span class="visually-hidden">Thao tác</span></th>
                 </tr></thead>
                 <tbody>
                 <tr th:each="row : ${users.content}">

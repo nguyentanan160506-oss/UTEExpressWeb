@@ -1,24 +1,15 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<nav th:fragment="nav" class="navbar admin-nav">
-    <div class="container d-flex flex-wrap gap-3">
-        <a class="navbar-brand text-white fw-bold" th:href="@{/admin}">UTEExpress · Admin</a>
-        <div class="d-flex flex-wrap align-items-center gap-3">
-            <a th:href="@{/admin}" class="text-white text-decoration-none">Tổng quan</a>
-            <a th:href="@{/admin/reports}" class="text-white text-decoration-none">Báo cáo</a>
-            <a th:href="@{/admin/audit}" class="text-white text-decoration-none">Audit</a>
-            <a th:href="@{/admin/users}" class="text-white text-decoration-none">Tài khoản</a>
-            <a th:href="@{/admin/services}" class="text-white text-decoration-none">Dịch vụ</a>
-            <a th:href="@{/admin/pricing}" class="text-white text-decoration-none">Bảng giá</a>
-            <span th:replace="~{notifications/fragments :: bell}"></span>
-            <a th:href="@{/account}" class="text-white text-decoration-none">Tài khoản của tôi</a>
-            <form th:action="@{/logout}" method="post" class="mb-0">
-                <button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button>
-            </form>
-        </div>
-    </div>
-</nav>
+<div th:fragment="nav"><div th:replace="~{layout/fragments :: workspace('admin', ~{admin/fragments :: links})}"></div></div>
+<th:block th:fragment="links">
+    <a th:href="@{/admin}"><svg th:replace="~{layout/fragments :: icon('home')}"></svg>Tổng quan</a>
+    <a th:href="@{/admin/users}"><svg th:replace="~{layout/fragments :: icon('users')}"></svg>Tài khoản</a>
+    <a th:href="@{/admin/services}"><svg th:replace="~{layout/fragments :: icon('box')}"></svg>Dịch vụ</a>
+    <a th:href="@{/admin/pricing}"><svg th:replace="~{layout/fragments :: icon('receipt')}"></svg>Bảng giá</a>
+    <a th:href="@{/admin/reports}"><svg th:replace="~{layout/fragments :: icon('chart')}"></svg>Báo cáo</a>
+    <a th:href="@{/admin/audit}"><svg th:replace="~{layout/fragments :: icon('check')}"></svg>Audit</a>
+</th:block>
 <div th:fragment="messages">
     <div th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></div>
     <div th:if="${error != null}" th:text="${error}" class="alert alert-danger" role="alert"></div>

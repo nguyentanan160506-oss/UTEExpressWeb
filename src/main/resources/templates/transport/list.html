@@ -1,9 +1,9 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Chuyến vận chuyển')}"></head><body>
-<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<head th:replace="~{shipments/fragments :: head('Chuyến vận chuyển')}"></head><body class="workspace-page">
+<nav th:replace="~{manager/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4">
 <div th:replace="~{transport/fragments :: nav}"></div><div th:replace="~{shipper/fragments :: messages}"></div>
 <h1 class="h3">Chuyến vận chuyển</h1><p>Chỉ chuyến có điểm đi hoặc đến thuộc phạm vi quản lý của bạn. Thời gian UTC.</p>
-<p th:if="${trips.empty}" class="alert alert-info">Chưa có chuyến trong phạm vi này.</p>
+<p th:if="${trips.empty}" class="empty-state alert alert-info">Chưa có chuyến trong phạm vi này.</p>
 <div class="row g-3"><article class="col-12 col-lg-6" th:each="t : ${trips}"><div class="card p-3 h-100">
     <h2 class="h5"><a th:href="@{/manager/trips/{id}(id=${t.id})}" th:text="${t.code}"></a></h2>
     <p><span th:text="${t.origin}"></span> → <span th:text="${t.destination}"></span></p>

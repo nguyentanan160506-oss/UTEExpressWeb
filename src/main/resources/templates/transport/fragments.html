@@ -1,5 +1,5 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
-<div th:fragment="nav" class="d-flex flex-wrap gap-3 mb-3">
+<div th:fragment="nav" class="section-tabs d-flex flex-wrap gap-2 mb-3" data-ui-navigation>
     <a th:href="@{/manager/trips}">Danh sách chuyến</a><a th:href="@{/manager/trips/new}">Tạo chuyến</a>
     <a th:href="@{/manager/trips/local-ready}">Kiện cùng chi nhánh nguồn/đích</a></div>
 <form th:fragment="action(d, action, title, help)" class="card p-3 mb-3" method="post" th:action="@{/manager/trips/{id}/{action}(id=${d.trip.id},action=${action})}">

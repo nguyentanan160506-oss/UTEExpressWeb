@@ -8,23 +8,10 @@
     <link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/auth.css}">
     <link rel="stylesheet" th:href="@{/css/shipments.css}">
+    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
 </head>
 <body>
-<nav th:fragment="nav" class="shipment-nav py-3">
-    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <a class="brand-name text-decoration-none" th:href="@{/user/shipments}">UTE<span>Express</span></a>
-        <div class="d-flex flex-wrap align-items-center gap-3">
-            <a th:href="@{/user/shipments}" class="text-white text-decoration-none">Vận đơn của tôi</a>
-            <a th:href="@{/user/shipments/create}" class="text-white text-decoration-none">Tạo vận đơn</a>
-            <span th:replace="~{notifications/fragments :: bell}"></span>
-            <a th:href="@{/account/support}" class="text-white text-decoration-none">Hỗ trợ</a>
-            <a th:href="@{/account}" class="text-white text-decoration-none">Tài khoản</a>
-            <form th:action="@{/logout}" method="post" class="mb-0">
-                <button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button>
-            </form>
-        </div>
-    </div>
-</nav>
+<nav th:fragment="nav" th:replace="~{layout/fragments :: customerNav}"></nav>
 <span th:fragment="status(value)" class="badge rounded-pill shipment-status"
       th:classappend="${'status-' + value.name().toLowerCase()}" th:text="${statusLabels.get(value)}"></span>
 </body>

@@ -1,8 +1,8 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{shipments/fragments :: head('Lịch sử chặng vận chuyển')}"></head><body>
-<nav th:replace="~{manager/fragments :: nav}"></nav><main class="container py-4">
+<head th:replace="~{shipments/fragments :: head('Lịch sử chặng vận chuyển')}"></head><body class="workspace-page">
+<nav th:replace="~{manager/fragments :: nav}"></nav><main id="main-content" tabindex="-1" class="container py-4">
 <div th:replace="~{transport/fragments :: nav}"></div><h1 class="h3">Lịch sử chặng trong phạm vi quản lý</h1>
-<p th:if="${history.empty}" class="alert alert-info">Không có lịch sử chặng phù hợp trong phạm vi của bạn.</p>
+<p th:if="${history.empty}" class="empty-state alert alert-info">Không có lịch sử chặng phù hợp trong phạm vi của bạn.</p>
 <article th:each="h : ${history}" class="card p-3 mb-3"><h2 class="h5"><a th:href="@{/manager/trips/{id}(id=${h.tripId})}" th:text="${h.code}"></a></h2>
     <p><span th:text="${h.origin}"></span> → <span th:text="${h.destination}"></span></p><p th:text="${legLabels[h.leg]}"></p>
     <p th:text="${h.returning ? 'Chặng hoàn hàng' : 'Chặng chuyển đi'}"></p>

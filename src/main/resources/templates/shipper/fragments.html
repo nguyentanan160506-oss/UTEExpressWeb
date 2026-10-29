@@ -1,12 +1,10 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
-<nav th:fragment="nav" class="shipment-nav py-3"><div class="container d-flex flex-wrap justify-content-between gap-3">
-    <a class="brand-name text-decoration-none" th:href="@{/shipper}">UTE<span>Express</span> · Lấy hàng</a>
-    <div class="d-flex flex-wrap gap-3 align-items-center">
-        <a class="text-white" th:href="@{/shipper}">Tổng quan</a><a class="text-white" th:href="@{/shipper/pickups}">Nhiệm vụ &amp; lịch sử</a>
-        <a class="text-white" th:href="@{/shipper/deliveries}">Giao hàng &amp; trả kiện</a><span th:replace="~{notifications/fragments :: bell}"></span>
-            <a class="text-white" th:href="@{/account}">Tài khoản</a>
-        <form th:action="@{/logout}" method="post"><button class="btn btn-sm btn-outline-light">Đăng xuất</button></form>
-    </div></div></nav>
+<div th:fragment="nav"><div th:replace="~{layout/fragments :: workspace('shipper', ~{shipper/fragments :: links})}"></div></div>
+<th:block th:fragment="links">
+    <a th:href="@{/shipper}"><svg th:replace="~{layout/fragments :: icon('home')}"></svg>Tổng quan</a>
+    <a th:href="@{/shipper/pickups}"><svg th:replace="~{layout/fragments :: icon('box')}"></svg>Nhiệm vụ &amp; lịch sử</a>
+    <a th:href="@{/shipper/deliveries}"><svg th:replace="~{layout/fragments :: icon('truck')}"></svg>Giao hàng &amp; trả kiện</a>
+</th:block>
 <div th:fragment="messages"><p th:if="${notice}" class="alert alert-success" role="status" th:text="${notice}"></p>
     <p th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></p></div>
 <span th:fragment="assignment(value)" th:switch="${value.name()}">

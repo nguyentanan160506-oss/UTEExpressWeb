@@ -3,7 +3,7 @@
 <head th:replace="~{shipments/fragments :: head('Theo dõi vận đơn · UTEExpress')}"></head>
 <body>
 <nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container shipment-shell py-4 py-md-5">
+<main data-ui-sections id="main-content" tabindex="-1" class="container shipment-shell py-4 py-md-5">
     <a th:href="@{/user/shipments}" class="small text-decoration-none">← Lịch sử vận đơn</a>
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 my-4">
         <div><p class="shipment-eyebrow mb-2">CHI TIẾT &amp; THEO DÕI</p><h1 class="h3 fw-bold text-break mb-2" th:text="${shipment.trackingNumber}"></h1>
@@ -68,7 +68,7 @@
         <section class="col-lg-5"><div class="card shipment-card"><div class="card-body p-4">
             <h2 class="h5 fw-bold mb-2">Hành trình vận đơn</h2>
             <p class="small text-secondary mb-4">Các sự kiện đã ghi nhận · Mới nhất trước · Giờ UTC</p>
-            <p th:if="${shipment.events.empty}" class="text-secondary mb-0">
+            <p th:if="${shipment.events.empty}" class="empty-state text-secondary mb-0">
                 Chưa có sự kiện theo dõi được lưu. Hiện chỉ có trạng thái vận đơn ở trên.
             </p>
             <ol th:unless="${shipment.events.empty}" class="shipment-timeline mb-0">

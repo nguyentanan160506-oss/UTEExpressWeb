@@ -1,21 +1,14 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
-<nav th:fragment="nav" class="shipment-nav py-3">
-    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <a class="brand-name text-decoration-none" th:href="@{/manager}">UTE<span>Express</span> · Vận hành</a>
-        <div class="d-flex flex-wrap gap-3 align-items-center">
-            <a th:href="@{/manager}" class="text-white">Tổng quan</a>
-            <a th:href="@{/manager/operations}" class="text-white">KPI vận hành</a>
-            <a th:href="@{/manager/tickets}" class="text-white">Hỗ trợ &amp; khiếu nại</a>
-            <a th:href="@{/manager/shipments}" class="text-white">Yêu cầu gửi hàng</a>
-            <a th:href="@{/manager/handoffs}" class="text-white">Bàn giao chờ nhận</a>
-            <a th:href="@{/manager/trips}" class="text-white">Chuyến &amp; hub</a>
-            <a th:href="@{/manager/deliveries}" class="text-white">Giao cuối &amp; hoàn</a>
-            <span th:replace="~{notifications/fragments :: bell}"></span>
-            <a th:href="@{/account}" class="text-white">Tài khoản</a>
-            <form th:action="@{/logout}" method="post" class="mb-0"><button class="btn btn-sm btn-outline-light" type="submit">Đăng xuất</button></form>
-        </div>
-    </div>
-</nav>
+<div th:fragment="nav"><div th:replace="~{layout/fragments :: workspace('manager', ~{manager/fragments :: links})}"></div></div>
+<th:block th:fragment="links">
+    <a th:href="@{/manager}"><svg th:replace="~{layout/fragments :: icon('home')}"></svg>Tổng quan</a>
+    <a th:href="@{/manager/operations}"><svg th:replace="~{layout/fragments :: icon('chart')}"></svg>KPI vận hành</a>
+    <a th:href="@{/manager/shipments}"><svg th:replace="~{layout/fragments :: icon('box')}"></svg>Yêu cầu gửi hàng</a>
+    <a th:href="@{/manager/handoffs}"><svg th:replace="~{layout/fragments :: icon('check')}"></svg>Bàn giao chờ nhận</a>
+    <a th:href="@{/manager/trips}"><svg th:replace="~{layout/fragments :: icon('route')}"></svg>Chuyến &amp; hub</a>
+    <a th:href="@{/manager/deliveries}"><svg th:replace="~{layout/fragments :: icon('truck')}"></svg>Giao cuối &amp; hoàn</a>
+    <a th:href="@{/manager/tickets}"><svg th:replace="~{layout/fragments :: icon('support')}"></svg>Hỗ trợ &amp; khiếu nại</a>
+</th:block>
 <span th:fragment="method(value)" th:text="${value == null ? 'Chưa xác định (đơn cũ)' : (value.name() == 'HOME_PICKUP' ? 'Lấy hàng tận nhà' : 'Mang đến chi nhánh')}"></span>
 </body></html>

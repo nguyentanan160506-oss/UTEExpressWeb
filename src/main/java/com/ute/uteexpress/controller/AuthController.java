@@ -12,7 +12,7 @@ public class AuthController {
 
     @GetMapping("/")
     public String home() {
-        return "redirect:/tracking";
+        return "home/index";
     }
 
     @GetMapping("/login")

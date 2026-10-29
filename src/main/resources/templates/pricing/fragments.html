@@ -1,7 +1,8 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
 <head th:fragment="head(title)"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
-    <title th:text="${title} + ' · UTEExpress'"></title><link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}"><link rel="stylesheet" th:href="@{/css/admin.css}"></head>
-<section th:fragment="audit(rows)" class="my-4"><h2 class="h5">Lịch sử thay đổi · UTC</h2><p th:if="${rows.empty}">Chưa có audit quản trị giá.</p>
+    <title th:text="${title} + ' · UTEExpress'"></title><link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}"><link rel="stylesheet" th:href="@{/css/admin.css}">    <th:block th:replace="~{layout/fragments :: assets}"></th:block>
+</head>
+<section th:fragment="audit(rows)" class="my-4"><h2 class="h5">Lịch sử thay đổi · UTC</h2><p th:if="${rows.empty}" class="empty-state">Chưa có audit quản trị giá.</p>
     <article th:each="a : ${rows}" class="card p-3 mb-2"><strong th:text="${a.action}"></strong><p>Actor ID: <span th:text="${a.actorId}"></span> · <time th:text="${a.occurredAt}"></time></p>
         <details><summary>Trước và sau thao tác</summary><pre class="text-wrap" th:text="${a.oldValue}"></pre><pre class="text-wrap" th:text="${a.newValue}"></pre></details></article></section>
 <div th:fragment="version(value)"><input name="expectedVersion" type="hidden" th:value="${value}"></div>

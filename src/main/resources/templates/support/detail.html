@@ -1,7 +1,7 @@
 <!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{shipments/fragments :: head('Chi tiết hỗ trợ · UTEExpress')}"></head>
 <body class="bg-light"><nav th:replace="~{shipments/fragments :: nav}"></nav>
-<main class="container py-4 py-md-5"><a th:href="@{/account/support}">← Yêu cầu hỗ trợ của tôi</a>
+<main id="main-content" tabindex="-1" class="container py-4 py-md-5"><a th:href="@{/account/support}">← Yêu cầu hỗ trợ của tôi</a>
     <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center my-4"><div><p class="small text-secondary" th:text="${detail.ticket.code}"></p><h1 class="h3 text-break" th:text="${detail.ticket.subject}"></h1></div><span th:replace="~{support/fragments :: status(${detail.ticket.status})}"></span></div>
     <p th:if="${notice != null}" th:text="${notice}" class="alert alert-success" role="status"></p>
     <div class="row g-4"><div class="col-lg-8">
@@ -10,7 +10,7 @@
             <p class="small text-secondary mb-0">Tạo: <span th:text="${#temporals.format(detail.ticket.createdAt,'dd/MM/yyyy HH:mm:ss')}"></span> UTC<br>Cập nhật: <span th:text="${#temporals.format(detail.ticket.updatedAt,'dd/MM/yyyy HH:mm:ss')}"></span> UTC</p>
         </section>
         <section th:if="${detail.resolution != null}" class="card card-body border-success mb-4"><h2 class="h5">Kết quả giải quyết</h2><p class="shipment-note text-break mb-1" th:text="${detail.resolution.body}"></p><p class="small text-secondary mb-0" th:text="|${#temporals.format(detail.resolution.at,'dd/MM/yyyy HH:mm:ss')} UTC|"></p></section>
-        <section class="card card-body"><h2 class="h5">Lịch sử trao đổi</h2><p class="small text-secondary">Theo thứ tự từ cũ đến mới · Giờ UTC</p><p th:if="${detail.messages.empty}" class="text-secondary">Chưa có trao đổi công khai.</p>
+        <section class="card card-body"><h2 class="h5">Lịch sử trao đổi</h2><p class="small text-secondary">Theo thứ tự từ cũ đến mới · Giờ UTC</p><p th:if="${detail.messages.empty}" class="empty-state text-secondary">Chưa có trao đổi công khai.</p>
             <ol class="list-unstyled mb-0"><li th:each="message : ${detail.messages}" class="border rounded p-3 mb-3" th:classappend="${message.customer ? 'bg-light' : 'border-primary'}">
                 <p class="fw-semibold mb-1" th:text="${message.customer ? 'Bạn' : 'Chi nhánh hỗ trợ'}"></p><span th:if="${message.resolution}" class="badge text-bg-success mb-2">Phản hồi giải quyết</span><span th:if="${message.reopenRequest}" class="badge text-bg-warning mb-2">Yêu cầu mở lại</span>
                 <p class="shipment-note text-break" th:text="${message.body}"></p><time class="small text-secondary" th:text="|${#temporals.format(message.at,'dd/MM/yyyy HH:mm:ss')} UTC|"></time>

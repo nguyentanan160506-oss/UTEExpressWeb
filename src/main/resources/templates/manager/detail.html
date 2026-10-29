@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{shipments/fragments :: head('Chi tiết vận hành · UTEExpress')}"></head>
-<body><nav th:replace="~{manager/fragments :: nav}"></nav>
-<main class="container py-4 py-md-5" th:with="s=${detail.shipment}">
+<body class="workspace-page"><nav th:replace="~{manager/fragments :: nav}"></nav>
+<main data-ui-sections id="main-content" tabindex="-1" class="container py-4 py-md-5" th:with="s=${detail.shipment}">
     <a th:href="@{/manager/shipments(branchId=${s.originBranchId})}">← Yêu cầu của chi nhánh</a>
     <div class="d-flex flex-wrap justify-content-between gap-3 my-4">
         <div><h1 class="h3 fw-bold text-break" th:text="${s.trackingNumber}"></h1>
@@ -61,7 +61,7 @@
             <section class="card shipment-card" th:if="${detail.canAssign or detail.canReassign}"><div class="card-body p-4">
                 <h2 class="h5 fw-bold" th:text="${detail.canReassign ? 'Phân công lại lấy hàng' : 'Phân công lấy hàng'}"></h2>
                 <p class="small text-secondary">Chỉ Shipper ACTIVE có tài khoản hợp lệ và thuộc chi nhánh nguồn. Không chuyển nhiệm vụ đã bắt đầu sang người khác.</p>
-                <p th:if="${detail.candidates.empty}" class="alert alert-warning">Chưa có Shipper đủ điều kiện trong trang danh sách này.</p>
+                <p th:if="${detail.candidates.empty}" class="empty-state alert alert-warning">Chưa có Shipper đủ điều kiện trong trang danh sách này.</p>
                 <form th:unless="${detail.candidates.empty}" th:action="@{/manager/shipments/{id}/pickup-assignments(id=${s.id})}" method="post">
                     <input type="hidden" name="expectedVersion" th:value="${detail.version}">
                     <input th:if="${detail.canReassign}" type="hidden" name="replacesAssignmentId" th:value="${detail.activePickupId}">
@@ -81,7 +81,7 @@
             <section class="card shipment-card mb-4"><div class="card-body p-4">
                 <h2 class="h5 fw-bold">Lịch sử thao tác / trạng thái</h2><p class="small text-secondary">Sự kiện nội bộ trong phạm vi quản lý · Giờ UTC</p>
                 <p><a th:href="@{/manager/trips/shipments/{id}/history(id=${s.id})}">Xem lịch sử các chặng vận chuyển</a></p>
-                <p th:if="${detail.events.empty}">Chưa có sự kiện được lưu.</p>
+                <p th:if="${detail.events.empty}" class="empty-state">Chưa có sự kiện được lưu.</p>
                 <ol th:unless="${detail.events.empty}" class="shipment-timeline"><li th:each="e : ${detail.events.content}">
                     <small th:text="${#temporals.format(e.occurredAt, 'dd/MM/yyyy HH:mm:ss')}"></small><h3 class="h6 mt-1" th:text="${e.title}"></h3>
                     <p class="small shipment-note" th:text="${e.description}"></p><span th:replace="~{shipments/fragments :: status(${e.status})}"></span>
@@ -92,7 +92,7 @@
                 </nav>
             </div></section>
             <section class="card shipment-card"><div class="card-body p-4">
-                <h2 class="h5 fw-bold">Lịch sử phân công</h2><p th:if="${detail.assignments.empty}">Chưa có phân công được lưu.</p>
+                <h2 class="h5 fw-bold">Lịch sử phân công</h2><p th:if="${detail.assignments.empty}" class="empty-state">Chưa có phân công được lưu.</p>
                 <article th:each="a : ${detail.assignments.content}" class="border-bottom py-3">
                     <h3 class="h6" th:text="${a.employeeName}"></h3>
                     <p class="small mb-1" th:text="${a.type.name() == 'PICKUP' ? 'Lấy hàng' : (a.type.name() == 'DELIVERY' ? 'Giao hàng' : 'Trung chuyển')}"></p>

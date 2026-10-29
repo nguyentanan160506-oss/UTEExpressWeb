@@ -78,6 +78,49 @@ class AuthenticationTests {
     private OtpMailSender otpMailSender;
 
     @Test
+    void publicHomeRendersRealTrackingContractAndNoPrivateShipmentData() throws Exception {
+        mvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("home/index"))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+            .andExpect(result -> {
+                String html = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+                assertTrue(html.contains("name=\"trackingNumber\""));
+                assertTrue(html.contains("action=\"/tracking\""));
+                assertTrue(html.contains("maxlength=\"35\""));
+                assertTrue(html.contains("/css/tokens.css"));
+                assertTrue(html.contains("/js/ui.js"));
+                assertTrue(html.contains("vùng phục vụ thực tế"));
+                assertTrue(html.contains("href=\"/register\""));
+                assertFalse(html.contains("name=\"quoteToken\""));
+                assertFalse(html.contains("/admin/reports"));
+            });
+        verifyNoInteractions(users, userRoles, roles, otps, otpMailSender);
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "USER")
+    void authenticatedHomeKeepsLoginRedirectAndRoleBoundaries() throws Exception {
+        mvc.perform(get("/")).andExpect(status().isOk()).andExpect(view().name("home/index"))
+            .andExpect(result -> {
+                String html = result.getResponse().getContentAsString();
+                assertTrue(html.contains("Tài khoản của tôi"));
+                assertFalse(html.contains("href=\"/register\" class=\"btn btn-warning\""));
+            });
+        mvc.perform(get("/login")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/account"));
+        mvc.perform(get("/admin").accept(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void newSharedAssetsArePublicAndDoNotDisableCsrf() throws Exception {
+        for (String path : List.of("/css/tokens.css", "/css/ui.css", "/js/ui.js")) {
+            mvc.perform(get(path)).andExpect(status().isOk());
+        }
+        mvc.perform(post("/login")).andExpect(status().isForbidden());
+        mvc.perform(post("/register")).andExpect(status().isForbidden());
+    }
+
+    @Test
     void loginTemplateRendersEmailFormWithRealCsrfTokenAndLocalStyles() throws Exception {
         MvcResult page = mvc.perform(get("/login"))
             .andExpect(status().isOk())
