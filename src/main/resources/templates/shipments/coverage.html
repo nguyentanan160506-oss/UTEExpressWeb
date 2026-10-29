@@ -1,0 +1,9 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<details th:fragment="guide" id="coverage-help" class="card p-3 mb-4" th:if="${coverageOptions != null}">
+<summary class="fw-semibold">Vùng phục vụ đang cấu hình</summary>
+<p class="small mt-3">Bảng giá theo tỉnh không đồng nghĩa giao nhận tại mọi địa chỉ. Dùng đúng tỉnh/thành, địa bàn lưu trong trường quận/huyện và phường/xã ở bảng này, rồi bấm <strong>Tìm chi nhánh phục vụ</strong>. Danh sách chi nhánh không tự cập nhật khi gõ.</p>
+<p class="small text-secondary">Trường quận/huyện là dữ liệu địa bàn cũ khi cơ sở dùng địa chỉ hành chính hai cấp; giữ đúng tên đang cấu hình. Bảng chỉ hiển thị tối đa 200 mục đang hoạt động, không tự chọn hoặc tạo thêm chi nhánh.</p>
+<p th:if="${coverageOptions.empty}" class="alert alert-warning">Chưa có vùng phục vụ hoạt động được cấu hình. Không thể tự suy ra chi nhánh gần nhất; vui lòng liên hệ hỗ trợ.</p>
+<div class="table-responsive" th:unless="${coverageOptions.empty}"><table class="table table-sm align-middle"><caption>Danh mục địa bàn và phương thức gửi đang được cấu hình</caption><thead><tr><th scope="col">Chi nhánh</th><th scope="col">Tỉnh/thành</th><th scope="col">Địa bàn quận/huyện</th><th scope="col">Phường/xã</th><th scope="col">Phương thức gửi</th><th scope="col">Giao đến</th></tr></thead>
+<tbody><tr th:each="area : ${coverageOptions}"><td th:text="${area.branch}"></td><td th:text="${area.province}"></td><td th:text="${area.district}"></td><td th:text="${area.ward.isEmpty() ? 'Theo phạm vi toàn địa bàn đã cấu hình' : area.ward}"></td><td th:text="${area.method.name() == 'HOME_PICKUP' ? 'Lấy tận nhà' : 'Gửi tại chi nhánh'}"></td><td th:text="${area.delivery ? 'Có' : 'Chưa cấu hình'}"></td></tr></tbody></table></div>
+</details></body></html>

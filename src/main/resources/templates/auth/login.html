@@ -34,6 +34,7 @@
             <div th:if="${param.logout != null}" class="alert alert-success" role="status">
                 Bạn đã đăng xuất an toàn.
             </div>
+            <details class="small text-secondary mb-3"><summary>Đăng nhập nhiều tài khoản</summary><p class="mt-2 mb-0">Các tab trong cùng Chrome Profile dùng chung phiên đăng nhập. Để dùng đồng thời nhiều vai trò, hãy mở các Profile riêng. Các cửa sổ ẩn danh thuộc cùng phiên cũng dùng chung tài khoản. Nếu vừa đổi tài khoản ở tab khác, tải lại biểu mẫu trước khi gửi.</p></details>
             <!-- th:action automatically adds Spring Security's CSRF hidden field. -->
             <form th:action="@{/login}" method="post">
                 <div class="mb-3">

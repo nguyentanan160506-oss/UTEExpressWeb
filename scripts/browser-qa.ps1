@@ -1,5 +1,5 @@
 # Disposable browser QA only. Never imports SQL credentials or invokes Flyway/JDBC.
-param([switch]$UiPolish)
+param([switch]$UiPolish,[switch]$FinalStability)
 $ErrorActionPreference='Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 $qaJava=Join-Path $env:JAVA_HOME 'bin\java.exe'
@@ -26,6 +26,7 @@ try {
  $env:UTE_BROWSER_H2_CONFIRMED='YES'
  $env:UTE_DEMO_TEST_MAIL='YES'
  $env:UTE_BROWSER_EVIDENCE_DIR=$qaEvidence
+ if($FinalStability){$env:UTE_FINAL_STABILITY_QA='YES'}else{Remove-Item Env:UTE_FINAL_STABILITY_QA -ErrorAction SilentlyContinue}
  if($UiPolish){$env:UTE_UI_POLISH_QA='YES'}else{Remove-Item Env:UTE_UI_POLISH_QA -ErrorAction SilentlyContinue}
  $qaApp=Start-Process -FilePath $qaJava -WindowStyle Hidden -ArgumentList @('-cp',$qaCp,'com.ute.uteexpress.operations.LocalDemoApplication','--port=18082') -RedirectStandardOutput $qaOutput -RedirectStandardError $qaError -PassThru
  $qaDeadline=(Get-Date).AddSeconds(90)
@@ -38,7 +39,7 @@ try {
  if($LASTEXITCODE -ne 0){throw 'Browser runner failed'}
  Write-Output ('BROWSER_EVIDENCE='+$qaEvidence)
 } finally {
- Remove-Item Env:UTE_DEMO_PASSWORD,Env:UTE_DEMO_TEST_MAIL,Env:UTE_BROWSER_H2_CONFIRMED,Env:UTE_BROWSER_EVIDENCE_DIR,Env:UTE_UI_POLISH_QA -ErrorAction SilentlyContinue
+ Remove-Item Env:UTE_DEMO_PASSWORD,Env:UTE_DEMO_TEST_MAIL,Env:UTE_BROWSER_H2_CONFIRMED,Env:UTE_BROWSER_EVIDENCE_DIR,Env:UTE_UI_POLISH_QA,Env:UTE_FINAL_STABILITY_QA -ErrorAction SilentlyContinue
  if($qaChromeProcess -and !$qaChromeProcess.HasExited){Stop-Process -Id $qaChromeProcess.Id}
  if($qaApp -and !$qaApp.HasExited){Stop-Process -Id $qaApp.Id}
  # No recursive cleanup; evidence and isolated Chrome profile remain in TEMP for inspection.

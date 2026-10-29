@@ -10,6 +10,7 @@
     <p class="text-secondary mb-4">Nhập thông tin lấy và giao hàng. Xem báo giá trước khi xác nhận tạo vận đơn.</p>
     <p><a th:href="@{/quote}">Ước tính giá toàn quốc theo tỉnh/thành và trọng lượng</a>. Tạo đơn tại đây vẫn cần chi nhánh và vùng phục vụ hợp lệ.</p>
     <ol class="step-strip" aria-label="Các bước gửi hàng"><li aria-current="step">Nhập thông tin &amp; tìm chi nhánh</li><li>Xem báo giá</li><li>Xác nhận vận đơn</li></ol>
+    <div th:replace="~{shipments/coverage :: guide}"></div>
     <form th:action="@{/user/shipments/quotes}" th:object="${shipmentForm}" method="post">
         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
             <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="mb-0"></p>

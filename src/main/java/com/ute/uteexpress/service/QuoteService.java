@@ -60,6 +60,11 @@ public class QuoteService {
 
     public record BranchChoices(List<ShipmentOptions.BranchOption> origins, List<ShipmentOptions.BranchOption> destinations) { }
 
+    @PreAuthorize("permitAll()")
+    public List<BranchNetworkService.CoverageOption> coverageOptions() {
+        return network.quoteCoverageOptions();
+    }
+
     public BranchChoices branchChoices(@NotNull ShipmentCreateForm form) {
         requireUser();
         if (form.getShipmentMethod() == null) { throw error("shipmentMethod", "Vui lòng chọn phương thức gửi hàng."); }

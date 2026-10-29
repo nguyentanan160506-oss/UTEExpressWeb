@@ -44,3 +44,11 @@ application-local.properties
 *.credential.xml
 *.credential.xml.candidate.*
 *.credential.xml.backup.*
+
+# SQL Server backup/data media remain outside the repository.
+*.bak
+*.trn
+*.mdf
+*.ndf
+*.ldf
+*.xel

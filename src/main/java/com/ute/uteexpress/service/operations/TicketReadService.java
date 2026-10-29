@@ -34,7 +34,13 @@ public class TicketReadService {
     }
     public Page<Candidate> candidates(Long branch,int page){var scope=access.scope(branch);return employees.findTicketCandidates(scope.branch().getId(),page(page,20,"id")).map(e->new Candidate(e.getId(),e.getUser().getId(),e.getFullName()));}
     private Row row(SupportTicket t){return new Row(t.getId(),t.getTicketCode(),t.getSubject(),t.getStatus(),t.getPriority(),t.getCategory(),t.getHandlingBranch().getId(),t.getHandlingBranch().getName(),name(t.getAssignedManager()),t.getCreatedAt(),t.getWarningDueAt(),TicketStatePolicy.working(t.getStatus()) && t.getWarningDueAt()!=null && t.getWarningDueAt().isBefore(now()));}
-    private Pageable page(int p,int size,String sort){if(p<0 || p>100000 || size<1 || size>50)throw new OperationsRuleException("Phân trang không hợp lệ.");return PageRequest.of(p,size,Sort.by(Sort.Order.desc(sort),Sort.Order.desc("id")));}
+    private Pageable page(int p,int size,String sort){
+        if(p<0 || p>100000 || size<1 || size>50)throw new OperationsRuleException("Phân trang không hợp lệ.");
+        Sort order=Sort.by(Sort.Order.desc(sort));
+        // SQL Server rejects a repeated column in ORDER BY (169); id is already a unique tie-breaker.
+        if(!"id".equals(sort))order=order.and(Sort.by(Sort.Order.desc("id")));
+        return PageRequest.of(p,size,order);
+    }
     private String name(User u){return u==null?"Chưa phân công":u.getUsername();}
     private LocalDateTime now(){return LocalDateTime.ofInstant(clock.instant(),ZoneOffset.UTC);}
 }

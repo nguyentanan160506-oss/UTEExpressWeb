@@ -267,7 +267,9 @@ public final class BrowserQaTool implements AutoCloseable {
         if(diagnostic!=null)report.put("interruptionDiagnostic",diagnostic);
         requireRedactedReport(JSON.writeValueAsString(report),qa.runtimeSecrets);
         report.put("runtimeSecretCheck","PASS");qa.runtimeSecrets.clear();
-        Path reportFile=Path.of("YES".equals(System.getenv("UTE_UI_POLISH_QA"))?"docs/commit26-browser-results.json":"docs/browser-qa-results.json");
+        Path reportFile="YES".equals(System.getenv("UTE_FINAL_STABILITY_QA"))
+            ?Path.of(System.getenv("UTE_BROWSER_EVIDENCE_DIR")).resolve("h2-final-stability.json")
+            :Path.of("YES".equals(System.getenv("UTE_UI_POLISH_QA"))?"docs/commit26-browser-results.json":"docs/browser-qa-results.json");
         Files.writeString(reportFile,JSON.writerWithDefaultPrettyPrinter().writeValueAsString(report)+"\n");
         for(String state:List.of("PASS","FAIL","BLOCKED"))System.out.println(state+"="+qa.cases.stream().filter(c->state.equals(c.get("status"))).count());
         if(aborted!=null||qa.cases.stream().anyMatch(c->"FAIL".equals(c.get("status"))))System.exit(2);
