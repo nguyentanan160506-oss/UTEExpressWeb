@@ -7,6 +7,14 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 public interface BranchServiceAreaRepository extends JpaRepository<BranchServiceArea, Long> {
+    @Query("select a from BranchServiceArea a join fetch a.branch b join fetch b.parentHub h "
+        + "where a.isActive = true and b.status = :active and h.status = :active "
+        + "and b.branchType = :localType and h.branchType = :hubType and h.id <> b.id "
+        + "order by a.province, a.district, a.ward, b.name, a.shipmentMethod")
+    List<BranchServiceArea> findVisibleCoverage(@Param("active") BranchStatus active,
+        @Param("localType") BranchType localType, @Param("hubType") BranchType hubType,
+        org.springframework.data.domain.Pageable limit);
+
     @Query("select distinct b from BranchServiceArea a join a.branch b join fetch b.parentHub h "
         + "where a.isActive = true and a.supportsDelivery = true and b.status = :active and h.status = :active "
         + "and b.branchType = :localType and h.branchType = :hubType and h.id <> b.id "

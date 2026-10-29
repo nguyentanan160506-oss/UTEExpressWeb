@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:fragment="page(code, title, explanation)">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title th:text="|${code} · UTEExpress|">UTEExpress</title>
+<link rel="stylesheet" th:href="@{/css/vendor/bootstrap.min.css}"><th:block th:replace="~{layout/fragments :: assets}"></th:block></head>
+<body class="public-page"><nav th:replace="~{layout/fragments :: publicNav}"></nav>
+<main id="main-content" tabindex="-1" class="container py-5" data-error-page th:attr="data-status=${code}">
+<section class="card mx-auto p-4 p-md-5" style="max-width:48rem" aria-labelledby="error-title">
+<p class="display-3 fw-bold text-primary mb-2" th:text="${code}">Lỗi</p><h1 id="error-title" class="h3" th:text="${title}"></h1>
+<p class="text-secondary mt-3" th:text="${explanation}"></p>
+<p th:if="${code == '403'}" class="small text-secondary">Nếu vừa đổi tài khoản ở tab khác hoặc để biểu mẫu mở lâu, hãy tải lại trang rồi thử lại. Mỗi Chrome Profile dùng chung một phiên giữa các tab; dùng Profile riêng để mở nhiều vai trò đồng thời.</p>
+<div class="d-flex flex-wrap gap-2 mt-3"><a th:href="@{/}" class="btn btn-primary">Về trang chủ</a><a th:href="@{/account}" class="btn btn-outline-primary">Tài khoản của tôi</a><a th:href="@{/login}" class="btn btn-outline-secondary">Đăng nhập</a><a th:href="@{/tracking}" class="btn btn-outline-secondary">Tra cứu vận đơn</a></div>
+<p class="small text-secondary mt-4 mb-0">Nếu lỗi vẫn tiếp diễn, hãy báo quản trị viên mã lỗi và thao tác vừa thực hiện. Không gửi mật khẩu hoặc mã xác thực.</p>
+</section></main><footer th:replace="~{layout/fragments :: footer}"></footer></body></html>

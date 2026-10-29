@@ -21,6 +21,18 @@ public class BranchNetworkService {
         this.areas = areas; this.branches = branches;
     }
 
+    public record CoverageOption(String branch, String province, String district, String ward,
+            ShipmentMethod method, boolean delivery) { }
+
+    /** Public facility geography only, bounded and fetched with its to-one links in one query. */
+    @PreAuthorize("permitAll()")
+    public List<CoverageOption> quoteCoverageOptions() {
+        return areas.findVisibleCoverage(BranchStatus.ACTIVE, BranchType.LOCAL_BRANCH,
+                BranchType.CENTRAL_HUB, org.springframework.data.domain.PageRequest.of(0, 200)).stream()
+            .map(a -> new CoverageOption(a.getBranch().getName(), a.getProvince(), a.getDistrict(),
+                a.getWard(), a.getShipmentMethod(), a.isSupportsDelivery())).toList();
+    }
+
     public List<ShipmentOptions.BranchOption> servingBranches(@NotBlank @Size(max = 100) String province, @NotBlank @Size(max = 100) String district, @NotBlank @Size(max = 100) String ward, @NotNull ShipmentMethod method) { return quoteServingBranches(province, district, ward, method); }
 
     @PreAuthorize("permitAll()")

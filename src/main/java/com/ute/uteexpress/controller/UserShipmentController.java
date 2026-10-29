@@ -72,11 +72,11 @@ public class UserShipmentController {
                 model.addAttribute("branchChoices", choices);
                 if (choices.origins().isEmpty()) {
                     errors.rejectValue("originBranchId", "shipment.coverage",
-                        "Không có chi nhánh gửi đang hoạt động phục vụ địa chỉ đã nhập với phương thức này. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã.");
+                        "Không có chi nhánh gửi đang hoạt động phục vụ địa chỉ đã nhập với phương thức này. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã. Xem vùng phục vụ đang cấu hình bên dưới; danh mục tỉnh tính giá không có nghĩa phục vụ toàn tỉnh.");
                 }
                 if (choices.destinations().isEmpty()) {
                     errors.rejectValue("destinationBranchId", "shipment.coverage",
-                        "Không có chi nhánh nhận đang hoạt động phục vụ địa chỉ đã nhập. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã.");
+                        "Không có chi nhánh nhận đang hoạt động phục vụ địa chỉ đã nhập. Vui lòng kiểm tra tỉnh, quận/huyện, phường/xã. Xem vùng phục vụ đang cấu hình bên dưới; không có coverage phù hợp thì chưa thể tạo đơn.");
                 }
             }
             catch (ShipmentCreationException failure) { errors.rejectValue(failure.getField(), "shipment.coverage", failure.getMessage()); }
@@ -130,6 +130,7 @@ public class UserShipmentController {
     }
 
     private String formPage(Model model) {
+        model.addAttribute("coverageOptions", quotes.coverageOptions());
         model.addAttribute("provinces", ProvinceCatalog.all());
         model.addAttribute("options", shipments.options());
         model.addAttribute("payers", PaymentPayer.values());

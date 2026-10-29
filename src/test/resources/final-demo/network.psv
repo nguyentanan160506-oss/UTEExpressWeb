@@ -1,0 +1,43 @@
+node|type|province_code|province|legacy_area|ward_code|ward|hub|name|simulated_address
+B-01|LOCAL_BRANCH|01|Hà Nội|Hoàn Kiếm (địa bàn cũ)|00082|Phường Cửa Nam|H-HN|Chi nhánh Hà Nội|Lô B-01 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-04|LOCAL_BRANCH|04|Cao Bằng|Thành phố Cao Bằng (địa bàn cũ)|01273|Phường Thục Phán|H-HN|Chi nhánh Cao Bằng|Lô B-04 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-08|LOCAL_BRANCH|08|Tuyên Quang|Thành phố Tuyên Quang (địa bàn cũ)|02215|Phường Minh Xuân|H-LC|Chi nhánh Tuyên Quang|Lô B-08 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-11|LOCAL_BRANCH|11|Điện Biên|Thành phố Điện Biên Phủ (địa bàn cũ)|03127|Phường Điện Biên Phủ|H-LC|Chi nhánh Điện Biên|Lô B-11 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-12|LOCAL_BRANCH|12|Lai Châu|Thành phố Lai Châu (địa bàn cũ)|03408|Phường Tân Phong|H-LC|Chi nhánh Lai Châu|Lô B-12 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-14|LOCAL_BRANCH|14|Sơn La|Thành phố Sơn La (địa bàn cũ)|03646|Phường Tô Hiệu|H-LC|Chi nhánh Sơn La|Lô B-14 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-15|LOCAL_BRANCH|15|Lào Cai|Thành phố Yên Bái (địa bàn cũ)|04252|Phường Yên Bái|H-LC|Chi nhánh Lào Cai|Lô B-15 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-19|LOCAL_BRANCH|19|Thái Nguyên|Thành phố Thái Nguyên (địa bàn cũ)|05443|Phường Phan Đình Phùng|H-HN|Chi nhánh Thái Nguyên|Lô B-19 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-20|LOCAL_BRANCH|20|Lạng Sơn|Thành phố Lạng Sơn (địa bàn cũ)|05983|Phường Lương Văn Tri|H-HN|Chi nhánh Lạng Sơn|Lô B-20 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-22|LOCAL_BRANCH|22|Quảng Ninh|Thành phố Hạ Long (địa bàn cũ)|06688|Phường Hạ Long|H-HN|Chi nhánh Quảng Ninh|Lô B-22 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-24|LOCAL_BRANCH|24|Bắc Ninh|Thành phố Bắc Giang (địa bàn cũ)|07210|Phường Bắc Giang|H-HN|Chi nhánh Bắc Ninh|Lô B-24 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-25|LOCAL_BRANCH|25|Phú Thọ|Thành phố Việt Trì (địa bàn cũ)|07900|Phường Việt Trì|H-HN|Chi nhánh Phú Thọ|Lô B-25 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-31|LOCAL_BRANCH|31|Hải Phòng|Hồng Bàng (địa bàn cũ)|11311|Phường Hồng Bàng|H-HN|Chi nhánh Hải Phòng|Lô B-31 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-33|LOCAL_BRANCH|33|Hưng Yên|Thành phố Hưng Yên (địa bàn cũ)|11953|Phường Phố Hiến|H-HN|Chi nhánh Hưng Yên|Lô B-33 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-37|LOCAL_BRANCH|37|Ninh Bình|Thành phố Ninh Bình (địa bàn cũ)|14329|Phường Hoa Lư|H-HN|Chi nhánh Ninh Bình|Lô B-37 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-38|LOCAL_BRANCH|38|Thanh Hóa|Thành phố Thanh Hóa (địa bàn cũ)|14797|Phường Hạc Thành|H-TH|Chi nhánh Thanh Hóa|Lô B-38 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-40|LOCAL_BRANCH|40|Nghệ An|Thành phố Vinh (địa bàn cũ)|16681|Phường Thành Vinh|H-TH|Chi nhánh Nghệ An|Lô B-40 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-42|LOCAL_BRANCH|42|Hà Tĩnh|Thành phố Hà Tĩnh (địa bàn cũ)|18073|Phường Thành Sen|H-TH|Chi nhánh Hà Tĩnh|Lô B-42 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-44|LOCAL_BRANCH|44|Quảng Trị|Thành phố Đồng Hới (địa bàn cũ)|18880|Phường Đồng Hới|H-TH|Chi nhánh Quảng Trị|Lô B-44 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-46|LOCAL_BRANCH|46|Huế|Thuận Hóa (địa bàn cũ)|19789|Phường Thuận Hóa|H-DN|Chi nhánh Huế|Lô B-46 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-48|LOCAL_BRANCH|48|Đà Nẵng|Hải Châu (địa bàn cũ)|20242|Phường Hải Châu|H-DN|Chi nhánh Đà Nẵng|Lô B-48 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-51|LOCAL_BRANCH|51|Quảng Ngãi|Thành phố Quảng Ngãi (địa bàn cũ)|21025|Phường Cẩm Thành|H-DN|Chi nhánh Quảng Ngãi|Lô B-51 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-52|LOCAL_BRANCH|52|Gia Lai|Thành phố Quy Nhơn (địa bàn cũ)|21583|Phường Quy Nhơn|H-DN|Chi nhánh Gia Lai|Lô B-52 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-56|LOCAL_BRANCH|56|Khánh Hòa|Thành phố Nha Trang (địa bàn cũ)|22366|Phường Nha Trang|H-KH|Chi nhánh Khánh Hòa|Lô B-56 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-66|LOCAL_BRANCH|66|Đắk Lắk|Thành phố Buôn Ma Thuột (địa bàn cũ)|24133|Phường Buôn Ma Thuột|H-KH|Chi nhánh Đắk Lắk|Lô B-66 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-68|LOCAL_BRANCH|68|Lâm Đồng|Thành phố Đà Lạt (địa bàn cũ)|24781|Phường Xuân Hương - Đà Lạt|H-KH|Chi nhánh Lâm Đồng|Lô B-68 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-75|LOCAL_BRANCH|75|Đồng Nai|Thành phố Biên Hòa (địa bàn cũ)|26041|Phường Trấn Biên|H-HCM|Chi nhánh Đồng Nai|Lô B-75 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-79|LOCAL_BRANCH|79|Hồ Chí Minh|Quận 1 (địa bàn cũ)|26740|Phường Sài Gòn|H-HCM|Chi nhánh Hồ Chí Minh|Lô B-79 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-80|LOCAL_BRANCH|80|Tây Ninh|Thành phố Tân An (địa bàn cũ)|27694|Phường Long An|H-HCM|Chi nhánh Tây Ninh|Lô B-80 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-82|LOCAL_BRANCH|82|Đồng Tháp|Thành phố Mỹ Tho (địa bàn cũ)|28261|Phường Mỹ Tho|H-CT|Chi nhánh Đồng Tháp|Lô B-82 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-86|LOCAL_BRANCH|86|Vĩnh Long|Thành phố Vĩnh Long (địa bàn cũ)|29551|Phường Long Châu|H-CT|Chi nhánh Vĩnh Long|Lô B-86 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-91|LOCAL_BRANCH|91|An Giang|Thành phố Rạch Giá (địa bàn cũ)|30742|Phường Rạch Giá|H-CT|Chi nhánh An Giang|Lô B-91 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-92|LOCAL_BRANCH|92|Cần Thơ|Ninh Kiều (địa bàn cũ)|31135|Phường Ninh Kiều|H-CT|Chi nhánh Cần Thơ|Lô B-92 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-96|LOCAL_BRANCH|96|Cà Mau|Thành phố Cà Mau (địa bàn cũ)|32002|Phường An Xuyên|H-CT|Chi nhánh Cà Mau|Lô B-96 - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+B-79B|LOCAL_BRANCH|79|Hồ Chí Minh|Thành phố Thủ Đức (địa bàn cũ)|26824|Phường Thủ Đức|H-HCM|Chi nhánh Hồ Chí Minh - Thủ Đức|Lô B-79B - điểm giao nhận mô phỏng, không phải cơ sở kinh doanh thực
+H-HN|CENTRAL_HUB|01|Hà Nội|Hoàn Kiếm (địa bàn cũ)|00082|Phường Cửa Nam||Hub vùng Hà Nội|Lô H-HN - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-LC|CENTRAL_HUB|15|Lào Cai|Thành phố Yên Bái (địa bàn cũ)|04252|Phường Yên Bái||Hub vùng Lào Cai|Lô H-LC - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-TH|CENTRAL_HUB|38|Thanh Hóa|Thành phố Thanh Hóa (địa bàn cũ)|14797|Phường Hạc Thành||Hub vùng Thanh Hóa|Lô H-TH - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-DN|CENTRAL_HUB|48|Đà Nẵng|Hải Châu (địa bàn cũ)|20242|Phường Hải Châu||Hub vùng Đà Nẵng|Lô H-DN - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-KH|CENTRAL_HUB|56|Khánh Hòa|Thành phố Nha Trang (địa bàn cũ)|22366|Phường Nha Trang||Hub vùng Khánh Hòa|Lô H-KH - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-HCM|CENTRAL_HUB|79|Hồ Chí Minh|Quận 1 (địa bàn cũ)|26740|Phường Sài Gòn||Hub vùng Hồ Chí Minh|Lô H-HCM - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực
+H-CT|CENTRAL_HUB|92|Cần Thơ|Ninh Kiều (địa bàn cũ)|31135|Phường Ninh Kiều||Hub vùng Cần Thơ|Lô H-CT - kho trung chuyển mô phỏng, không phải cơ sở kinh doanh thực

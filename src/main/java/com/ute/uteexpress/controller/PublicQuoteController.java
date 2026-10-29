@@ -3,9 +3,11 @@ package com.ute.uteexpress.controller;
 import com.ute.uteexpress.dto.pricing.GuestQuoteForm;
 import com.ute.uteexpress.service.*;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +20,13 @@ public class PublicQuoteController {
     private final QuoteService quotes;
     private final AdminPricingService admin;
     public PublicQuoteController(QuoteService quotes, AdminPricingService admin) { this.quotes = quotes; this.admin = admin; }
+    @ModelAttribute
+    void prepareFormCsrf(HttpServletRequest request) {
+        // A large coverage table can flush HTML before th:action asks for a deferred CSRF token.
+        // Create its session before rendering, preserving the normal token/validation mechanism.
+        Object token = request.getAttribute(CsrfToken.class.getName());
+        if (token instanceof CsrfToken csrf) { csrf.getToken(); }
+    }
     @InitBinder("estimateForm") void fields(WebDataBinder b) {
         b.setAllowedFields("nationwide", "shipmentMethod", "serviceId", "originBranchId", "destinationBranchId", "senderProvince", "senderDistrict", "senderWard", "receiverProvince", "receiverDistrict", "receiverWard", "weightKg", "lengthCm", "widthCm", "heightCm", "id", "_csrf");
     }
@@ -59,6 +68,7 @@ public class PublicQuoteController {
     }
     private void allowed(BindingResult e) { if (e.getSuppressedFields().length > 0) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trường không được phép."); } }
     private String page(Model m, boolean preview) {
+        m.addAttribute("coverageOptions", quotes.coverageOptions());
         m.addAttribute("provinces", ProvinceCatalog.all());
         if (!m.containsAttribute("validationMessages")) { m.addAttribute("validationMessages", java.util.List.of()); }
         m.addAttribute("adminPreview", preview); if (!m.containsAttribute("services")) { m.addAttribute("services", quotes.estimateServices()); }
