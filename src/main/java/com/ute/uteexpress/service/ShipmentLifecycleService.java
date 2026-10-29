@@ -105,33 +105,42 @@ public class ShipmentLifecycleService {
 
     @Transactional
     @PreAuthorize("hasRole('MANAGER')")
-    public Long receiveDropoff(@NotNull @Valid BranchIntakeCommand command) {
+    public OriginIntakeResult receiveDropoff(@NotNull @Valid BranchIntakeCommand command) {
         Shipment shipment = locked(command.shipmentId());
         User actor = access.requireManagerForBranch(shipment.getOriginBranch().getId());
+        Employee receiver = access.requireIntakeEmployee(shipment.getOriginBranch().getId());
+        if (!Boolean.TRUE.equals(command.physicallyReceived()) || (command.notes() != null && command.notes().length() > 500)) {
+            throw new LogisticsRuleException("Cần xác nhận đã kiểm tra và thực nhận đúng kiện tại chi nhánh.");
+        }
+        var existing = intakes.findByShipmentId(shipment.getId());
+        if (existing.isPresent()) {
+            ShipmentIntake receipt = existing.get();
+            if (shipment.getShipmentMethod() == ShipmentMethod.BRANCH_DROPOFF && receipt.getPickupAssignment() == null
+                    && isExactIntakeRetry(shipment, receipt, actor, receiver, command.expectedVersion(), command.notes())) {
+                return new OriginIntakeResult(shipment.getVersion(), receipt.getReceiptReference(), true);
+            }
+            throw new LogisticsRuleException("Kiện đã được tiếp nhận hoặc dữ liệu/trạng thái không khớp yêu cầu ban đầu. Vui lòng xem biên nhận đã lưu.");
+        }
         requireVersion(shipment, command.expectedVersion());
         if (shipment.getOriginBranch().getBranchType() != BranchType.LOCAL_BRANCH
                 || !ShipmentTransitionPolicy.allowsDropoffIntake(shipment.getStatus(), shipment.getShipmentMethod())) {
             throw new LogisticsRuleException("Chỉ tiếp nhận trực tiếp BRANCH_DROPOFF đã xác nhận. HOME_PICKUP cần bằng chứng lấy hàng và bàn giao riêng.");
-        }
-        Employee receiver = access.requireIntakeEmployee(shipment.getOriginBranch().getId());
-        String reference = clean(command.receiptReference());
-        if (!Boolean.TRUE.equals(command.physicallyReceived()) || reference == null || reference.length() > 100
-                || (command.notes() != null && command.notes().length() > 500)) {
-            throw new LogisticsRuleException("Cần xác nhận đã thực nhận kiện và nhập mã biên nhận hợp lệ.");
         }
         if (intakes.existsByShipmentId(shipment.getId())) { throw new LogisticsRuleException("Vận đơn đã có biên nhận nguồn."); }
         if (assignments.existsByShipmentIdAndStatusIn(shipment.getId(), LogisticsAccessService.ACTIVE_ASSIGNMENTS)) {
             throw new LogisticsRuleException("Vận đơn còn phân công hoạt động không phù hợp để tiếp nhận trực tiếp.");
         }
         LocalDateTime now = now();
+        String reference = OriginReceiptCodes.create(now);
         ShipmentIntake receipt = new ShipmentIntake(); receipt.setShipment(shipment); receipt.setBranch(shipment.getOriginBranch());
         receipt.setReceivedBy(actor); receipt.setEmployee(receiver); receipt.setShipmentMethod(ShipmentMethod.BRANCH_DROPOFF);
         receipt.setReceiptReference(reference); receipt.setNotes(clean(command.notes())); receipt.setReceivedAt(now);
+        receipt.setSystemReceiptCode(reference); receipt.setRequestVersion(command.expectedVersion());
         intakes.saveAndFlush(receipt);
         shipment.setCurrentBranch(shipment.getOriginBranch());
         record(shipment, actor, shipment.getStatus(), ShipmentStatus.AT_ORIGIN_BRANCH,
             "Chi nhánh nguồn đã tiếp nhận kiện", "Biên nhận: " + reference, now);
-        return shipment.getVersion();
+        return new OriginIntakeResult(shipment.getVersion(), reference, false);
     }
 
     @Transactional @PreAuthorize("hasRole('SHIPPER')")
@@ -190,15 +199,35 @@ public class ShipmentLifecycleService {
     }
 
     @Transactional @PreAuthorize("hasRole('MANAGER')")
-    public Long reviewOriginHandoff(@NotNull @Valid HandoffReviewCommand command) {
+    public OriginIntakeResult reviewOriginHandoff(@NotNull @Valid HandoffReviewCommand command) {
         // Scalar lookup avoids caching a stale handoff/assignment before acquiring the parent lock.
         Long shipmentId = handoffs.findShipmentId(command.handoffId()).orElseThrow(this::missingHandoff);
         Shipment s = locked(shipmentId);
         User actor = access.requireManagerForBranch(s.getOriginBranch().getId());
         Employee receiver = access.requireIntakeEmployee(s.getOriginBranch().getId());
-        requireVersion(s, command.expectedVersion());
         OriginHandoff h = handoffs.findById(command.handoffId()).orElseThrow(this::missingHandoff);
         ShipmentAssignment a = h.getAssignment(); PickupEvidence proof = successfulProof(s, a);
+        if (actor.getId().equals(h.getRequestedBy().getId()) || receiver.getId().equals(h.getEmployee().getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Forbidden");
+        }
+        var existing = intakes.findByShipmentId(s.getId());
+        if (existing.isPresent()) {
+            ShipmentIntake receipt = existing.get();
+            if (command.accept() && command.physicallyReceived() && h.getStatus() == HandoffStatus.ACCEPTED
+                    && s.getShipmentMethod() == ShipmentMethod.HOME_PICKUP
+                    && h.getShipment().getId().equals(s.getId()) && h.getBranch().getId().equals(s.getOriginBranch().getId())
+                    && h.getEvidence().getId().equals(proof.getId()) && h.getEmployee().getId().equals(a.getEmployee().getId())
+                    && proof.getActor().getId().equals(h.getRequestedBy().getId())
+                    && h.getReviewedBy() != null && actor.getId().equals(h.getReviewedBy().getId())
+                    && h.getReceiver() != null && receiver.getId().equals(h.getReceiver().getId())
+                    && receipt.getPickupAssignment() != null && a.getId().equals(receipt.getPickupAssignment().getId())
+                    && a.getStatus() == AssignmentStatus.COMPLETED && a.getCompletedAt() != null
+                    && isExactIntakeRetry(s, receipt, actor, receiver, command.expectedVersion(), command.reason())) {
+                return new OriginIntakeResult(s.getVersion(), receipt.getReceiptReference(), true);
+            }
+            throw new LogisticsRuleException("Bàn giao đã được xử lý hoặc dữ liệu/trạng thái không khớp yêu cầu ban đầu. Vui lòng xem biên nhận đã lưu.");
+        }
+        requireVersion(s, command.expectedVersion());
         if (h.getStatus() != HandoffStatus.PENDING || !s.getId().equals(h.getShipment().getId())
                 || !s.getOriginBranch().getId().equals(h.getBranch().getId())
                 || !proof.getId().equals(h.getEvidence().getId())
@@ -209,27 +238,26 @@ public class ShipmentLifecycleService {
                 || intakes.existsByShipmentId(s.getId())) {
             throw new LogisticsRuleException("Bàn giao không còn hợp lệ hoặc vận đơn đã được tiếp nhận.");
         }
-        if (actor.getId().equals(h.getRequestedBy().getId()) || receiver.getId().equals(h.getEmployee().getId())) {
-            throw new org.springframework.security.access.AccessDeniedException("Forbidden");
-        }
         var active = assignments.findByShipmentIdAndAssignmentTypeAndStatusIn(s.getId(), AssignmentType.PICKUP,
             LogisticsAccessService.ACTIVE_ASSIGNMENTS);
         if (active.size() != 1 || !active.getFirst().getId().equals(a.getId())) {
             throw new LogisticsRuleException("Phân công bàn giao đã thay đổi.");
         }
-        String reference = clean(command.receiptReference()), reason = clean(command.reason());
-        if ((reference != null && reference.length() > 100) || (reason != null && reason.length() > 500)
-                || (command.accept() && (!command.physicallyReceived() || reference == null))
+        String reason = clean(command.reason());
+        if ((reason != null && reason.length() > 500)
+                || (command.accept() && !command.physicallyReceived())
                 || (!command.accept() && (reason == null || command.physicallyReceived()))) {
-            throw new LogisticsRuleException("Nhận kiện cần xác nhận thực nhận và mã biên nhận; từ chối cần lý do.");
+            throw new LogisticsRuleException("Nhận kiện cần xác nhận thực nhận; từ chối cần lý do.");
         }
         LocalDateTime time = now(); h.setReviewedBy(actor); h.setReceiver(receiver); h.setReviewedAt(time); h.setReason(reason);
+        String reference = command.accept() ? OriginReceiptCodes.create(time) : null;
         h.setStatus(command.accept() ? HandoffStatus.ACCEPTED : HandoffStatus.REJECTED);
         handoffs.saveAndFlush(h);
         if (command.accept()) {
             ShipmentIntake receipt = new ShipmentIntake(); receipt.setShipment(s); receipt.setBranch(s.getOriginBranch());
             receipt.setReceivedBy(actor); receipt.setEmployee(receiver); receipt.setPickupAssignment(a);
             receipt.setShipmentMethod(ShipmentMethod.HOME_PICKUP); receipt.setReceiptReference(reference);
+            receipt.setSystemReceiptCode(reference); receipt.setRequestVersion(command.expectedVersion());
             receipt.setNotes(reason); receipt.setReceivedAt(time); intakes.saveAndFlush(receipt);
             a.setStatus(AssignmentStatus.COMPLETED); a.setCompletedAt(time); assignments.saveAndFlush(a);
             s.setCurrentBranch(s.getOriginBranch());
@@ -237,7 +265,25 @@ public class ShipmentLifecycleService {
         record(s, actor, s.getStatus(), command.accept() ? ShipmentStatus.AT_ORIGIN_BRANCH : s.getStatus(),
             command.accept() ? "Chi nhánh nhận bàn giao HOME_PICKUP" : "Chi nhánh từ chối bàn giao",
             "Bàn giao #" + h.getId() + (command.accept() ? "; biên nhận: " + reference : "; " + reason), time, a, null);
-        return s.getVersion();
+        return new OriginIntakeResult(s.getVersion(), reference, false);
+    }
+
+    private boolean isExactIntakeRetry(Shipment shipment, ShipmentIntake receipt, User actor, Employee receiver,
+            Long expectedVersion, String notes) {
+        // A replay is an acknowledgement of precisely this committed transition, never a new receipt or a state bypass.
+        return receipt.getSystemReceiptCode() != null && receipt.getRequestVersion() != null
+            && receipt.getSystemReceiptCode().equals(receipt.getReceiptReference())
+            && receipt.getRequestVersion().equals(expectedVersion)
+            && Objects.equals(shipment.getVersion(), receipt.getRequestVersion() + 1)
+            && shipment.getStatus() == ShipmentStatus.AT_ORIGIN_BRANCH
+            && shipment.getOriginBranch().getBranchType() == BranchType.LOCAL_BRANCH
+            && shipment.getCurrentBranch() != null && shipment.getOriginBranch().getId().equals(shipment.getCurrentBranch().getId())
+            && receipt.getShipment().getId().equals(shipment.getId())
+            && receipt.getBranch().getId().equals(shipment.getOriginBranch().getId())
+            && receipt.getShipmentMethod() == shipment.getShipmentMethod()
+            && receipt.getReceivedBy().getId().equals(actor.getId()) && receipt.getEmployee().getId().equals(receiver.getId())
+            && Objects.equals(receipt.getNotes(), clean(notes))
+            && !assignments.existsByShipmentIdAndStatusIn(shipment.getId(), LogisticsAccessService.ACTIVE_ASSIGNMENTS);
     }
 
     private Shipment lockOwnedPickup(Long assignmentId) {

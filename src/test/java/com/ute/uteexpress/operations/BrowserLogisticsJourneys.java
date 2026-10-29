@@ -44,9 +44,9 @@ final class BrowserLogisticsJourneys {
         act(task+"/handoffs",Map.of("notes","C22-HANDOFF-"+p.id()));
         browser.login("manager");browser.nav("/manager/handoffs");
         String handoff=linkByTracking("/manager/handoffs/",p);browser.nav(handoff);
-        act(handoff+"/accept",Map.of("receiptReference","C22-ORIGIN-"+p.id(),"physicallyReceived",true));
+        act(handoff+"/accept",Map.of("physicallyReceived",true));
         browser.nav("/manager/shipments/"+p.id());
-        check("E2E independent source receipt "+p.id(),browser.text().contains("C22-ORIGIN-"+p.id())
+        check("E2E independent source receipt "+p.id(),browser.text().contains("RCV-")
             &&browser.text().contains("Chi nhánh nguồn đã nhận hàng"),"Source custody only after physical acceptance");
     }
     void leg(List<Parcel> parcels,String from,String to,String destination,String label,boolean returning)throws Exception {

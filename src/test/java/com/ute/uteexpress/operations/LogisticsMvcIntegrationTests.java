@@ -80,7 +80,7 @@ class LogisticsMvcIntegrationTests extends LogisticsJourneySupport {
         mvc.perform(post("/shipper/pickups/"+task+"/collect").with(user(pickupCourier.getEmail()).roles("SHIPPER")).with(csrf()).param("expectedVersion",shipmentVersion(id).toString()).param("result","SUCCESS").param("physicallyCollected","true").param("reference","MVC-PROOF"))
             .andExpect(redirectedUrl("/shipper/pickups/"+task)).andExpect(flash().attributeExists("notice"));
         assertCustody(id,null,ShipmentStatus.PICKED_UP);assertEquals(0,count(ShipmentIntake.class));Long handoff=pendingOriginHandoff(id);
-        mvc.perform(post("/manager/handoffs/"+handoff+"/accept").with(user(f.manager.getEmail()).roles("MANAGER")).with(csrf()).param("expectedVersion",shipmentVersion(id).toString()).param("physicallyReceived","true").param("receiptReference","MVC-INTAKE"))
+        mvc.perform(post("/manager/handoffs/"+handoff+"/accept").with(user(f.manager.getEmail()).roles("MANAGER")).with(csrf()).param("expectedVersion",shipmentVersion(id).toString()).param("physicallyReceived","true"))
             .andExpect(redirectedUrl("/manager/handoffs/"+handoff)).andExpect(flash().attributeExists("notice"));
         assertCustody(id,f.source,ShipmentStatus.AT_ORIGIN_BRANCH);
         db(()->{assertEquals(pickupCourier.getId(),em.createQuery("select p.actor.id from PickupEvidence p",Long.class).getSingleResult());assertEquals(f.manager.getId(),em.createQuery("select i.receivedBy.id from ShipmentIntake i",Long.class).getSingleResult());return null;});

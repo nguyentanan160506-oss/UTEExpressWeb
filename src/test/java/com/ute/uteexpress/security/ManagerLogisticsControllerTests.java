@@ -55,6 +55,7 @@ class ManagerLogisticsControllerTests {
         for (String path : List.of("/manager", "/manager/shipments", "/manager/shipments/31")) {
             mvc.perform(get(path).accept(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden()).andExpect(jsonPath("$.status").value(403));
         }
+        when(lifecycle.receiveDropoff(any())).thenReturn(new OriginIntakeResult(1L,"RCV-SERVER",false));
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "0").param("physicallyReceived", "true"))
             .andExpect(status().isForbidden()); verifyNoInteractions(manager, lifecycle);
     }
@@ -100,7 +101,7 @@ class ManagerLogisticsControllerTests {
         when(manager.detail(31L, 0, 0, 0)).thenReturn(detail(ShipmentStatus.CONFIRMED, ShipmentMethod.BRANCH_DROPOFF, true));
         mvc.perform(get("/manager/shipments/31")).andExpect(status().isOk()).andExpect(result -> {
             String html = result.getResponse().getContentAsString(); assertTrue(html.contains("name=\"physicallyReceived\""));
-            assertTrue(html.contains("name=\"receiptReference\"")); assertFalse(html.contains("name=\"employeeId\""));
+            assertFalse(html.contains("name=\"receiptReference\"")); assertFalse(html.contains("name=\"employeeId\""));
         });
     }
     @Test @WithMockUser(roles = "MANAGER")
@@ -115,10 +116,11 @@ class ManagerLogisticsControllerTests {
                 .param("employeeId", "21").param("replacesAssignmentId", "41").param("reason", "Reassign"))
             .andExpect(flash().attributeExists("notice"));
         verify(lifecycle).assignPickup(new PickupAssignmentCommand(31L, 0L, 21L, 41L, "Reassign"));
+        when(lifecycle.receiveDropoff(any())).thenReturn(new OriginIntakeResult(1L,"RCV-SERVER",false));
         mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "0")
-                .param("receiptReference", "REF").param("physicallyReceived", "true"))
+                .param("physicallyReceived", "true"))
             .andExpect(flash().attributeExists("notice"));
-        verify(lifecycle).receiveDropoff(new BranchIntakeCommand(31L, 0L, "REF", true, null));
+        verify(lifecycle).receiveDropoff(new BranchIntakeCommand(31L, 0L, true, null));
     }
     @Test @WithMockUser(roles = "MANAGER")
     void allWritesNeedCsrfAndRejectForgedAuthorityFields() throws Exception {
@@ -126,7 +128,7 @@ class ManagerLogisticsControllerTests {
             mvc.perform(post("/manager/shipments/31/" + action).param("expectedVersion", "0")).andExpect(status().isForbidden());
             mvc.perform(post("/manager/shipments/31/" + action).with(csrf().useInvalidToken())).andExpect(status().isForbidden());
             mvc.perform(get("/manager/shipments/31/" + action)).andExpect(status().isMethodNotAllowed());
-            for (String field : List.of("actorId", "branchId", "shipmentId", "role", "status", "assignmentId")) {
+            for (String field : List.of("actorId", "branchId", "shipmentId", "role", "status", "assignmentId", "receiptReference")) {
                 mvc.perform(post("/manager/shipments/31/" + action).with(csrf()).param("expectedVersion", "0").param(field, "999"))
                     .andExpect(status().isBadRequest());
             }
@@ -138,7 +140,7 @@ class ManagerLogisticsControllerTests {
         mvc.perform(post("/manager/shipments/31/confirm").with(csrf())).andExpect(flash().attributeExists("error"));
         mvc.perform(post("/manager/shipments/31/pickup-assignments").with(csrf()).param("expectedVersion", "0").param("employeeId", "-1"))
             .andExpect(flash().attributeExists("error"));
-        mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "0").param("receiptReference", "REF"))
+        mvc.perform(post("/manager/shipments/31/intake").with(csrf()).param("expectedVersion", "0"))
             .andExpect(flash().attributeExists("error")); verifyNoInteractions(lifecycle);
     }
     @Test @WithMockUser(roles = "MANAGER")

@@ -106,6 +106,7 @@ class ShipperPickupFlowTests {
             .map(h -> h.getShipment().getId()).findFirst());
         when(handoffs.findById(anyLong())).thenAnswer(c -> requests.stream().filter(h -> h.getId().equals(c.getArgument(0))).findFirst());
         when(intakes.existsByShipmentId(31L)).thenAnswer(c -> intake != null);
+        when(intakes.findByShipmentId(31L)).thenAnswer(c -> Optional.ofNullable(intake));
         when(intakes.saveAndFlush(any())).thenAnswer(c -> { intake = c.getArgument(0); return intake; });
         when(events.saveAndFlush(any())).thenAnswer(c -> { ShipmentEvent e = c.getArgument(0); timeline.add(e); return e; });
     }
@@ -123,7 +124,7 @@ class ShipperPickupFlowTests {
     }
     MockHttpServletRequestBuilder accept() {
         return asManager(post("/manager/handoffs/61/accept")).with(csrf())
-            .param("expectedVersion", shipment.getVersion().toString()).param("receiptReference", "ACTUAL_RECEIPT")
+            .param("expectedVersion", shipment.getVersion().toString())
             .param("physicallyReceived", "true");
     }
     @Test void ownDashboardTasksAndDetailRenderWithCsrfAndOnlyNecessaryPickupContact() throws Exception {
@@ -239,7 +240,7 @@ class ShipperPickupFlowTests {
         when(members.existsByManagerIdAndBranchId(121L, 11L)).thenReturn(true);
         shipper.setPosition(EmployeePosition.DISPATCHER);
         mvc.perform(post("/manager/handoffs/61/accept").with(user(actor.getEmail()).roles("SHIPPER", "MANAGER")).with(csrf())
-            .param("expectedVersion", shipment.getVersion().toString()).param("receiptReference", "SELF")
+            .param("expectedVersion", shipment.getVersion().toString())
             .param("physicallyReceived", "true")).andExpect(status().isForbidden()); assertNull(intake);
     }
     @Test void managerWithoutQualifiedEmployeeCannotReceive() throws Exception {
@@ -249,16 +250,16 @@ class ShipperPickupFlowTests {
     @Test void noValidHandoffAndNoDirectHomeIntake() throws Exception {
         pickedUp(); mvc.perform(accept()).andExpect(status().isNotFound());
         mvc.perform(asManager(post("/manager/shipments/31/intake")).with(csrf()).param("expectedVersion", "1")
-            .param("receiptReference", "REF").param("physicallyReceived", "true")).andExpect(flash().attributeExists("error")); assertNull(intake);
+            .param("physicallyReceived", "true")).andExpect(flash().attributeExists("error")); assertNull(intake);
     }
     @Test void acceptanceNeedsPhysicalReceiptThenClosesTaskAndMovesWithEventExactlyOnce() throws Exception {
         requested(); mvc.perform(asManager(post("/manager/handoffs/61/accept")).with(csrf()).param("expectedVersion", "2")
-            .param("receiptReference", "REF")).andExpect(flash().attributeExists("error")); assertNull(intake);
+            ).andExpect(flash().attributeExists("error")); assertNull(intake);
         mvc.perform(accept()).andExpect(flash().attributeExists("notice"));
         assertEquals(ShipmentStatus.AT_ORIGIN_BRANCH, shipment.getStatus()); assertEquals(11L, shipment.getCurrentBranch().getId());
         assertEquals(ShipmentMethod.HOME_PICKUP, intake.getShipmentMethod()); assertSame(task, intake.getPickupAssignment());
         assertEquals(1L, intake.getReceivedBy().getId()); assertEquals(22L, intake.getEmployee().getId());
-        assertEquals("ACTUAL_RECEIPT", intake.getReceiptReference()); assertEquals(AssignmentStatus.COMPLETED, task.getStatus());
+        assertTrue(intake.getReceiptReference().matches("RCV-[0-9]{8}-[A-F0-9]{32}")); assertEquals(AssignmentStatus.COMPLETED, task.getStatus());
         assertNotNull(task.getCompletedAt()); assertEquals(HandoffStatus.ACCEPTED, requests.getFirst().getStatus()); assertEquals(3, timeline.size());
         assertEquals(ShipmentStatus.AT_ORIGIN_BRANCH, timeline.getLast().getToStatus());
         mvc.perform(accept()).andExpect(flash().attributeExists("error")); verify(intakes, times(1)).saveAndFlush(any());
@@ -328,6 +329,7 @@ class ShipperPickupFlowTests {
     }
     @Test void managerCannotInjectActorOrRetargetHandoffViaBody() throws Exception {
         requested(); mvc.perform(accept().param("actorId", "999")).andExpect(status().isBadRequest()); assertNull(intake);
+        mvc.perform(accept().param("receiptReference", "CLIENT-CODE")).andExpect(status().isBadRequest()); assertNull(intake);
         mvc.perform(accept().param("handoffId", "999")).andExpect(flash().attributeExists("notice"));
         assertEquals(HandoffStatus.ACCEPTED, requests.getFirst().getStatus());
     }

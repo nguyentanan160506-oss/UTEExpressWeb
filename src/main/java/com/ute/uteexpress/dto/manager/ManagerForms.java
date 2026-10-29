@@ -21,11 +21,8 @@ public final class ManagerForms {
         public void setReplacesAssignmentId(Long value) { replacesAssignmentId = value; }
     }
     public static class Intake extends Request {
-        @NotBlank @Size(max = 100) private String receiptReference;
         @Size(max = 500) private String notes;
         @NotNull @AssertTrue private Boolean physicallyReceived = false;
-        public String getReceiptReference() { return receiptReference; }
-        public void setReceiptReference(String value) { receiptReference = value; }
         public String getNotes() { return notes; }
         public void setNotes(String value) { notes = value; }
         public Boolean getPhysicallyReceived() { return physicallyReceived; }

@@ -139,7 +139,7 @@ public final class LocalDemoSeed {
     private Long confirmed(ShipmentMethod method) {Long id=created(method);operator(f.source);lifecycle.transition(new ShipmentTransitionCommand(id,version(id),ShipmentStatus.CONFIRMED));return id;}
     private Long pickupAssigned() {Long id=confirmed(ShipmentMethod.HOME_PICKUP);operator(f.source);lifecycle.assignPickup(new PickupAssignmentCommand(id,version(id),pickupEmployee,null,null));return id;}
     private Long collected() {Long id=pickupAssigned();as(pickup,"SHIPPER");lifecycle.collectPickup(new PickupCollectionCommand(assignment(id,AssignmentType.PICKUP),version(id),PickupResult.SUCCESS,true,"DEMO-PICKUP",null));return id;}
-    private Long intake(ShipmentMethod method) {Long id=confirmed(method);operator(f.source);lifecycle.receiveDropoff(new BranchIntakeCommand(id,version(id),"DEMO-COUNTER",true,null));return id;}
+    private Long intake(ShipmentMethod method) {Long id=confirmed(method);operator(f.source);lifecycle.receiveDropoff(new BranchIntakeCommand(id,version(id),true,null));return id;}
     private record Leg(Long trip,Branch from,Branch to) { }
     private Leg manifest(Long id,Branch from,Branch to) {operator(from);Long trip=transport.create(new Create(routes.get(from.getId()+":"+to.getId()),token()));transport.addItems(new Manifest(trip,tripVersion(trip),List.of(id)));return new Leg(trip,from,to);}
     private Long item(Long trip,Long id) {return db(()->em.createQuery("select i.id from TransportTripItem i where i.trip.id=:trip and i.shipment.id=:id",Long.class).setParameter("trip",trip).setParameter("id",id).getSingleResult());}

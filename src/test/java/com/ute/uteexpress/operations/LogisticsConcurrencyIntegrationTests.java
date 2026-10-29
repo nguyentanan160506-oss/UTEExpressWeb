@@ -56,8 +56,8 @@ class LogisticsConcurrencyIntegrationTests extends LogisticsJourneySupport {
             }
             case "INTAKE_INTAKE" -> {
                 id=confirmed(ShipmentMethod.BRANCH_DROPOFF);Long v=shipmentVersion(id);
-                a=manager(f.manager,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,v,"FIRST",true,null)));
-                b=manager(f.secondManager,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,v,"SECOND",true,null)));
+                a=manager(f.manager,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,v,true,null)));
+                b=manager(f.secondManager,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,v,true,null)));
             }
             default -> {
                 id=pickupAssigned();Long v=shipmentVersion(id),task=assignment(id,AssignmentType.PICKUP);

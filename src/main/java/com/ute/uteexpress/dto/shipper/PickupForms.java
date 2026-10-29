@@ -27,14 +27,11 @@ public final class PickupForms {
     public static class Review {
         @NotNull @PositiveOrZero private Long expectedVersion;
         private boolean physicallyReceived;
-        @Size(max = 100) private String receiptReference;
         @Size(max = 500) private String reason;
         public Long getExpectedVersion() { return expectedVersion; }
         public void setExpectedVersion(Long value) { expectedVersion = value; }
         public boolean isPhysicallyReceived() { return physicallyReceived; }
         public void setPhysicallyReceived(boolean value) { physicallyReceived = value; }
-        public String getReceiptReference() { return receiptReference; }
-        public void setReceiptReference(String value) { receiptReference = value; }
         public String getReason() { return reason; }
         public void setReason(String value) { reason = value; }
     }

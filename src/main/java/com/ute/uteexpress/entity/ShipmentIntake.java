@@ -11,10 +11,12 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "shipment_intakes", schema = "dbo",
     uniqueConstraints = @UniqueConstraint(name = "UQ_shipment_intakes_shipment", columnNames = "shipment_id"),
+    // A JPA unique index cannot express SQL Server's WHERE ... IS NOT NULL; V14 owns that constraint.
     indexes = @Index(name = "IX_intakes_branch_received", columnList = "branch_id, received_at DESC"),
     check = {
         @CheckConstraint(name = "CK_intakes_method", constraint = "shipment_method IN ('HOME_PICKUP', 'BRANCH_DROPOFF')"),
-        @CheckConstraint(name = "CK_intakes_pickup", constraint = "(shipment_method = 'BRANCH_DROPOFF' AND pickup_assignment_id IS NULL) OR (shipment_method = 'HOME_PICKUP' AND pickup_assignment_id IS NOT NULL)")
+        @CheckConstraint(name = "CK_intakes_pickup", constraint = "(shipment_method = 'BRANCH_DROPOFF' AND pickup_assignment_id IS NULL) OR (shipment_method = 'HOME_PICKUP' AND pickup_assignment_id IS NOT NULL)"),
+        @CheckConstraint(name = "CK_intakes_system_receipt", constraint = "(system_receipt_code IS NULL AND request_version IS NULL) OR (system_receipt_code IS NOT NULL AND request_version IS NOT NULL AND request_version >= 0 AND LEN(system_receipt_code) = 45 AND system_receipt_code = receipt_reference)")
     })
 public class ShipmentIntake {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false)
@@ -39,6 +41,11 @@ public class ShipmentIntake {
     private ShipmentMethod shipmentMethod;
     @Nationalized @Column(name = "receipt_reference", nullable = false, length = 100)
     private String receiptReference;
+    // Existing handwritten references remain untouched/null here. SQL Server V14 uses a filtered unique index.
+    @JdbcTypeCode(SqlTypes.VARCHAR) @Column(name = "system_receipt_code", nullable = true, length = 45)
+    private String systemReceiptCode;
+    @Column(name = "request_version", nullable = true)
+    private Long requestVersion;
     @Nationalized @Column(name = "notes", nullable = true, length = 500)
     private String notes;
     @JdbcTypeCode(SqlTypes.TIMESTAMP) @ColumnDefault("SYSUTCDATETIME()")
@@ -62,6 +69,10 @@ public class ShipmentIntake {
     public void setShipmentMethod(ShipmentMethod value) { shipmentMethod = value; }
     public String getReceiptReference() { return receiptReference; }
     public void setReceiptReference(String value) { receiptReference = value; }
+    public String getSystemReceiptCode() { return systemReceiptCode; }
+    public void setSystemReceiptCode(String value) { systemReceiptCode = value; }
+    public Long getRequestVersion() { return requestVersion; }
+    public void setRequestVersion(Long value) { requestVersion = value; }
     public String getNotes() { return notes; }
     public void setNotes(String value) { notes = value; }
     public LocalDateTime getReceivedAt() { return receivedAt; }

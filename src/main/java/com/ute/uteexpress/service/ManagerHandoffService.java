@@ -18,8 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 public class ManagerHandoffService {
     private final LogisticsAccessService access;
     private final OriginHandoffRepository handoffs;
-    public ManagerHandoffService(LogisticsAccessService access, OriginHandoffRepository handoffs) {
-        this.access = access; this.handoffs = handoffs;
+    private final com.ute.uteexpress.repository.ShipmentIntakeRepository intakes;
+    public ManagerHandoffService(LogisticsAccessService access, OriginHandoffRepository handoffs,
+            com.ute.uteexpress.repository.ShipmentIntakeRepository intakes) {
+        this.access = access; this.handoffs = handoffs; this.intakes = intakes;
     }
     public Page<Handoff> pending(@Min(0) @Max(1000000) int page) {
         User actor = access.requireManager();
@@ -38,6 +40,7 @@ public class ManagerHandoffService {
             catch (AccessDeniedException denied) { canReview = false; }
         }
         return new Review(ShipperPickupService.handoff(h), ShipperPickupService.proof(h.getEvidence()),
-            h.getShipment().getId(), h.getShipment().getVersion(), canReview);
+            h.getShipment().getId(), h.getShipment().getVersion(), canReview,
+            intakes.findByShipmentId(h.getShipment().getId()).map(ShipmentIntake::getReceiptReference).orElse(null));
     }
 }

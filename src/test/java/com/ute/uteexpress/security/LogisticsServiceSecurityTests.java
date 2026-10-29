@@ -83,7 +83,7 @@ class LogisticsServiceSecurityTests {
         assertThrows(AccessDeniedException.class, () -> access.requireAssignedShipper(31L, AssignmentType.PICKUP));
         assertThrows(AccessDeniedException.class, manager::branches);
         assertThrows(AccessDeniedException.class, () -> lifecycle.assignPickup(new com.ute.uteexpress.dto.shipment.PickupAssignmentCommand(31L, 0L, 21L, null, null)));
-        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, "REF", true, null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, true, null)));
         verifyNoInteractions(users, shipments, employees, events);
     }
     @Test @WithMockUser(roles = "SHIPPER")
@@ -91,12 +91,12 @@ class LogisticsServiceSecurityTests {
         assertNoDeliveryManagerAuthority();
         assertNoTransportAuthority();
         assertThrows(AccessDeniedException.class, () -> lifecycle.reviewOriginHandoff(
-            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, "REF", null)));
+            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, null)));
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireManagerForBranch(11L));
         assertThrows(AccessDeniedException.class, () -> manager.detail(31L, 0, 0, 0));
         assertThrows(AccessDeniedException.class, () -> lifecycle.assignPickup(new com.ute.uteexpress.dto.shipment.PickupAssignmentCommand(31L, 0L, 21L, null, null)));
-        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, "REF", true, null)));
+        assertThrows(AccessDeniedException.class, () -> lifecycle.receiveDropoff(new com.ute.uteexpress.dto.shipment.BranchIntakeCommand(31L, 0L, true, null)));
         verifyNoInteractions(users, shipments, managers, events);
     }
     @Test @WithMockUser(roles = "MANAGER")
@@ -116,7 +116,7 @@ class LogisticsServiceSecurityTests {
         assertThrows(AccessDeniedException.class, () -> lifecycle.collectPickup(
             new com.ute.uteexpress.dto.shipment.PickupCollectionCommand(41L, 0L, PickupResult.SUCCESS, true, "REF", null)));
         assertThrows(AccessDeniedException.class, () -> lifecycle.reviewOriginHandoff(
-            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, "REF", null)));
+            new com.ute.uteexpress.dto.shipment.HandoffReviewCommand(61L, 0L, true, true, null)));
         assertThrows(AccessDeniedException.class, () -> lifecycle.transition(command()));
         assertThrows(AccessDeniedException.class, () -> access.requireAssignedShipper(31L, AssignmentType.DELIVERY));
         verifyNoInteractions(users, shipments, employees, events);

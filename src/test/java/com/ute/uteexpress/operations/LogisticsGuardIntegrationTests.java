@@ -80,8 +80,8 @@ class LogisticsGuardIntegrationTests extends LogisticsJourneySupport {
         Long id=pickupAssigned(),task=assignment(id,AssignmentType.PICKUP);as(pickupCourier,"ROLE_SHIPPER");
         lifecycle.collectPickup(new PickupCollectionCommand(task,shipmentVersion(id),PickupResult.FAILED,false,null,"Sender unavailable"));assertCustody(id,null,ShipmentStatus.PICKUP_ASSIGNED);
         collect(id);Long handoff=pendingOriginHandoff(id);operator(f.source);
-        lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,shipmentVersion(id),false,false,null,"Check packaging"));assertEquals(0,count(ShipmentIntake.class));assertCustody(id,null,ShipmentStatus.PICKED_UP);
-        Long retry=pendingOriginHandoff(id);assertNotEquals(handoff,retry);operator(f.source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(retry,shipmentVersion(id),true,true,"ACCEPTED",null));
+        lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,shipmentVersion(id),false,false,"Check packaging"));assertEquals(0,count(ShipmentIntake.class));assertCustody(id,null,ShipmentStatus.PICKED_UP);
+        Long retry=pendingOriginHandoff(id);assertNotEquals(handoff,retry);operator(f.source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(retry,shipmentVersion(id),true,true,null));
         assertEquals(2,count(OriginHandoff.class));assertEquals(2,count(PickupEvidence.class));assertEquals(1,count(ShipmentIntake.class));
         as(pickupCourier,"ROLE_SHIPPER");assertThrows(AccessDeniedException.class,()->lifecycle.collectPickup(new PickupCollectionCommand(task,shipmentVersion(id),PickupResult.SUCCESS,true,"DUPLICATE",null)));
     }
@@ -89,7 +89,7 @@ class LogisticsGuardIntegrationTests extends LogisticsJourneySupport {
         Long id=confirmed(ShipmentMethod.BRANCH_DROPOFF);
         assertThrows(LogisticsRuleException.class,()->lifecycle.assignPickup(new PickupAssignmentCommand(id,shipmentVersion(id),pickupEmployee.getId(),null,null)));
         db(()->{em.find(Employee.class,f.managerEmployee.getId()).setStatus(EmployeeStatus.INACTIVE);return null;});
-        assertThrows(AccessDeniedException.class,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,shipmentVersion(id),"INTAKE",true,null)));assertEquals(0,count(ShipmentIntake.class));
+        assertThrows(AccessDeniedException.class,()->lifecycle.receiveDropoff(new BranchIntakeCommand(id,shipmentVersion(id),true,null)));assertEquals(0,count(ShipmentIntake.class));
     }
     @Test void managerReadsCanProbeOtherEndAndNonPhysicalCapabilitiesWithoutRollbackOnly() {
         Long id=intake(ShipmentMethod.BRANCH_DROPOFF);var leg=manifest(List.of(id),f.source,f.hub);

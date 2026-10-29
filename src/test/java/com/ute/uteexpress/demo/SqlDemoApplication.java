@@ -49,12 +49,12 @@ public final class SqlDemoApplication {
         }
         if("inspect".equals(mode))return;
         var flyway=Flyway.configure().dataSource(source).locations("classpath:db/migration").defaultSchema("dbo")
-            .target("13").cleanDisabled(true).baselineOnMigrate(false).outOfOrder(false).validateOnMigrate(true).load();
-        if("migrate".equals(mode)){flyway.migrate();flyway.validate();System.out.println("PASS migration V1-V13");return;}
+            .target("14").cleanDisabled(true).baselineOnMigrate(false).outOfOrder(false).validateOnMigrate(true).load();
+        if("migrate".equals(mode)){flyway.migrate();flyway.validate();System.out.println("PASS migration V1-V14");return;}
         flyway.validate();
         var applied=flyway.info().applied();
-        if(applied.length!=13||java.util.Arrays.stream(applied).anyMatch(m->m.getState()!=org.flywaydb.core.api.MigrationState.SUCCESS)
-                ||!"13".equals(flyway.info().current().getVersion().getVersion()))
+        if(applied.length!=14||java.util.Arrays.stream(applied).anyMatch(m->m.getState()!=org.flywaydb.core.api.MigrationState.SUCCESS)
+                ||!"14".equals(flyway.info().current().getVersion().getVersion()))
             throw new IllegalStateException("Complete V1-V13 history required; never auto-migrate at startup");
         System.setProperty("spring.devtools.restart.enabled","false");
         var app=new SpringApplicationBuilder(UteexpressApplication.class,Configuration.class)

@@ -62,8 +62,8 @@ abstract class LogisticsJourneySupport extends CustomerJourneySupport {
     Long pendingOriginHandoff(Long id) {as(pickupCourier,"ROLE_SHIPPER");lifecycle.requestOriginHandoff(new OriginHandoffCommand(assignment(id,AssignmentType.PICKUP),shipmentVersion(id),null));return db(()->em.createQuery("select h.id from OriginHandoff h where h.shipment.id=:id and h.status=:status",Long.class).setParameter("id",id).setParameter("status",HandoffStatus.PENDING).getSingleResult());}
     Long intake(ShipmentMethod method) {
         Long id;
-        if(method==ShipmentMethod.HOME_PICKUP) {id=collected();Long handoff=pendingOriginHandoff(id);operator(f.source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,shipmentVersion(id),true,true,"HOME-RECEIPT",null));}
-        else {id=confirmed(method);lifecycle.receiveDropoff(new BranchIntakeCommand(id,shipmentVersion(id),"COUNTER-RECEIPT",true,null));}
+        if(method==ShipmentMethod.HOME_PICKUP) {id=collected();Long handoff=pendingOriginHandoff(id);operator(f.source);lifecycle.reviewOriginHandoff(new HandoffReviewCommand(handoff,shipmentVersion(id),true,true,null));}
+        else {id=confirmed(method);lifecycle.receiveDropoff(new BranchIntakeCommand(id,shipmentVersion(id),true,null));}
         assertCustody(id,f.source,ShipmentStatus.AT_ORIGIN_BRANCH);return id;
     }
     Leg manifest(List<Long> ids,Branch from,Branch to) {
